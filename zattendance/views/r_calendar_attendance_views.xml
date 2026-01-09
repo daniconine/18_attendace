@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Añadir columna Tipo de asistencia al tree de Working Time -->
+        <record id="view_resource_calendar_attendance_tree_inherit_zatt" model="ir.ui.view">
+            <field name="name">resource.calendar.attendance.tree.inherit.zatt</field>
+            <field name="model">resource.calendar.attendance</field>
+            <field name="inherit_id" ref="resource.view_resource_calendar_attendance_tree"/>
+            <field name="arch" type="xml">
+                <!-- Después de hour_to -->
+                <field name="hour_to" position="after">
+                    <field name="attendance_type"/>
+                    <field name="planned_presential" widget="float_time"/>
+                    <field name="planned_virtual" widget="float_time"/>
+                    
+                </field>
+
+                 <!-- Ejemplo: también podrías ocultar day_period -->
+                <xpath expr="//field[@name='work_entry_type_id']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>
+                <xpath expr="//field[@name='day_period']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>
+                <xpath expr="//field[@name='duration_days']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>
+                <xpath expr="//field[@name='name']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>
+
+                <!-- Hacer visible siempre date_from -->
+                <field name="date_from" position="attributes">
+                    <attribute name="optional"></attribute>
+                    <attribute name="invisible">0</attribute>
+                </field>
+                <!-- Hacer visible siempre date_to -->
+                <field name="date_to" position="attributes">
+                    <attribute name="optional"></attribute>
+                    <attribute name="invisible">0</attribute>
+                </field>
+
+            </field>
+        </record>
+
+        <record id="resource_calendar_form_inherit_employee" model="ir.ui.view">
+            <field name="name">resource.calendar.form.inherit.employee</field>
+            <field name="model">resource.calendar</field>
+            <field name="inherit_id" ref="resource.resource_calendar_form"/>
+            <field name="arch" type="xml">
+
+                <!-- Insertar employee_id después del campo company_id -->
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="employee_id"/>
+                </xpath>
+
+                <!-- Dentro de la pestaña "Working Hours", debajo de attendance_ids -->
+                <xpath expr="//page[@name='working_hours']/field[@name='attendance_ids']" position="after">
+                    <div class="mt16">
+                        <button
+                            name="action_generate_zattendance"
+                            type="object"
+                            string="Generar asistencia diaria"
+                            class="btn btn-primary oe_highlight"
+                        />
+                    </div>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>

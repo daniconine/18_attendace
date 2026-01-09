@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_zattendance_day_employee,zattendance.day employee,model_zattendance_day,zattendance.group_employee,1,0,0,0
+access_zattendance_day_boss,zattendance.day boss,model_zattendance_day,zattendance.group_boss,1,1,0,0
+access_zattendance_day_hr,zattendance.day hr,model_zattendance_day,zattendance.group_hr_manager,1,1,1,1

@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Odoo / build
+*.log
+*.pot
+*.po~
+*.swp
+*.swo
+*.tmp
+*.bak
+.DS_Store
+
+# Entornos / herramientas
+.venv/
+venv/
+.idea/
+.vscode/
+
+# Odoo runtime
+.odoo/

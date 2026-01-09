@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <data noupdate="0">
+
+    <!-- Vista de Lista (List View) para los Períodos de Dictado de Clases -->
+    <record id="view_timesheet_period_dictado_list" model="ir.ui.view">
+      <field name="name">timesheet.period.dictado.list</field>
+      <field name="model">timesheet.period.dictado</field>
+      <field name="arch" type="xml">
+        <list string="Timesheet Periods Dictado de Clases">
+          <field name="name"/>
+          <field name="date_start"/>
+          <field name="date_end"/>
+          <field name="company_id"/>
+          <field name="state"/>
+        </list>
+      </field>
+    </record>
+
+    <!-- Vista de Formulario (Form View) para los Períodos de Dictado de Clases -->
+    <record id="view_timesheet_period_dictado_form" model="ir.ui.view">
+      <field name="name">timesheet.period.dictado.form</field>
+      <field name="model">timesheet.period.dictado</field>
+      <field name="arch" type="xml">
+        <form string="Timesheet Period Dictado de Clases">
+          <header>
+            <field name="state" widget="statusbar" statusbar_visible="open,closed"/>
+          </header>
+          <sheet>
+            <group>
+              <field name="name" placeholder="Ej. Corte Ago-2025"/>
+            </group>
+            <group>
+              <separator string="Datos del Período" colspan="4"/>
+              <field name="date_start" required="1"/>
+              <field name="date_end" required="1"/>
+              <field name="company_id" options="{'no_create': True}"/>
+            </group>
+            <notebook>
+              <page string="Timesheets">
+                <separator string="Hoja Tiempo Mensual" colspan="4"/>
+                <field name="timesheet_line_ids">
+                  <list editable="bottom">
+                    <field name="date"/>
+                    <field name="employee_id"/>
+                    <field name="linea_negocio"/>
+                    <field name="project_id" string="Centro de Costo"/>                                    
+                    <field name="task_id"/>
+                    <field name="name"/>
+                    <field name="x_account_kind" optional="show"/>
+                    <field name="unit_amount" optional="show"/>
+                    
+                  </list>
+                </field>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- Vista de Kanban para los Períodos de Dictado de Clases -->
+    <record id="view_timesheet_period_dictado_kanban" model="ir.ui.view">
+      <field name="name">timesheet.period.dictado.kanban</field>
+      <field name="model">timesheet.period.dictado</field>
+      <field name="arch" type="xml">
+        <kanban default_group_by="state" class="o_kanban_small_column" create="1" quick_create="1">
+          <templates>
+            <t t-name="kanban-box">
+              <div class="oe_kanban_global_click o_kanban_record">
+                <!-- Cabecera: nombre y estado -->
+                <div class="o_kanban_header">
+                  <strong t-esc="record.name.value"/>
+                  <span t-att-class="'badge ' + (record.state.raw_value === 'closed' ? 'text-bg-secondary' : 'text-bg-success')">
+                    <t t-esc="record.state.value"/>
+                  </span>
+                </div>
+
+                <!-- Cuerpo: fechas y compañía -->
+                <div class="o_kanban_body">
+                  <div>
+                    <i class="fa fa-calendar"/> <t t-esc="record.date_start.value"/> → <t t-esc="record.date_end.value"/>
+                  </div>
+                  <div t-if="record.company_id.value">
+                    <i class="fa fa-building"/> <t t-esc="record.company_id.value"/>
+                  </div>
+                </div>
+
+                <!-- Footer: acciones rápidas -->
+                <div class="o_kanban_footer d-flex gap-2">
+                  <a type="edit" class="btn btn-link p-0"><i class="fa fa-pencil"/></a>
+                  <a type="open" class="btn btn-link p-0"><i class="fa fa-external-link"/></a>
+                </div>
+              </div>
+            </t>
+          </templates>
+
+          <!-- Agrupar por estado -->
+          <column>
+            <field name="state"/>
+          </column>
+
+          <field name="name"/>
+          <field name="date_start"/>
+          <field name="date_end"/>
+          <field name="company_id"/>
+          <field name="state"/>
+        </kanban>
+      </field>
+    </record>
+
+    <!-- Acción para el Período de Dictado de Clases -->
+    <record id="action_timesheet_period_dictado" model="ir.actions.act_window">
+      <field name="name">Períodos de Dictado de Clases</field>
+      <field name="res_model">timesheet.period.dictado</field>
+      <field name="view_mode">kanban,list,form</field>
+    </record>
+
+    <!-- Menú para los Períodos de Dictado de Clases -->
+    <menuitem id="menu_timesheet_period_dictado"
+              name="P Dictado Clases"
+              parent="hr_timesheet.timesheet_menu_root"
+              action="action_timesheet_period_dictado"
+              sequence="40"/>
+  </data>
+</odoo>

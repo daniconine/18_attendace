@@ -1,0 +1,32 @@
+<odoo>
+    <!-- Definición de categoría de seguridad (opcional) -->
+    <record id="zattendance.module_category_zattendance" model="ir.module.category">
+        <field name="name">ZAttendance</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- Grupo para Jefe -->
+    <record id="zattendance.group_boss" model="res.groups">
+        <field name="name">Jefe</field>
+        <field name="category_id" ref="zattendance.module_category_zattendance"/>
+        <field name="implied_ids" eval="[(6, 0, [ref('base.group_user')])]"/>
+        <field name="comment">El jefe puede gestionar la asistencia de su equipo, modificar registros y ver los informes de asistencia.</field>
+    </record>
+
+    <!-- Grupo para Encargado de RRHH -->
+    <record id="zattendance.group_hr_manager" model="res.groups">
+        <field name="name">Encargado de RRHH</field>
+        <field name="category_id" ref="zattendance.module_category_zattendance"/>
+        <field name="implied_ids" eval="[(4, ref('zattendance.group_boss'))]"/>
+        <field name="comment">El encargado de RRHH tiene acceso completo a todos los registros de asistencia y puede gestionar permisos, horarios, etc.</field>
+    </record>
+    
+    <!-- Grupo para el Empleado -->
+    <record id="zattendance.group_employee" model="res.groups">
+        <field name="name">Empleado</field>
+        <field name="category_id" ref="zattendance.module_category_zattendance"/>
+        <field name="implied_ids" eval="[(6, 0, [ref('base.group_user')])]"/>
+        <field name="comment">El empleado solo tiene acceso de lectura a sus registros de asistencia.</field>
+    </record>
+    
+</odoo>

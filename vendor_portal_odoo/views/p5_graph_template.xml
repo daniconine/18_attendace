@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="portal_text_template" name="Portal Text"
+              inherit_id="portal.portal_my_home" priority="25">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <div>
+                <h2>Texto Dinámico con JavaScript</h2>
+                <!-- Aquí mostramos el texto que pasamos desde el backend -->
+                <p id="dynamic-text"><t t-esc="text"/></p>
+            </div>
+            <!-- Aquí incluimos el archivo JS para cambiar el texto dinámicamente -->
+            <script type="text/javascript" src="/my_module/static/src/js/show_text.js"></script>
+        </xpath>
+    </template>
+</odoo>

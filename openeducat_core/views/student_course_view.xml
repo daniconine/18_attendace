@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_op_student_course_tree" model="ir.ui.view">
+            <field name="name">op.student.course.tree</field>
+            <field name="model">op.student.course</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <tree string="Registro de Programa">
+                    <field name="student_id"/>
+                    <field name="course_id"/>
+                    <field name="mode"/>
+                    <field name="type_roll"/>                    
+                    <field name="roll_number"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_op_student_course_form" model="ir.ui.view">
+            <field name="name">op.student.course.form</field>
+            <field name="model">op.student.course</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <form string="Registro de Programa">
+                    <header>
+                        <field name="state" widget="statusbar" statusbar_visible="activo,retirado,egresado" />
+                        <button name="action_set_retirado" string="Retirar"
+                            type="object" class="oe_highlight"
+                            states="activo" />
+                        <button name="action_set_aprobado" string="Graduar"
+                                type="object" class="oe_highlight"
+                                states="activo" 
+                                confirm="¿Está seguro de que desea cambiar el estado del alumno a Egresado?&#10;  Esta acción es irreversible, revise todos los requisitos y condiciones."/>
+                        <button name="action_set_activo" string="Activar"
+                                type="object" class="oe_highlight"
+                                states="retirado" />                   
+                    </header>
+                    <sheet>
+                        <div>
+                            <h2>
+                                <span>Alumno: </span><field name="student_id" readonly="1" />
+                            </h2>
+                        </div>
+                        <div>
+                            <h3>
+                                <span>Código de Matrícula: </span><field name="roll_number" readonly="1" />
+                            </h3>
+                        </div>
+                        <hr/>
+                        <br/>
+                        <group>
+                            <group>
+                                <field name="course_id" attrs="{'readonly': [('id', '!=', False)]}"/>
+                                <field name="student_id" attrs="{'readonly': [('id', '!=', False)]}"/>
+                                <field name="mode" attrs="{'readonly': [('state', '=', 'egresado')]}"/>
+                                <field name="type_roll" attrs="{'readonly': [('state', '=', 'egresado')]}"/>
+                                <!--field name="program_id"/-->
+                            </group>
+                            <group>
+                                <field name="tiene_beca" attrs="{'readonly': [('state', '=', 'egresado')]}"/>
+                                <field name="tipo_beca" attrs="{'required': [('tiene_beca', '=', True)],
+                                                                'readonly': [('state', '=', 'egresado')]}"/>
+                                <field name="otra_beca" attrs="{'invisible': [('tipo_beca', '!=', 'otros')], 
+                                                                'required': [('tipo_beca', '=', 'otros')],
+                                                                'readonly': [('state', '=', 'egresado')]}"/>
+                                <field name="porcentaje_cubierto" attrs="{'required': [('tiene_beca', '=', True)],
+                                                                         'readonly': [('state', '=', 'egresado')]}"/>
+                                <!-- <field name="roll_number"/> -->
+                                <!--field name="academic_term_id"/-->
+                            </group>
+                        </group>
+                        <br/>
+                        <hr/>
+                        <group>
+                            <group>
+                                <field name="first_roll_date"/>
+                                <field name="last_roll_date"/>
+                                <field name="credits_roll"/>
+                            </group>
+                            <group>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="Asignaturas Matriculadas" name="subject_registration_ids">
+                                <field name="subject_registration_ids" readonly="1" nolabel="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_op_student_course_search" model="ir.ui.view">
+            <field name="name">op.student.course.search</field>
+            <field name="model">op.student.course</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <search string="Programa - Estudiante">
+                    <field name="student_id"/>
+                    <field name="course_id"/>
+                    <field name="roll_number"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter string="Course" name="group_by_adm_course_id"
+                                domain="[]" context="{'group_by':'course_id'}"/>
+                        <!--filter string="Program" name="group_by_adm_program_id"
+                                domain="[]" context="{'group_by':'program_id'}"/-->
+                        <!--filter string="Academic Term" name="group_by_adm_academic_term_id"
+                                domain="[]" context="{'group_by':'academic_term_id'}"/-->
+                    </group>
+                </search>
+            </field>
+        </record>
+
+
+        <record id="view_op_student_course_pivot" model="ir.ui.view">
+            <field name="name">op.student.course.pivot</field>
+            <field name="model">op.student.course</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <pivot string="Programa - Estudiante">
+                    <field name="student_id"/>
+                    <field name="course_id" type="row"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_open_op_student_course_view">
+            <field name="name">Registro de Programa</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">op.student.course</field>
+            <field name="binding_view_types">form</field>
+            <field name="view_mode">tree,form,pivot</field>
+            <field name="search_view_id" ref="view_op_student_course_search"/>
+
+        </record>
+    </data>
+</odoo>

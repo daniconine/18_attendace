@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Template para mostrar el texto estático en el portal -->
+    <template id="portal_text_template" name="Portal Text"
+              inherit_id="portal.portal_my_home" priority="25">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <div>
+                <h2>Texto Estático con JavaScript</h2>
+                <!-- Mostrar el texto pasado desde el backend -->
+                <p id="dynamic-text"><t t-esc="text"/></p>  <!-- El id dinámico de la etiqueta -->
+            </div>
+            <!-- Incluir el código JavaScript directamente en el template -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    // Seleccionar el elemento con el id "dynamic-text"
+                    var dynamicText = document.getElementById('dynamic-text');
+                    
+                    // Verificar que el elemento existe
+                    if (dynamicText) {
+                        // Agregar un mensaje dinámico debajo del texto estático
+                        var additionalMessage = document.createElement('p');
+                        additionalMessage.innerHTML = '¡Este es un mensaje adicional agregado con JavaScript!';
+                        
+                        // Agregar el mensaje debajo del texto estático
+                        dynamicText.parentNode.appendChild(additionalMessage);
+                    }
+                });
+            </script>
+        </xpath>
+    </template>
+</odoo>

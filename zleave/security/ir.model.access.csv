@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_zleave_permission_employee,zleave.permission employee,model_zleave_permission,zleave.group_employee,1,1,1,0
+access_zleave_permission_boss,zleave.permission boss,model_zleave_permission,zleave.group_boss,1,1,0,0
+access_zleave_permission_hr,zleave.permission hr,model_zleave_permission,zleave.group_hr_manager,1,1,1,1

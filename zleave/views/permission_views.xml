@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <!-- ========================================================= -->
+    <!-- LIST -->
+    <!-- ========================================================= -->
+    <record id="view_zleave_permission_list" model="ir.ui.view">
+      <field name="name">zleave.permission.list</field>
+      <field name="model">zleave.permission</field>
+      <field name="arch" type="xml">
+        <list string="Permisos / Ausencias" sample="1"
+            decoration-warning="state == 'submitted'"
+            decoration-success="state == 'approved'"
+            decoration-danger="state == 'refused'">
+
+          <!-- Empleado con avatar -->
+          <field name="name"/>
+          <field name="employee_id" widget="many2one_avatar_employee"/>
+
+          <!-- Tipo (Sin goce / Con goce) -->
+          <field name="type_permission"/>
+          <!-- Fechas -->
+          <field name="date_from"/>
+          <field name="date_to"/>
+
+          <!-- Duración -->
+          <field name="duration_days" string="Días"/>
+
+          <!-- Estado tipo badge -->
+          <field name="state" widget="badge"
+                decoration-warning="state == 'submitted'"
+                decoration-success="state == 'approved'"
+                decoration-danger="state == 'refused'"/>
+        </list>
+      </field>
+    </record>
+
+    <!-- ========================================================= -->
+    <!-- FORM (Odoo 17/18) -->
+    <!-- ========================================================= -->
+    <record id="view_zleave_permission_form" model="ir.ui.view">
+      <field name="name">zleave.permission.form</field>
+      <field name="model">zleave.permission</field>
+      <field name="arch" type="xml">
+        <form string="Permiso ZLeave">
+          <header>
+            <field name="state" widget="statusbar"
+                   statusbar_visible="draft,submitted,approved,refused,cancelled"/>
+
+            <button name="action_send_for_approval"
+                    type="object"
+                    string="Enviar"
+                    class="btn-primary"
+                    invisible="state != 'draft'"/>
+
+            <button name="action_approve"
+                    type="object"
+                    string="Aprobar"
+                    class="btn-primary"
+                    invisible="state != 'submitted'"/>
+
+            <button name="action_refuse"
+                    type="object"
+                    string="Rechazar"
+                    invisible="state != 'submitted'"/>
+
+            <button name="action_cancel"
+                    type="object"
+                    string="Anular"
+                    invisible="state in ('approved','refused','cancelled')"/>
+          </header>
+
+          <sheet>
+            <div class="oe_title">
+              <h1>
+                <field name="name" readonly="1"/>
+              </h1>
+              <h3>
+                <field name="display_name" readonly="1"/>
+              </h3>
+            </div>
+            <separator colspan="4"/>
+            <div class="oe_clear"/>
+            <hr/>
+            <group>
+              <group>
+                <field name="company_id" readonly="1"/>
+                <field name="employee_id" options="{'no_create': True}" invisible="state != 'draft'"/>
+                <field name="employee_id" options="{'no_create': True}" readonly="1" invisible="state == 'draft'"/>
+              </group>
+              <group>
+                <field name="approver_id" readonly="1"/>
+                <field name="requested_by_id" readonly="1"/>
+              </group>
+            </group>
+            <group string="Fecha o Rango de Fechas">
+              
+                <field name="date_from" widget="daterange" options="{'end_date_field': 'date_to'}"/>
+                <field name="date_to" invisible="1"/>
+                <field name="duration_days" readonly="1"/>
+            </group>
+            <separator colspan="4"/>
+            <group string="Sustento de Solicitud">
+             
+              <field name="type_permission"/>
+              <field name="suspension_perfecta" invisible="type_permission != 'sin_goce'"/>
+              <field name="suspension_imperfecta" invisible="type_permission != 'con_goce'"/>
+              <field name="description"/>
+              <field name="attachment_ids" widget="many2many_binary"/>
+              
+            </group>
+
+            
+
+          </sheet>
+          <!-- Chatter -->
+          <!-- CHATTER -->
+          <chatter>
+            <field name="message_follower_ids"/>
+            <field name="message_ids"/>
+            <field name="activity_ids"/>
+          </chatter>    
+
+      </form>
+      </field>
+    </record>
+
+    <!-- ========================================================= -->
+    <!-- ACTION -->
+    <!-- ========================================================= -->
+    <record id="action_zleave_permission" model="ir.actions.act_window">
+      <field name="name">Solicitud de Ausencia/Permiso</field>
+      <field name="res_model">zleave.permission</field>
+      <field name="view_mode">list,form</field>
+      <field name="view_id" ref="view_zleave_permission_list"/>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Crea una solicitud de permiso y envíala para aprobación.
+        </p>
+      </field>
+    </record>
+
+  </data>
+</odoo>

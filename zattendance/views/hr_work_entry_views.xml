@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <!-- VISTA LIST propia (Odoo 18 usa <list>) -->
+    <record id="view_hr_work_entry_list_zattendance" model="ir.ui.view">
+      <field name="name">hr.work.entry.list.zattendance</field>
+      <field name="model">hr.work.entry</field>
+      <field name="arch" type="xml">
+        <list string="Work Entries (ZAttendance)" create="false" edit="false" delete="false">
+          <field name="employee_id"/>
+          <field name="work_entry_type_id"/>
+          <field name="date_start"/>
+          <field name="date_stop"/>
+          <field name="duration"/>
+          <field name="state"/>
+        </list>
+      </field>
+    </record>
+
+    <!-- ACCIÓN: abre tu list primero -->
+    <record id="action_hr_work_entry_zattendance" model="ir.actions.act_window">
+      <field name="name">Work Entries</field>
+      <field name="res_model">hr.work.entry</field>
+      <field name="view_mode">list,form</field>
+      <field name="view_id" ref="view_hr_work_entry_list_zattendance"/>
+    </record>
+
+    <!-- MENÚ raíz -->
+    <menuitem id="menu_zattendance_root"
+              name="ZAttendance"
+              sequence="60"
+              web_icon="zattendance,static/description/icon.png"/>
+
+    <!-- MENÚ Work Entries -->
+    <menuitem id="menu_zattendance_work_entries"
+              name="Work Entries"
+              parent="menu_zattendance_root"
+              action="action_hr_work_entry_zattendance"
+              sequence="20"
+              groups="hr.group_hr_user"/>
+
+  </data>
+</odoo>

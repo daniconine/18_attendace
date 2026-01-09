@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Categorías -->
+        <record model="ir.module.category" id="module_category_openeducat">
+            <field name="name">OpenEduCat</field>
+            <field name="description">Helps you manage your institutes different users.</field>
+            <field name="sequence">15</field>
+        </record>
+
+        <!-- Grupos -->
+        <record id="group_op_faculty" model="res.groups">
+            <field name="name">Faculty</field>
+            <field name="category_id" ref="module_category_openeducat"/>
+            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_op_back_office_admin" model="res.groups">
+            <field name="name">Back Office Admin</field>
+            <field name="category_id" ref="module_category_openeducat"/>
+            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_system'))]"/>
+        </record>
+
+        <!-- Reglas de acceso -->
+        <record model="ir.rule" id="view_students_rule">
+            <field name="name">View Students</field>
+            <field name="model_id" ref="model_op_student"/>
+            <field name="groups" eval="[(4, ref('openeducat_core.group_op_faculty'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="view_faculty_rule">
+            <field name="name">View Faculties</field>
+            <field name="model_id" ref="model_op_faculty"/>
+            <field name="groups" eval="[(4, ref('openeducat_core.group_op_back_office_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <!-- Actualización de reglas para Program-->
+        
+
+        <!-- Actualización de reglas para cademic term -->
+        
+
+    </data>
+</odoo>

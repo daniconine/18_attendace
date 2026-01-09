@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <!-- Acción -->
+    <record id="action_zattendance_day" model="ir.actions.act_window">
+      <field name="name">Asistencia diaria</field>
+      <field name="res_model">zattendance.day</field>
+      <field name="view_mode">list,form</field>
+      <field name="view_id" ref="view_zattendance_day_list"/>
+      <field name="context">{'group_by': ['date:month', 'employee_id']}</field>
+    </record>
+
+    <!-- Menú raíz = App (sin parent) -->
+    <menuitem id="menu_zattendance_root"
+              name="ZAttendance"
+              sequence="60"
+              web_icon="zattendance,static/description/icon.png"/>
+
+    <!-- Submenú -->
+    <menuitem id="menu_zattendance_day"
+              name="Asistencia diaria"
+              parent="menu_zattendance_root"
+              action="action_zattendance_day"
+              sequence="10"/>
+
+  </data>
+</odoo>

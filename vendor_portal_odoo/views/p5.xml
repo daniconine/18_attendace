@@ -1,0 +1,13 @@
+<odoo>
+    <template id="portal_graph_template" name="Portal Graph"
+              inherit_id="portal.portal_my_home" priority="25">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <div>
+                <h2>Gráfico Sencillo con JavaScript</h2>
+                <canvas t-att-width="width" t-att-height="height" id="simple_graph"></canvas>
+            </div>
+            <!-- Incluir el archivo JS -->
+            <script type="text/javascript" src="/my_module/static/src/js/simple_graph.js"></script>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,32 @@
+*****************
+Explicación del Código:
+(app_main.py)
+1. Importaciones:
+http y request: 
+Son componentes del framework de Odoo para manejar controladores y peticiones HTTP.
+werkzeug.utils: 
+Esta librería se usa para redirigir las solicitudes HTTP, en este caso, para enviar al usuario a una URL después de iniciar sesión.
+home: 
+El controlador de la clase Home que pertenece al módulo portal.controllers.web se extiende para modificar el comportamiento predeterminado de la página de inicio de sesión de Odoo.
+
+2. Clase OpeneducatHome:
+Esta clase hereda de Home, que es el controlador base en Odoo encargado de manejar el inicio de sesión en la web. La clase se utiliza para sobrescribir el comportamiento del método de inicio de sesión.
+
+3.Método web_login:
+@http.route(): 
+El decorador indica que este método está vinculado a una URL en la aplicación web. El método web_login sobrescribe la funcionalidad predeterminada del inicio de sesión en Odoo.
+Después de que el usuario inicia sesión correctamente, se evalúa si pertenece al grupo de usuarios estándar (base.group_user), si es un padre (is_parent) o si es un usuario normal, y redirige a diferentes páginas en función de estos roles:
+Si el usuario pertenece al grupo base.group_user, es redirigido a la interfaz web de Odoo.
+Si es un padre (según la lógica definida en el campo is_parent del usuario), es redirigido a una página especial para la gestión de sus hijos (/my/child).
+Si no cumple ninguna de las condiciones anteriores, se redirige a la página principal (/my).
+
+4. Método _login_redirect:
+Este método es un helper que también sobrescribe el comportamiento de redirección después del inicio de sesión. Si se proporciona un parámetro redirect, llama al comportamiento estándar usando super(). Si no, realiza una redirección específica para padres (a /my/child) o para otros usuarios a /my.
+Personalización Específica:
+Este archivo personaliza la forma en que los usuarios se redirigen después de iniciar sesión. En el contexto de OpenEduCat, parece estar diseñado para manejar roles específicos, como el de padres, lo que permitiría a un padre visualizar la información de sus hijos en el sistema
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!
+Comentario: Permite redireccionar en el portal web, 
+condicionando como si es estudiante o padre, se puede aprovechar para crear el portal del estudiante y vea sus notas
+*********************************************

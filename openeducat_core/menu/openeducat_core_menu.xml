@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_openeducat_configuration" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module' : 'openeducat_core'}</field>
+    </record>
+    <!-- Openeducat Menu -->
+    <menuitem id="menu_op_school_root"
+              name="OpenEduCat"
+              sequence="10"
+              web_icon="openeducat_core,static/description/icon.png"
+              groups="group_op_back_office_admin"/>
+
+    <menuitem id="menu_op_course_main"
+              name="Programas"
+              parent="menu_op_school_root"
+              sequence="10"
+              action="act_open_op_course_view"
+              groups="group_op_back_office_admin"/>
+    
+    <menuitem id="menu_op_subject_main"
+              name="Cursos/Asignaturas"
+              parent="menu_op_school_root"
+              sequence="20"
+              action="act_open_op_subject_view"
+              groups="group_op_back_office_admin,openeducat_core.group_op_faculty"/>
+    
+
+    <menuitem id="menu_op_general_main"
+              name="General"
+              parent="menu_op_school_root"
+              sequence="30"/>
+
+    <!-- Configuration Menu -->
+    <menuitem id="menu_op_school_config"
+              name="Configuration"
+              parent="menu_op_school_root"
+              sequence="50"/>
+
+    <menuitem id="menu_op_school_config_course"
+              name="Administracion Educativa"
+              parent="menu_op_school_config"
+              sequence="10"/>
+
+    <menuitem id="menu_academic_year" name="Años Academicos"
+              sequence="1"
+              parent="menu_op_school_config_course"
+              action="act_op_academic_year_view"/>
+
+    <menuitem id="menu_academic_term" name="Periodos Academicos"
+              sequence="2"
+              parent="menu_op_school_config_course"
+              action="act_op_academic_term_view"/>
+    
+
+    <menuitem id="menu_op_course_sub"
+              name="Programas"
+              parent="menu_op_school_config_course"
+              sequence="10"
+              action="act_open_op_course_view"
+              groups="group_op_back_office_admin"/>
+
+    <menuitem id="menu_op_department_sub"
+              name="Department"
+              parent="menu_op_school_config_course"
+              sequence="20"
+              action="act_open_op_department_view"
+              groups="group_op_back_office_admin"/>
+
+    <menuitem id="menu_op_school_config_subject"
+              name="Administración Cursos/Asignaturas"
+              parent="menu_op_school_config"
+              sequence="20"/>
+
+    <menuitem id="menu_op_subject_sub"
+              name="Cursos/Asignaturas"
+              sequence="10"
+              parent="menu_op_school_config_subject"
+              action="act_open_op_subject_view"
+              groups="group_op_back_office_admin,openeducat_core.group_op_faculty"/>
+
+    <menuitem id="menu_op_school_config_general"
+              name="Administracion General"
+              parent="menu_op_school_config"
+              sequence="80"/>
+
+    <menuitem id="menu_op_category_sub"
+              name="Categories"
+              parent="menu_op_school_config_general"
+              sequence="40"
+              action="act_open_op_category_view"
+              groups="openeducat_core.group_op_back_office_admin"/>
+
+        
+    <menuitem name="Settings"
+              id="menu_openeducat_config"
+              action="action_openeducat_configuration"
+              parent="menu_op_school_config"
+              groups="base.group_system"
+              sequence="1"/>
+    
+    
+    
+
+</odoo>

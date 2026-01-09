@@ -1,0 +1,482 @@
+<templates xml:space="preserve">
+    <t t-name="sttl_grid_timesheet.GridRenderer" owl="1">
+        <div class="o_content grid-contents" style="position: relative; overflow: hidden;">
+
+            <div class="d-flex justify-content-between pb-2 pt-2">
+                <div class="container-fluid">
+                    <div class="row align-items-center g-2">
+                        <div class="col-md-2" t-if="!state.user.isAdmin"/>
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <input type="text"
+                                   class="form-control"
+                                   t-att-placeholder="state.groupByProject ? 'Search projects...' : 'Search tasks or projects...'"
+                                   t-model="state.searchTerm"
+                                   t-on-keyup="onSearchKeyUp"/>
+                                <button class="btn btn-outline-secondary"
+                                        type="button"
+                                        t-on-click="clearSearch">
+                                    <i class="fa fa-times"/>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-2" t-if="!state.user.isAdmin"/>
+                        <div class="col-md-4" t-if="state.user.isAdmin">
+                            <select class="form-select"
+                                    t-model="state.selectedEmployeeUserId"
+                                    t-on-change="onEmployeeChange">
+                                <option value="">All Employees</option>
+                                <option t-foreach="state.employees" t-as="emp"
+                                        t-key="emp.id"
+                                        t-att-value="'' + emp.user_id"
+                                        t-esc="emp.name"/>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between pb-4 pt-4" style="border-bottom: 1px solid #A9A9A9;">
+                <div class="container-fluid">
+                    <div class="row align-items-center g-2">
+                        <div class="col-auto">
+                            <button t-on-click="toggleTimer"
+                                    t-att-class="state.timerRunning ? 'btn-warning' : 'btn-primary'" class="btn">
+                                <i t-att-class="state.timerRunning ? 'fa fa-stop' : 'fa fa-play'"/>
+                                <span class="ms-1 d-none d-sm-inline">
+                                    <t t-esc="state.timerRunning ? ' Stop' : ' Start'"/>
+                                </span>
+                            </button>
+                        </div>
+
+                        <div class="col-auto" t-if="state.timerRunning">
+                            <button t-on-click="discardMainTimer"
+                                    class="btn btn-danger"
+                                    title="Discard timer without saving">
+                                <i class="fa fa-trash"/>
+                                <span class="ms-1 d-none d-sm-inline">
+                                    <t t-esc="' Discard'" />
+                                </span>
+                            </button>
+                        </div>
+
+                        <div class="col-auto" t-if="state.timerRunning">
+                            <div class="fw-bold" t-esc="formatElapsedTime(state.elapsedTime)"/>
+                        </div>
+
+                        <div class="col-md-3" t-if="state.timerRunning || state.projectSelected">
+                            <div class="mo-autocomplete" style="position: relative;">
+                                <input
+                                    type="text"
+                                    placeholder="Search Project..."
+                                    t-model="state.projectSearchText"
+                                    t-on-input="onProjectSearchChange"
+                                    t-on-focus="onProjectInputFocus"
+                                    t-on-blur.prevent="onProjectInputBlur"
+                                    class="form-select"
+                                />
+                                <div t-if="state.showProjectDropdown" class="dropdown" style="
+                                    position: absolute;
+                                    top: 100%;
+                                    left: 0;
+                                    right: 0;
+                                    background: white;
+                                    border: 1px solid #ccc;
+                                    border-top: none;
+                                    z-index: 1050;
+                                    max-height: 200px;
+                                    overflow-y: auto;
+                                    border-radius: 0 0 0.5rem 0.5rem;
+                                    box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                                    <t t-if="state.filteredProjects.length">
+                                        <t t-foreach="state.filteredProjects" t-as="proj" t-key="proj.id">
+                                            <div
+                                                t-on-click="onProjectSelect.bind(this, proj)"
+                                                class="dropdown-item"
+                                                style="padding: 0.5rem 1rem; cursor: pointer;"
+                                                t-att-class="state.selectedProjectId === proj.id ? 'bg-primary text-white' : ''">
+                                                <t t-esc="proj.name"/>
+                                            </div>
+                                        </t>
+                                    </t>
+                                    <div t-if="!state.filteredProjects.length" style="padding: 0.75rem 1rem; color: #999;">
+                                        No projects found.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3" t-if="state.projectSelected">
+                            <div class="mo-autocomplete" style="position: relative;">
+                                <input
+                                    type="text"
+                                    placeholder="Search Task..."
+                                    t-model="state.taskSearchText"
+                                    t-on-input="onTaskSearchChange"
+                                    t-on-focus="onTaskInputFocus"
+                                    t-on-blur.prevent="onTaskInputBlur"
+                                    class="form-select"
+                                />
+                                <div t-if="state.showTaskDropdown" class="dropdown" style="
+                                    position: absolute;
+                                    top: 100%;
+                                    left: 0;
+                                    right: 0;
+                                    background: white;
+                                    border: 1px solid #ccc;
+                                    border-top: none;
+                                    z-index: 1050;
+                                    max-height: 200px;
+                                    overflow-y: auto;
+                                    border-radius: 0 0 0.5rem 0.5rem;
+                                    box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                                    <t t-if="state.filteredTasks.length">
+                                        <t t-foreach="state.filteredTasks" t-as="task" t-key="task.id">
+                                            <div
+                                                t-on-click="onTaskSelect.bind(this, task)"
+                                                class="dropdown-item"
+                                                style="padding: 0.5rem 1rem; cursor: pointer;"
+                                                t-att-class="state.selectedTaskId === task.id ? 'bg-primary text-white' : ''">
+                                                <t t-esc="task.name"/>
+                                            </div>
+                                        </t>
+                                    </t>
+                                    <div t-if="!state.filteredTasks.length" style="padding: 0.75rem 1rem; color: #999;">
+                                        No tasks found.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <t t-if="state.wizardTimerData.show">
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1060;">
+                    <div style="background: white; padding: 24px; border-radius: 8px; width: 500px; max-width: 90%;">
+                        <h5 class="mb-4">Timer Entry</h5>
+
+                        <div class="mb-3">
+                            <div class="fw-bold mb-2">Time Spent: <t t-esc="formatElapsedTime(state.wizardTimerData.elapsedTime)"/></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Description</label>
+                            <textarea class="form-control" t-model="state.wizardTimerData.description"
+                                      rows="3" placeholder="What did you work on?"/>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+                            <button class="btn btn-primary" t-on-click="submitTimerTimesheet">
+                                <t t-esc="getTimerWizardButtonText()"/>
+                            </button>
+                            <button class="btn btn-secondary" t-on-click="closeTimerWizard">Discard</button>
+                        </div>
+                    </div>
+                </div>
+            </t>
+
+            <div style="overflow: auto; max-height: 80%;">
+                <table class="table table-striped table-hover"
+                       style="border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%;">
+                    <thead style="border-bottom: 1px solid #A9A9A9;">
+                        <tr>
+                            <th style="position: sticky; background: #f9fafb; top: 0; left: 0; z-index: 100;"
+                                t-att-colspan="state.groupByProject ? 2 : 3">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <button class="btn btn-info" t-on-click="goToday">Today</button>
+                                    <button class="btn btn-secondary" t-on-click="goPrevious">&lt;</button>
+                                    <select class="form-select w-auto" t-model="state.scale"
+                                            t-on-change="onScaleChange">
+                                        <option value="day">Day</option>
+                                        <option value="week">Week</option>
+                                        <option value="month">Month</option>
+                                    </select>
+                                    <button class="btn btn-secondary" t-on-click="goNext">&gt;</button>
+                                </div>
+                            </th>
+
+                            <t t-foreach="state.dateColumns" t-as="date" t-key="date.getTime()">
+                                <t t-set="isToday" t-value="(new Date()).toDateString() === date.toDateString()"/>
+                                <t t-set="isWeekend"
+                                   t-value="['Sat', 'Sun'].includes(date.toLocaleDateString(undefined, { weekday: 'short' }))"/>
+                                <t t-set="backgroundColor"
+                                   t-value="isToday ? '#81CEDA' : (isWeekend ? '#EFF0F2' : '#F9FAFB')"/>
+                                <t t-set="textColor" t-value="isWeekend ? 'gray' : 'black'"/>
+
+                                <th t-att-style="'position: sticky; top: 0; z-index: 90; background-color: ' + backgroundColor + '; color: ' + textColor + '; width: ' + (state.scale === 'day' ? '900px' : '100px') + ';'"
+                                    class="text-center">
+                                    <div><t t-esc="date.toLocaleDateString(undefined, { weekday: 'short' })"/></div>
+                                    <div><t t-esc="date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })"/></div>
+                                </th>
+                            </t>
+                            <th style="position: sticky; background: #E7E9ED; top: 0; right: 0; z-index: 100; width: 150px; color: black;"
+                                class="text-center">Time Spent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-if="state.groupedData.length">
+                            <t t-if="state.groupByProject">
+                                <t t-foreach="state.groupedData" t-as="project" t-key="project.project_id || 'no_project'">
+                                    <tr style="background-color: #f0f0f0;">
+                                        <td style="position: sticky; background: #EAF8FF; left: 0; z-index: 50; font-weight: bold;" t-att-colspan="state.groupByProject ? 2 : 3">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <button t-on-click="toggleProjectExpansion.bind(this, project.project_id || 'no_project')"
+                                                        class="btn btn-sm">
+                                                    <i t-att-class="isProjectExpanded(project.project_id || 'no_project') ? 'fa fa-minus' : 'fa fa-plus'"/>
+                                                </button>
+                                                <a href="#" t-on-click="openProject.bind(this, project.project_id)"
+                                                   style="text-decoration: none; font-weight: bold;"
+                                                   onmouseover="this.style.textDecoration='underline'; this.style.fontWeight='bold';"
+                                                   onmouseout="this.style.textDecoration='none'; this.style.fontWeight='bold';">
+                                                    <t t-esc="project.project_name"/>
+                                                </a>
+                                            </div>
+                                        </td>
+
+                                        <t t-foreach="state.dateColumns" t-as="date" t-key="date.getTime()">
+                                            <t t-set="nextDate"
+                                               t-value="new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)"/>
+                                            <t t-set="dateKey" t-value="nextDate.toISOString().split('T')[0]"/>
+                                            <t t-set="projectDailyTotal"
+                                               t-value="project.tasks.reduce((sum, task) => sum + ((task.timesheets &amp;&amp; task.timesheets[dateKey]) || 0), 0)"/>
+                                            <t t-set="isToday"
+                                               t-value="(new Date()).toDateString() === date.toDateString()"/>
+                                            <t t-set="isWeekend"
+                                               t-value="['Sat', 'Sun'].includes(date.toLocaleDateString(undefined, { weekday: 'short' }))"/>
+                                            <td class="text-center fw-bold"
+                                                t-att-style="'background-color: ' + (isToday ? '#C1E7EE' : (isWeekend ? '#EFF0F2' : '#F9FAFB')) + ';'">
+                                                <t t-esc="formatHours(projectDailyTotal)"/>
+                                            </td>
+                                        </t>
+
+                                        <td  style="position: sticky; background: #E7E9ED; right: 0; z-index: 50;" class="text-center fw-bold" t-esc="formatHours(project.total)"/>
+                                    </tr>
+
+                                    <t t-if="isProjectExpanded(project.project_id || 'no_project')">
+                                        <t t-foreach="project.tasks" t-as="line" t-key="line.task_id">
+                                            <tr>
+                                                <td style="position: sticky; background: #f9fafb; left: 0; z-index: 50; x: 50; width: 150px;">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <button t-on-click="toggleRowTimer.bind(this, line.task_id)"
+                                                                class="btn btn-sm"
+                                                                t-att-class="state.rowTimers[line.task_id]?.running ? 'btn-warning' : 'btn-secondary'">
+                                                            <i t-att-class="state.rowTimers[line.task_id]?.running ? 'fa fa-stop' : 'fa fa-play'"/>
+                                                        </button>
+
+                                                        <t t-if="state.rowTimers[line.task_id]?.running">
+                                                            <button t-on-click="discardRowTimer.bind(this, line.task_id)"
+                                                                    class="btn btn-sm btn-danger"
+                                                                    title="Discard timer without saving">
+                                                                <i class="fa fa-trash"/>
+                                                            </button>
+                                                        </t>
+                                                        <t t-if="state.rowTimers[line.task_id]?.running">
+                                                            <span t-esc="formatElapsedTime(state.rowTimers[line.task_id].elapsed)"/>
+                                                        </t>
+                                                    </div>
+                                                </td>
+                                                <td style="position: sticky; background: #f9fafb; left: 150px; z-index: 50; width: 200px;">
+                                                    <a href="#"
+                                                       t-on-click="openTask.bind(this, line.task_id)"
+                                                       style="text-decoration: none; font-weight: normal;"
+                                                       onmouseover="this.style.textDecoration='underline'; this.style.fontWeight='bold';"
+                                                       onmouseout="this.style.textDecoration='none'; this.style.fontWeight='normal';">
+                                                        <t t-esc="line.task_name"/>
+                                                    </a>
+                                                </td>
+
+                                                <t t-foreach="state.dateColumns" t-as="date" t-key="date.getTime()">
+                                                    <t t-set="nextDate"
+                                                       t-value="new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)"/>
+                                                    <t t-set="dateKey" t-value="nextDate.toISOString().split('T')[0]"/>
+                                                    <t t-set="hoursRaw"
+                                                       t-value="line.timesheets &amp;&amp; line.timesheets[dateKey] ? line.timesheets[dateKey] : 0"/>
+                                                    <t t-set="hours" t-value="formatHours(hoursRaw)"/>
+                                                    <t t-set="isToday"
+                                                       t-value="(new Date()).toDateString() === date.toDateString()"/>
+                                                    <t t-set="isWeekend"
+                                                       t-value="['Sat', 'Sun'].includes(date.toLocaleDateString(undefined, { weekday: 'short' }))"/>
+                                                    <t t-set="textColor" t-value="hours === '0:00' ? 'gray' : (this.isOver24Hours(hours) ? 'red' : 'black')"/>
+                                                    <td class="text-center"
+                                                        t-att-style="'background-color: ' + (isToday ? '#C1E7EE' : (isWeekend ? '#EFF0F2' : '#F9FAFB')) + '; width: ' + (state.scale === 'day' ? '900px' : '100px') + '; position: relative;'"
+                                                        onmouseover="this.querySelector('.magnify-btn').style.display='inline-block'"
+                                                        onmouseout="this.querySelector('.magnify-btn').style.display='none'">
+                                                        <button type="button"
+                                                                class="magnify-btn"
+                                                                t-on-click="(ev) => this.onMagnifyClick(ev)"
+                                                                style="display: none; position: absolute; top: 50%; left: 5px; transform: translateY(-50%);
+                                                                       padding: 2px 6px; font-size: 12px; background-color: transparent; border: none; cursor: pointer;">
+                                                            <i class="fa fa-search"/>
+                                                        </button>
+
+                                                        <input type="text"
+                                                               t-att-value="hours"
+                                                               class="form-control text-center"
+                                                               t-att-data-old-value="hours"
+                                                               t-att-data-task-id="line.task_id"
+                                                               t-att-data-date="dateKey"
+                                                               t-on-change="onUpdateTimesheetHours"
+                                                               t-att-style="'border: none; color: ' + textColor + '; width: 80%; display: inline-block;'"
+                                                        />
+                                                    </td>
+                                                </t>
+
+                                                <td style="position: sticky; background: #E7E9ED; right: 0; z-index: 50;"
+                                                    class="text-center fw-bold">
+                                                    <t t-esc="formatHours(Object.values(line.timesheets || {}).reduce((a, b) => a + b, 0))"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <t t-foreach="state.groupedData" t-as="line" t-key="line.task_id">
+                                    <tr>
+                                        <td style="position: sticky; background: #f9fafb; left: 0; z-index: 50; width: 150px;">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <button t-on-click="toggleRowTimer.bind(this, line.task_id)"
+                                                        class="btn btn-sm"
+                                                        t-att-class="state.rowTimers[line.task_id]?.running ? 'btn-warning' : 'btn-secondary'">
+                                                    <i t-att-class="state.rowTimers[line.task_id]?.running ? 'fa fa-stop' : 'fa fa-play'"/>
+                                                </button>
+
+                                                <t t-if="state.rowTimers[line.task_id]?.running">
+                                                    <button t-on-click="discardRowTimer.bind(this, line.task_id)"
+                                                            class="btn btn-sm btn-danger"
+                                                            title="Discard timer without saving">
+                                                        <i class="fa fa-trash"/>
+                                                    </button>
+                                                </t>
+                                                <t t-if="state.rowTimers[line.task_id]?.running">
+                                                    <span t-esc="formatElapsedTime(state.rowTimers[line.task_id].elapsed)"/>
+                                                </t>
+                                            </div>
+                                        </td>
+                                        <td style="position: sticky; background: #f9fafb; left: 150px; z-index: 50; width: 200px;">
+                                            <a href="#" t-on-click="openProject.bind(this, line.project_id)"
+                                               style="text-decoration: none; font-weight: normal;"
+                                               onmouseover="this.style.textDecoration='underline'; this.style.fontWeight='bold';"
+                                               onmouseout="this.style.textDecoration='none'; this.style.fontWeight='normal';">
+                                                <t t-esc="line.project_name"/>
+                                            </a>
+                                        </td>
+                                        <td style="position: sticky; background: #f9fafb; left: 350px; z-index: 50; width: 200px;">
+                                            <a href="#"
+                                               t-on-click="openTask.bind(this, line.task_id)"
+                                               style="text-decoration: none; font-weight: normal;"
+                                               onmouseover="this.style.textDecoration='underline'; this.style.fontWeight='bold';"
+                                               onmouseout="this.style.textDecoration='none'; this.style.fontWeight='normal';">
+                                                <t t-esc="line.task_name"/>
+                                            </a>
+                                        </td>
+
+                                        <t t-foreach="state.dateColumns" t-as="date" t-key="date.getTime()">
+                                            <t t-set="nextDate"
+                                               t-value="new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)"/>
+                                            <t t-set="dateKey" t-value="nextDate.toISOString().split('T')[0]"/>
+                                            <t t-set="hoursRaw"
+                                               t-value="line.timesheets &amp;&amp; line.timesheets[dateKey] ? line.timesheets[dateKey] : 0"/>
+                                            <t t-set="hours" t-value="formatHours(hoursRaw)"/>
+                                            <t t-set="isToday"
+                                               t-value="(new Date()).toDateString() === date.toDateString()"/>
+                                            <t t-set="isWeekend"
+                                               t-value="['Sat', 'Sun'].includes(date.toLocaleDateString(undefined, { weekday: 'short' }))"/>
+                                            <t t-set="textColor" t-value="hours === '0:00' ? 'gray' : (this.isOver24Hours(hours) ? 'red' : 'black')"/>
+                                            <td class="text-center"
+                                                t-att-style="'background-color: ' + (isToday ? '#C1E7EE' : (isWeekend ? '#EFF0F2' : '#F9FAFB')) + '; width: ' + (state.scale === 'day' ? '900px' : '100px') + '; position: relative;'"
+                                                onmouseover="this.querySelector('.magnify-btn').style.display='inline-block'"
+                                                onmouseout="this.querySelector('.magnify-btn').style.display='none'">
+                                                <button type="button"
+                                                        class="magnify-btn"
+                                                        t-on-click="(ev) => this.onMagnifyClick(ev)"
+                                                        style="display: none; position: absolute; top: 50%; left: 5px; transform: translateY(-50%);
+                                                               padding: 2px 6px; font-size: 12px; background-color: transparent; border: none; cursor: pointer;">
+                                                    <i class="fa fa-search"/>
+                                                </button>
+
+                                                <input type="text"
+                                                       t-att-value="hours"
+                                                       class="form-control text-center"
+                                                       t-att-data-old-value="hours"
+                                                       t-att-data-task-id="line.task_id"
+                                                       t-att-data-date="dateKey"
+                                                       t-on-change="onUpdateTimesheetHours"
+                                                       t-att-style="'border: none; color: ' + textColor + '; width: 80%; display: inline-block;'"
+                                                />
+                                            </td>
+                                        </t>
+
+                                        <td style="position: sticky; background: #E7E9ED; right: 0; z-index: 50;"
+                                            class="text-center fw-bold">
+                                            <t t-esc="formatHours(Object.values(line.timesheets || {}).reduce((a, b) => a + b, 0))"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
+
+                            <tr style="position: sticky; bottom: 0; z-index: 100; font-weight: bold;">
+                                <td style="position: sticky; background: #f9fafb; left: 0; z-index: 100;" t-att-colspan="state.groupByProject ? 2 : 3">
+                                    <button class="btn"
+                                            t-on-click="openAddTimesheetWizardBase"
+                                            style="background: none; color: #2C777B; font-weight: bold; border: none; display: flex; align-items: center;"
+                                            onmouseenter="this.style.color='#0F585C'; this.querySelector('.plus-icon').style.backgroundColor='#0F585C';"
+                                            onmouseleave="this.style.color='#2C777B'; this.querySelector('.plus-icon').style.backgroundColor='#2C777B';">
+                                        <span class="plus-icon"
+                                              style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background-color: #0F585C; color: white; font-size: 12px; margin-right: 6px;">
+                                            <i class="fa fa-plus" style="line-height: 1;"/>
+                                        </span>
+                                        Add a line
+                                    </button>
+                                </td>
+                                <t t-set="grandTotal" t-value="0"/>
+                                <t t-foreach="state.dateColumns" t-as="date" t-key="date.getTime()">
+                                    <t t-set="isToday" t-value="(new Date()).toDateString() === date.toDateString()"/>
+                                    <t t-set="isWeekend"
+                                       t-value="['Sat', 'Sun'].includes(date.toLocaleDateString(undefined, { weekday: 'short' }))"/>
+                                    <t t-set="nextDate"
+                                       t-value="new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)"/>
+                                    <t t-set="dateKey" t-value="nextDate.toISOString().split('T')[0]"/>
+                                    <t t-set="totalForDate" t-value="computeDailyProjectTotal(dateKey)"/>
+
+                                    <t t-set="grandTotal" t-value="grandTotal + totalForDate"/>
+
+                                    <td class="text-center"
+                                        t-att-style="'background-color: ' + (isToday ? '#C1E7EE' : (isWeekend ? '#EFF0F2' : '#F9FAFB')) + '; width: ' + (state.scale === 'day' ? '900px' : '100px') + '; color: #E99D01;'">
+                                        <t t-esc="formatHours(totalForDate)"/>
+                                    </td>
+                                </t>
+                                <td style="position: sticky; background: #E99D01; right: 0; z-index: 100;"
+                                    class="text-center">
+                                    <t t-esc="formatHours(grandTotal)"/>
+                                </td>
+                            </tr>
+                        </t>
+                        <t t-else="">
+                            <tr>
+                                <td style="position: sticky; background: #f9fafb; left: 0; z-index: 100;" t-att-colspan="state.groupByProject ? 2 : 3">
+                                    <button class="btn"
+                                            t-on-click="openAddTimesheetWizardBase"
+                                            style="background: none; color: #2C777B; font-weight: bold; border: none; display: flex; align-items: center;"
+                                            onmouseenter="this.style.color='#0F585C'; this.querySelector('.plus-icon').style.backgroundColor='#0F585C';"
+                                            onmouseleave="this.style.color='#2C777B'; this.querySelector('.plus-icon').style.backgroundColor='#2C777B';">
+                                        <span class="plus-icon"
+                                              style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background-color: #0F585C; color: white; font-size: 12px; margin-right: 6px;">
+                                            <i class="fa fa-plus" style="line-height: 1;"/>
+                                        </span>
+                                        Add a line
+                                    </button>
+                                </td>
+                                <td colspan="999" />
+                            </tr>
+                            <tr>
+                                <td colspan="999" class="text-center">No data available</td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </t>
+</templates>

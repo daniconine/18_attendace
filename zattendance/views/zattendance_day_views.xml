@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <!-- LIST -->
+    <record id="view_zattendance_day_list" model="ir.ui.view">
+      <field name="name">zattendance.day.list</field>
+      <field name="model">zattendance.day</field>
+      <field name="arch" type="xml">
+          <list string="Asistencia diaria" decoration-danger="state == 'conflicto'"
+                                           decoration-success="state == 'permiso'">
+            <field name="date"/>
+            <field name="employee_id"/>
+            <field name="planned_attendance_type"/>
+            <field name="tipo_asistencia"/>                    
+            <field name="late_min"/>
+            <field name="permiso_late"/>
+            <field name="diff_attendance" widget="float_time" /> 
+            <field name="state" widget="badge"
+                                decoration-danger="state == 'conflicto'"
+                                decoration-success="state == 'permiso'"/>
+        </list>
+      </field>
+    </record>
+
+    <!-- FORM -->
+    <record id="view_zattendance_day_form" model="ir.ui.view">
+      <field name="name">zattendance.day.form</field>
+      <field name="model">zattendance.day</field>
+      <field name="arch" type="xml">
+        <form string="Asistencia diaria">
+          <header>
+            <!-- Estado (arriba) -->
+            <field name="state" widget="statusbar"
+                  statusbar_visible="conforme,conflicto,permiso"/>
+            <!-- Botón Recalcular: oculto si estado = permiso -->
+            <button name="action_recalcular" type="object"
+                    string="Recalcular" class="btn-primary"
+                    invisible="state == 'permiso'"/>
+            
+          </header>
+          <sheet>
+
+            <div class="oe_title">
+              <h1>
+                <field name="name" readonly="1"/>
+              </h1>
+            </div>
+
+            <!-- Cabecera básica -->
+            <group>
+              <group>
+                <field name="employee_id"/>
+                <field name="date"/>
+                <field name="weekday"/>
+              </group>
+              <group>                
+                <field name="diff_attendance" widget="float_time"/>                
+                <field name="company_id" groups="base.group_multi_company"/>
+              </group>
+            </group>
+
+            <!-- Comparativo: Planificado vs Real (dos columnas) -->
+            <group col="2" string="Comparación Planificado vs Real">
+              <!-- Columna Izquierda: Planificado -->
+              <group string="Planificado">
+                <field name="planned_attendance_type"
+                                              decoration-danger="state == 'conflicto'"
+                                              decoration-success="state == 'permiso'"/>
+                <field name="planned_start"/>
+                <field name="planned_end"/>
+
+                <separator string="Horas de Trabajo planificados"/>
+                <field name="planned_presential" widget="float_time"/>
+                <field name="planned_virtual" widget="float_time"/>
+                <field name="planned_total" widget="float_time"/>
+              </group>
+
+              <!-- Columna Derecha: Real -->
+              <group string="Real">
+                <field name="tipo_asistencia"
+                                              decoration-danger="state == 'conflicto'"
+                                              decoration-success="state == 'permiso'"/>
+                <field name="actual_first_check_in"/>
+                <field name="actual_last_check_out"/>
+
+                <separator string="Horas de Trabajo realizado"/>
+                <field name="actual_presential" widget="float_time"/>
+                <field name="actual_virtual" widget="float_time"/>
+                <field name="actual_total" widget="float_time"/>
+              </group>
+            </group>
+
+            <!-- Secciones adicionales (más abajo) -->
+            <notebook>
+              <page string="Tardanza">
+                <group>
+                  <field name="late_min"/>
+                  <field name="permiso_late"/>
+                </group>
+              </page>
+
+            </notebook>
+          </sheet>
+          <!-- CHATTER -->
+          <chatter>
+            <field name="message_follower_ids"/>
+            <field name="message_ids"/>
+            <field name="activity_ids"/>
+          </chatter>    
+
+        </form>
+      </field>
+    </record>
+
+  </data>
+</odoo>

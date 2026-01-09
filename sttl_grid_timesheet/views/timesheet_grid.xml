@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sttl_grid_timesheet.hr_timesheet_line_form_custom" model="ir.ui.view">
+        <field name="name">hr.timesheet.line.form.custom</field>
+        <field name="model">account.analytic.line</field>
+        <field name="inherit_id" ref="hr_timesheet.hr_timesheet_line_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='task_id']" position="attributes">
+                <attribute name="required">1</attribute>
+            </xpath>
+
+            <xpath expr="//form" position="inside">
+                <footer>
+                    <button type="object" name="custom_save_timesheet" string="Save" class="btn-primary"/>
+                </footer>
+            </xpath>
+
+        </field>
+    </record>
+
+
+    <record id="view_my_grid" model="ir.ui.view">
+        <field name="name">My Grid View</field>
+        <field name="model">account.analytic.line</field>
+        <field name="arch" type="xml">
+            <grid string="My Grid View">
+                <field name="unit_amount" string="Time Spent" type="measure" widget="timesheet_uom"/>
+            </grid>
+        </field>
+    </record>
+
+    <record id="hr_timesheet.act_hr_timesheet_line" model="ir.actions.act_window">
+        <field name="view_mode">grid,form,kanban,list</field>
+    </record>
+
+    <record id="record_id_view_grid" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">grid</field>
+        <field name="view_id" ref="sttl_grid_timesheet.view_my_grid"/>
+        <field name="act_window_id" ref="hr_timesheet.act_hr_timesheet_line"/>
+    </record>
+</odoo>
