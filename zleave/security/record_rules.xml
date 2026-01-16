@@ -19,4 +19,6 @@
     <field name="domain_force">[]</field>
     <field name="groups" eval="[(4, ref('zleave.group_hr_manager'))]"/>
   </record>
+
+
 </odoo>

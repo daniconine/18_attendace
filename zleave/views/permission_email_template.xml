@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Definición de la plantilla de correo para la solicitud de permiso -->
+    <record id="zleave.email_template_zleave_permission" model="mail.template">
+        <field name="name">Notificación de Solicitud de Permiso</field>
+        <field name="email_from">${object.user_id.email or ''}</field> <!-- Correo del usuario actual -->
+        <field name="subject">Solicitud de Ausencia/Permiso enviada por {{ object.create_uid.name }}</field> <!-- Nombre del creador -->
+        <field name="body_html">
+            <![CDATA[
+                <p>Estimado/a <t t-out="object.employee_id.parent_id.display_name"/> ,</p>
+                <p>Se ha generado una solicitud de permiso para el empleado GERENS</p>
+                <p>Detalles del permiso:</p>
+                <ul>
+                    <li><strong>Permiso N°:</strong> <t t-out="object.name"/></li>
+                    <li><strong>Referencia:</strong> <t t-out="object.display_name"/></li>
+                    <li><strong>Fecha de solicitud:</strong> <t t-out="object.create_date"/>}</li>
+                    <li><strong>Total de Días:</strong> <t t-out="object.duration_days"/></li>
+                    <li><strong>Estado:</strong> <t t-out="object.state"/></li>
+                </ul>
+                <p>Puede revisar y aprobar la solicitud de permiso haciendo clic en el siguiente enlace:</p>
+                <p>
+                    <a href="{{ object.get_permission_approval_url() }}">Revisar y aprobar la solicitud de permiso</a>
+                </p>
+                <p>Por favor, revisa la solicitud de permiso.</p>
+            ]]>
+        </field>
+        <field name="model">zleave.permission</field> <!-- Asegúrate de que este campo esté correcto -->
+    </record>
+</odoo>
+

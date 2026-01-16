@@ -1,9 +1,10 @@
-##############################
+##=||=||=||=||=||=||=||=||=||=||=||=||=
 ###Desarrollo de Módulode entrada de trabajo Zattendance
-# -*- coding: utf-8 -*-
+
 from odoo import api, fields, models
 import logging
 from odoo.exceptions import UserError
+from datetime import timedelta
 _logger = logging.getLogger(__name__)
 
 #Registro unico de asistencia por empelado
@@ -25,14 +26,8 @@ class ZAttendanceDay(models.Model):
     
     weekday = fields.Selection(
         [
-            ("0", "Lunes"),
-            ("1", "Martes"),
-            ("2", "Miércoles"),
-            ("3", "Jueves"),
-            ("4", "Viernes"),
-            ("5", "Sábado"),
-            ("6", "Domingo"),
-        ],
+            ("0", "Lunes"),("1", "Martes"), ("2", "Miércoles"), ("3", "Jueves"),
+            ("4", "Viernes"), ("5", "Sábado"), ("6", "Domingo"), ],
         string="Día", compute="_compute_weekday", store=True, )
     
     # Unicidad: 1 registro por empleado por día
@@ -41,8 +36,7 @@ class ZAttendanceDay(models.Model):
             "zattendance_day_unique_employee_date",
             "unique(employee_id, date)",
             "Ya existe un registro de asistencia para este empleado en esta fecha.",
-        )
-    ]
+        )]
 
     #calculo del nombre
     @api.depends("employee_id", "date")
@@ -70,8 +64,8 @@ class ZAttendanceDay(models.Model):
     planned_start = fields.Datetime(string="Hora Entrada Horario", tracking=True)
     planned_end = fields.Datetime(string="Hora Salida Horario", tracking=True)
 
-    planned_presential = fields.Float(string="Horas Presenciales Planific", default=0)
-    planned_virtual = fields.Float(string="Horas Virtuales Planific", default=0)
+    planned_presential = fields.Float(string="Horas Presenciales Planific", tracking=True, default=0)
+    planned_virtual = fields.Float(string="Horas Virtuales Planific", tracking=True, default=0)
     planned_total = fields.Float(string="Horas Totales Planific", compute="_compute_planned_total", store=True, default=0)
 
     planned_attendance_type = fields.Selection(
@@ -86,8 +80,7 @@ class ZAttendanceDay(models.Model):
             ("confianza", "Confianza (exento control)"),
         ],
         string="Tipo de Asistencia Asignado",
-        tracking=True,
-    )
+        tracking=True,)
 
     # Asisetncia Real (desde módulo de asistencia - por ahora editable)
    
@@ -106,9 +99,9 @@ class ZAttendanceDay(models.Model):
             ("inasistencia", "Inasistencia"),
         ],
         string="Tipo de Asistencia Calculada",
-        compute="_compute_tipo_asistencia", store=True, tracking=True,        
-    )
+        compute="_compute_tipo_asistencia", store=True, tracking=True,)
 
+    #Calculos para total de horas
     @api.depends("planned_presential", "planned_virtual")
     def _compute_planned_total(self):
         for rec in self:
@@ -121,7 +114,7 @@ class ZAttendanceDay(models.Model):
             
        
     # Exceso o Defecto horas independiente para la nómina
-    diff_attendance = fields.Float(string="Exceso/Defecto Horas", store=True, default=0)
+    diff_attendance = fields.Float(string="Exceso/Defecto Horas", tracking=True, store=True, default=0)
 
     def action_recalcular(self):
         for rec in self:
@@ -179,7 +172,6 @@ class ZAttendanceDay(models.Model):
                 rec.tipo_asistencia = False 
                 continue
             
-
             # Si tenemos horas presenciales y virtuales, primero asignamos 'presencial' si hay horas presenciales
             if rec.actual_presential > 0 and rec.actual_virtual > 0:
                 rec.tipo_asistencia = 'presencial'  # Por defecto, asignamos presencial si ambos están presentes
@@ -197,14 +189,8 @@ class ZAttendanceDay(models.Model):
                 rec.tipo_asistencia = 'inasistencia'
 
             
-    
-    ###################################################################################
-    # Exceso o Defecto horas independiente para la nómina
-    #diff_attendance = fields.Float(string="Exceso/Defecto Horas", store=True, default=0)
-   ################################################################             
-    # ##################################################################################
     # Adicionales de control a la asistencia por estado y permisos
-    # (Permiso se determina SOLO por permiso_request_id aprobado)
+    # (Permiso se determina SOLO por permission_id aprobado)
     state = fields.Selection(
         [
             ("conforme", "Conforme"),
@@ -239,14 +225,8 @@ class ZAttendanceDay(models.Model):
             minutes = int((rec.actual_first_check_in - rec.planned_start).total_seconds() // 60)
             rec.late_min = minutes if minutes > tolerance else 0
         
-    # Matriz de conflicto + evaluación
-    # -------------------------
+    ##### Matriz de conflicto + evaluación
     def _is_conflict_by_matrix(self, planned, calculated):
-        """
-        planned: planned_attendance_type
-        calculated: tipo_asistencia (presencial/virtual/inasistencia)
-        Return True/False.
-        """
         # Matriz según tu tabla (solo marcamos los SI)
         conflict_matrix = {
             "presencial": {
@@ -275,14 +255,13 @@ class ZAttendanceDay(models.Model):
     def _evaluate_state_from_matrix(self):
         """
         Reglas:
-        - Si hay permiso_request_id aprobado => state = 'permiso' (siempre)
+        - Si hay permission_id aprobado => state = 'permiso' (siempre)
         - Si falta planned_attendance_type o tipo_asistencia => no tocar
         - Caso contrario => conflicto/conforme por matriz
         """
         for rec in self:
             # Si viene de solicitud aprobada, manda permiso (y no se evalúa matriz)
-            if rec.permiso_request_id and rec.permiso_request_id.state == "approved":
-                rec.state = "permiso"
+            if rec.state == "permiso":
                 continue
 
             # Sin permiso aprobado => matriz normal
@@ -295,9 +274,9 @@ class ZAttendanceDay(models.Model):
                 rec.state = "conforme"
 
 
-    # -------------------------
+    ########################
     # Disparadores del state
-    # -------------------------
+    
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
@@ -313,17 +292,27 @@ class ZAttendanceDay(models.Model):
         if self.env.context.get("skip_zattendance_logic"):
             return res
 
-        # Incluimos permiso_request_id para reevaluar cuando se vincule/desvincule
+        # Incluimos permission_id para reevaluar cuando se vincule/desvincule
         watched = {
             "planned_attendance_type",
             "actual_presential",
             "actual_virtual",
             "recalculated",
             "tipo_asistencia",
-            "permiso_request_id",
+            
             "permiso_late",
         }
         if watched.intersection(vals.keys()):
             self._evaluate_state_from_matrix()
 
         return res
+    
+    ######## Accion Recalcular del cron para el dia anterior
+    @api.model
+    def cron_recalcular_dia_anterior(self):
+        today = fields.Date.context_today(self.with_context(tz='America/Lima'))
+        yesterday = today - timedelta(days=1)
+
+        days = self.search([('date', '=', yesterday), ('active', '=', True)])
+        if days:
+            days.action_recalcular()

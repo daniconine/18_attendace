@@ -17,7 +17,8 @@
         
         "views/zattendance_day_views.xml",
         "views/hr_attendance_views.xml",
-        "views/ir_cron_jobs.xml", 
+        "views/ir_cron_jobs.xml",
+        "views/ir_cron_recalcular.xml",  
         "views/r_calendar_attendance_views.xml",
         'views/hr_work_entry_views.xml',
          

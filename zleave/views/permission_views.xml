@@ -69,6 +69,14 @@
                     type="object"
                     string="Anular"
                     invisible="state in ('approved','refused','cancelled')"/>
+            
+            <!-- Botón para abrir los documentos adjuntos -->
+            <button name="action_open_documents"
+                    type="object"
+                    string="Documentos Adjuntos"
+                    class="btn-secondary"
+                    icon="fa-file-text-o"
+                    invisible="False"/>  <!-- Cambio temporal -->
           </header>
 
           <sheet>
@@ -94,29 +102,27 @@
                 <field name="requested_by_id" readonly="1"/>
               </group>
             </group>
-            <group string="Fecha o Rango de Fechas">
-              
+            <group string="Detalles de Solicitud">
+              <group>          
+                <field name="type_permission"/>
+                <field name="suspension_perfecta" invisible="type_permission != 'lic_sin_goce'"/>
+                <field name="suspension_imperfecta" invisible="type_permission != 'lic_con_goce'"/>
+              </group>   
+              <group>
                 <field name="date_from" widget="daterange" options="{'end_date_field': 'date_to'}"/>
                 <field name="date_to" invisible="1"/>
                 <field name="duration_days" readonly="1"/>
+              </group>
+                                
             </group>
-            <separator colspan="4"/>
-            <group string="Sustento de Solicitud">
-             
-              <field name="type_permission"/>
-              <field name="suspension_perfecta" invisible="type_permission != 'sin_goce'"/>
-              <field name="suspension_imperfecta" invisible="type_permission != 'con_goce'"/>
+            <group>
               <field name="description"/>
-              <field name="attachment_ids" widget="many2many_binary"/>
-              
             </group>
-
-            
-
           </sheet>
           <!-- Chatter -->
           <!-- CHATTER -->
           <chatter>
+            
             <field name="message_follower_ids"/>
             <field name="message_ids"/>
             <field name="activity_ids"/>
@@ -125,6 +131,7 @@
       </form>
       </field>
     </record>
+
 
     <!-- ========================================================= -->
     <!-- ACTION -->

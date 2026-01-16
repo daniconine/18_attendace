@@ -15,7 +15,7 @@ class ZleavePermission(models.Model):
     
     name = fields.Char( string="Código",copy=False,readonly=True,tracking=True,)
     display_name = fields.Char(compute="_compute_display_name", store=False)
-    description = fields.Text(string="Descripción")
+    description = fields.Text(string="Descripción o Motivo")
     company_id = fields.Many2one("res.company", string="Compañía",
                 default=lambda self: self.env.company,required=True, readonly=True,)
     employee_id = fields.Many2one("hr.employee",string="Empleado",required=True,     
@@ -27,15 +27,16 @@ class ZleavePermission(models.Model):
         domain="[('share','=',False), ('company_ids','in', company_id)]",
         help="Por defecto: employee.leave_manager_id (Aprobador de Ausencias) y fallback a jefe directo.",
     )
-    
+    hr_responsible_id = fields.Many2one('hr.employee', string="Encargado de RRHH")  # Asumiendo que tienes un campo para RRHH
+
     date_from = fields.Date(string="Desde", required=True, tracking=True)
     date_to = fields.Date(string="Hasta", required=True, tracking=True)
     
     duration_days = fields.Float(string="Solicitado (días)", compute="_compute_duration_days", store=True)
 
     type_permission = fields.Selection(
-        [   ('sin_goce', 'Licencia Sin Goce (S.P.)/Ausencia'),
-            ('con_goce', 'Licencia Con Goce (S.I)/Permiso'),            
+        [   ('lic_sin_goce', 'Licencia Sin Goce (S.P.)/Ausencia'),
+            ('lic_con_goce', 'Licencia Con Goce (S.I)/Permiso'),            
         ],
         string="Ausencia/Permiso", tracking=True, )
     
@@ -71,10 +72,6 @@ class ZleavePermission(models.Model):
         ('35', '35 - S.I. ENFERMEDAD GRAVE O TERMINAL O ACCIDENTE GRAVE'),
     ], string="Tipo de Suspensión Imperfecta PLAME (Permiso)", tracking=True, )
     
-    attachment_ids = fields.Many2many(
-                "ir.attachment", "zleave_permission_ir_attachment_rel", "permission_id", "attachment_id",
-                string="Documentos de sustento"
-)
     state = fields.Selection(
         [   ('draft', 'Borrador'),
             ('submitted', 'Enviado'),
@@ -84,6 +81,28 @@ class ZleavePermission(models.Model):
         ],
         string="Estado", default='draft',tracking=True, )
     
+    attachment_ids = fields.Many2many(
+        'ir.attachment', 
+        'zleave_permission_attachment_rel', 
+        'zleave_permission_id', 
+        'attachment_id', 
+        string="Archivos Adjuntos"
+    )
+    zattendance_ids = fields.One2many('zattendance.day', 'permission_id', string="Registros de Asistencia")
+    #######################
+   
+    # Método para abrir los documentos adjuntos
+    def action_open_documents(self):
+        return {
+            'name': _('Documents of Permission'),
+            'view_type': 'form',
+            'view_mode': 'kanban,list,form',
+            'res_model': 'ir.attachment',
+            'view_id': False,
+            'type': 'ir.actions.act_window',
+            'domain': [('res_model', '=', 'zleave.permission'), ('res_id', '=', self.id)],
+            'context': {'default_res_model': 'zleave.permission', 'default_res_id': self.id},
+        }
     ###############
     def _get_default_approver_user(self, employee):
         """Asignar aprobador por defecto: solo jefe directo (sin gestor de ausencias)."""
@@ -123,6 +142,8 @@ class ZleavePermission(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        
+        # Crear el registro de permisos
         seq = self._get_or_create_permission_sequence()
 
         for vals in vals_list:
@@ -130,14 +151,25 @@ class ZleavePermission(models.Model):
             if not vals.get("name") or vals.get("name") == "/":
                 vals["name"] = seq.next_by_id()
 
-        records = super().create(vals_list)
+        records = super(ZleavePermission, self).create(vals_list)
         return records
     
     #############################
     # Método para asignar aprobador cuando se presiona el botón "Enviar"
    
     def action_send_for_approval(self):
+           
         for rec in self:
+            # Verificamos si el permiso tiene archivos adjuntos
+            attachments = self.env['ir.attachment'].search([
+                ('res_model', '=', 'zleave.permission'),
+                ('res_id', '=', rec.id)
+            ])
+            
+            if not attachments:  # Si no hay archivos adjuntos
+                raise UserError("Debe adjuntar al menos un archivo antes de guardar la solicitud.")
+
+
             # Buscamos el jefe directo o responsable de RRHH
             approver = rec._get_default_approver_user(rec.employee_id)
             
@@ -150,8 +182,25 @@ class ZleavePermission(models.Model):
 
             # Publicamos un mensaje indicando que se ha enviado para aprobación
             rec.message_post(body=_("Permiso enviado para aprobación."))
+            
+            # Obtener el correo del aprobador (jefe)
+            approver_email = approver.email or False  # Obtener el correo del aprobador
+            # Obtener el correo del empleado
+            employee_email = rec.employee_id.work_email or False  # Correo del empleado
+            # Obtener el correo del encargado de RRHH
+            hr_email = rec.hr_responsible_id.work_email or False  # Correo del encargado de RRHH
+            # Enviar el correo de notificación
+            template = self.env.ref('zleave.email_template_zleave_permission')  # Asegúrate de que el ID de la plantilla sea correcto
+            if template:
+                # Usamos el correo del aprobador en el campo "email_to" y ponemos en "CC" al empleado y al encargado de RRHH
+                template.write({
+                    'email_to': approver_email,
+                    'email_cc': f"{employee_email},{hr_email}"
+                })
+                template.send_mail(rec.id, force_send=True)  # Enviar el correo
+
         return True
-    
+
     ############
     def _check_is_approver(self):
         for rec in self:
@@ -162,14 +211,32 @@ class ZleavePermission(models.Model):
         for rec in self:
             if rec.state != "submitted":
                 raise UserError(_("Solo puedes aprobar permisos en estado Enviado."))
+            
             rec._check_is_approver()
             rec.state = "approved"
             rec.message_post(body=_("Permiso aprobado."))
+
+            # Buscar todos los registros de asistencia entre date_from y date_to para este empleado
+            attendance_day = self.env['zattendance.day'].search([
+                ('employee_id', '=', rec.employee_id.id),
+                ('date', '>=', rec.date_from),
+                ('date', '<=', rec.date_to)
+            ])
+
+            if attendance_day:
+                for att in attendance_day:
+                    # Llamamos al método 'permiso' de ZAttendanceDay para cambiar el estado
+                    att.permiso(rec.id)
+
+            else:
+                raise UserError(_("No se encontraron registros de asistencia para este rango de fechas."))
+
             # Cierra actividades pendientes del tipo To Do (si las creas al enviar)
             try:
                 rec.activity_feedback(["mail.mail_activity_data_todo"])
             except Exception:
                 pass
+
         return True
 
     def action_refuse(self):

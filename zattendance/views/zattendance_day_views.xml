@@ -10,6 +10,7 @@
           <list string="Asistencia diaria" decoration-danger="state == 'conflicto'"
                                            decoration-success="state == 'permiso'">
             <field name="date"/>
+            <field name="weekday"/>
             <field name="employee_id"/>
             <field name="planned_attendance_type"/>
             <field name="tipo_asistencia"/>                    
