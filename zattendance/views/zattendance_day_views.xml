@@ -100,6 +100,15 @@
                   <field name="permiso_late"/>
                 </group>
               </page>
+              
+              <page string="Notas-Comentarios">
+                <field name="note_ids">
+                  <list>
+                    <field name="note"/>
+                  </list>
+                </field>
+              </page>
+
 
             </notebook>
           </sheet>

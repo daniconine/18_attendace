@@ -2,27 +2,69 @@
 <odoo>
   <data>
 
-    <!-- Acción -->
+    <!-- Acción: TODAS las asistencias (para gestión) -->
     <record id="action_zattendance_day" model="ir.actions.act_window">
-      <field name="name">Asistencia diaria</field>
+      <field name="name">Todas las asistencias</field>
       <field name="res_model">zattendance.day</field>
       <field name="view_mode">list,form</field>
       <field name="view_id" ref="view_zattendance_day_list"/>
       <field name="context">{'group_by': ['date:month', 'employee_id']}</field>
     </record>
 
-    <!-- Menú raíz = App (sin parent) -->
+    <!-- Acción: MI asistencia (principal para empleado) -->
+    <record id="action_zattendance_my_day" model="ir.actions.act_window">
+      <field name="name">Mi Asistencia</field>
+      <field name="res_model">zattendance.day</field>
+      <field name="view_mode">list,form</field>
+      <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+      <field name="context">{'group_by': ['date:month']}</field>
+    </record>
+
+    <!-- Menú raíz -->
     <menuitem id="menu_zattendance_root"
               name="ZAttendance"
               sequence="60"
               web_icon="zattendance,static/description/icon.png"/>
 
-    <!-- Submenú -->
+    <!-- MENÚ PRINCIPAL: ahora abre "Mi Asistencia" -->
     <menuitem id="menu_zattendance_day"
-              name="Asistencia diaria"
+              name="Asistencia"
               parent="menu_zattendance_root"
-              action="action_zattendance_day"
+              action="action_zattendance_my_day"
               sequence="10"/>
+
+    <!-- Submenú: Mi Asistencia (si lo quieres mantener explícito) -->
+    <menuitem id="menu_zattendance_my_day"
+              name="Mi Asistencia"
+              parent="menu_zattendance_day"
+              action="action_zattendance_my_day"
+              sequence="10"
+              groups="zattendance.group_employee"/>
+
+    <!-- Submenú: Gestión / Todas las asistencias (solo para quien corresponda) -->
+    <menuitem id="menu_zattendance_manage_day"
+              name="Gestión de Asistencias"
+              parent="menu_zattendance_day"
+              action="action_zattendance_day"
+              sequence="20"
+              groups="zattendance.group_boss,zattendance.group_hr_manager"/>
+
+    
+
+    <!-- Submenú Mis notas -->
+  <menuitem id="menu_zattendance_my_notes"
+            name="Mis notas"
+            parent="zattendance.menu_zattendance_day"
+            action="zattendance.action_zattendance_my_notes"
+            sequence="30"
+            groups="zattendance.group_employee"/>
+
+    <!-- Menú dentro de zattendance que abre la acción existente -->
+    <menuitem id="zattendance_menu_hr_attendance"
+              name="Detalles de Asistencias"
+              parent="menu_zattendance_root"
+              action="hr_attendance.hr_attendance_action"
+              sequence="20"/>
 
   </data>
 </odoo>

@@ -202,7 +202,7 @@ class ZAttendanceDay(models.Model):
     late_min = fields.Integer( string="Tardanza (min)", compute="_compute_late_min",
                         store=True,default=0, )
     permiso_late = fields.Boolean(string="Permiso de Tardanza", tracking=True)
-
+    note_ids = fields.One2many("zattendance.note", "zattendance_day_id", string="Notas")
     # Permiso de tardanza (si quieres: si el día está en permiso, no hay tardanza)
     @api.depends("planned_attendance_type", "planned_start", "actual_first_check_in", "permiso_late", "state")
     def _compute_late_min(self):

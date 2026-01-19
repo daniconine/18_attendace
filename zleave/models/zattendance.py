@@ -1,6 +1,6 @@
 from odoo import models, fields, api
 from datetime import datetime
-
+from datetime import timedelta
 
 class ZAttendanceDay(models.Model):
     _inherit = "zattendance.day" 
@@ -10,7 +10,34 @@ class ZAttendanceDay(models.Model):
     permission_id = fields.Many2one( "zleave.permission",
                         string="Solicitud de Permiso",tracking=True, index=True, )
 
-    
+    #####
+    @api.model
+    def ensure_days(self, employee, date_from, date_to):
+        if not employee or not date_from or not date_to:
+            return (0, 0)
+
+        ZAttendance = self.sudo().with_context(skip_zattendance_logic=True)
+        created = 0
+
+        current = date_from
+        while current <= date_to:
+            day = ZAttendance.search([
+                ('employee_id', '=', employee.id),
+                ('date', '=', current),
+            ], limit=1)
+
+            if not day:
+                ZAttendance.create({
+                    'employee_id': employee.id,
+                    'date': current,
+                })
+                created += 1
+
+            current += timedelta(days=1)
+
+        return (created, 0)
+        
+    #####    
     def _skip_recalcular_logic(self):
         """ Método para bloquear la recalculación de asistencia después de asignar un permiso. """
         for rec in self:
@@ -20,7 +47,7 @@ class ZAttendanceDay(models.Model):
             rec.actual_presential = 0
             rec.actual_virtual = 0
             rec.diff_attendance = 0  # Reiniciar el cálculo de exceso/defecto de horas
-            
+
     # Método para manejar la actualización del estado cuando se aprueba un permiso
     def permiso(self, permiso_id):
         """

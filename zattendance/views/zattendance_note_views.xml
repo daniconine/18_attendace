@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <!-- Vista LIST -->
+    <record id="view_zattendance_note_list" model="ir.ui.view">
+        <field name="name">zattendance.note.list</field>
+        <field name="model">zattendance.note</field>
+        <field name="arch" type="xml">
+            <list string="Mis notas">
+                <field name="create_date"/>
+                <field name="zattendance_day_id"/>
+                <field name="display_name"/>
+                <field name="note"/>
+                
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista FORM -->
+    <record id="view_zattendance_note_form" model="ir.ui.view">
+        <field name="name">zattendance.note.form</field>
+        <field name="model">zattendance.note</field>
+        <field name="arch" type="xml">
+            <form string="Nota">
+            <sheet>
+                <group>
+                <field name="zattendance_day_id" required="1"/>
+                <field name="display_name"/>
+                </group>
+
+                <group>
+                <field name="note" placeholder="Escribe tu nota aquí..."/>
+                </group>
+            </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- =========================
+        ACCIÓN: Mis notas
+        ========================= -->
+    <record id="action_zattendance_my_notes" model="ir.actions.act_window">
+        <field name="name">Mis notas</field>
+        <field name="res_model">zattendance.note</field>
+        <field name="view_mode">list,form</field>
+
+        <!-- opcional: filtrar solo notas del usuario -->
+        <field name="domain">[('zattendance_day_id.employee_id.user_id', '=', uid)]</field>
+
+        <!-- recomendado: fijar orden de vistas -->
+        <field name="views" eval="[
+            (ref('view_zattendance_note_list'), 'list'),
+            (ref('view_zattendance_note_form'), 'form')
+        ]"/>
+    </record>
+
+  </data>
+</odoo>

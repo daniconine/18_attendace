@@ -16,6 +16,7 @@
         "security/ir.model.access.csv",
         
         "views/zattendance_day_views.xml",
+        "views/zattendance_note_views.xml",
         "views/hr_attendance_views.xml",
         "views/ir_cron_jobs.xml",
         "views/ir_cron_recalcular.xml",  

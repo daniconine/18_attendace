@@ -38,7 +38,7 @@ class ZleavePermission(models.Model):
         [   ('lic_sin_goce', 'Licencia Sin Goce (S.P.)/Ausencia'),
             ('lic_con_goce', 'Licencia Con Goce (S.I)/Permiso'),            
         ],
-        string="Ausencia/Permiso", tracking=True, )
+        string="Ausencia/Permiso", required=True, tracking=True, )
     
     suspension_perfecta = fields.Selection([
         ('1', '1 - S.P. SANCIÓN DISCIPLINARIA'),
@@ -88,7 +88,8 @@ class ZleavePermission(models.Model):
         'attachment_id', 
         string="Archivos Adjuntos"
     )
-    zattendance_ids = fields.One2many('zattendance.day', 'permission_id', string="Registros de Asistencia")
+    zattendance_ids = fields.One2many('zattendance.day', 'permission_id', 
+                                      string="Registros de Asistencia")
     #######################
    
     # Método para abrir los documentos adjuntos
@@ -201,7 +202,8 @@ class ZleavePermission(models.Model):
 
         return True
 
-    ############
+    ##############
+   
     def _check_is_approver(self):
         for rec in self:
             if rec.approver_id and rec.approver_id != self.env.user:
@@ -215,23 +217,29 @@ class ZleavePermission(models.Model):
             rec._check_is_approver()
             rec.state = "approved"
             rec.message_post(body=_("Permiso aprobado."))
+            
+             # 1) Asegurar que existan días de asistencia en el rango
+            created, _updated = self.env['zattendance.day'].ensure_days(
+                rec.employee_id, rec.date_from, rec.date_to
+            )
+            if created:
+                rec.message_post(body=_("Se generaron %s registros de asistencia para aplicar el permiso.") % created)
 
-            # Buscar todos los registros de asistencia entre date_from y date_to para este empleado
+            # 2) Buscar días y aplicar permiso
             attendance_day = self.env['zattendance.day'].search([
                 ('employee_id', '=', rec.employee_id.id),
                 ('date', '>=', rec.date_from),
-                ('date', '<=', rec.date_to)
+                ('date', '<=', rec.date_to),
             ])
 
-            if attendance_day:
-                for att in attendance_day:
-                    # Llamamos al método 'permiso' de ZAttendanceDay para cambiar el estado
-                    att.permiso(rec.id)
+            if not attendance_day:
+                # Esto ya sería raro porque ensure_days los crea
+                raise UserError(_("No fue posible generar registros de asistencia para este rango de fechas."))
 
-            else:
-                raise UserError(_("No se encontraron registros de asistencia para este rango de fechas."))
+            for att in attendance_day:
+                att.permiso(rec.id)
 
-            # Cierra actividades pendientes del tipo To Do (si las creas al enviar)
+            # 3) Cerrar actividades pendientes
             try:
                 rec.activity_feedback(["mail.mail_activity_data_todo"])
             except Exception:
@@ -246,6 +254,7 @@ class ZleavePermission(models.Model):
             rec._check_is_approver()
             rec.state = "refused"
             rec.message_post(body=_("Permiso rechazado."))
+            
             try:
                 rec.activity_feedback(["mail.mail_activity_data_todo"])
             except Exception:
