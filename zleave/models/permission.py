@@ -2,6 +2,7 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 import logging
+from odoo.http import request
 
 _logger = logging.getLogger(__name__)
 
@@ -91,7 +92,20 @@ class ZleavePermission(models.Model):
     zattendance_ids = fields.One2many('zattendance.day', 'permission_id', 
                                       string="Registros de Asistencia")
     #######################
-   
+    #Busca el URL para enviar el correo
+    #Revisar si funciona en entorno con dominio, si no reemplazar en plantilla la url dle sistema
+    def get_permission_approval_url(self):
+        """
+        Genera una URL para que el aprobador pueda revisar y aprobar la solicitud de permiso.
+        """
+        # Obtener la URL base del sistema
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        if base_url:
+            return f"{base_url}/web#id={self.id}&view_type=form&model=zleave.permission"
+        else:
+            # Si no se encuentra la URL base, devuelve un mensaje de error o una URL por defecto
+            return "URL no configurada correctamente"
+    #######################
     # Método para abrir los documentos adjuntos
     def action_open_documents(self):
         return {
@@ -143,20 +157,26 @@ class ZleavePermission(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        
-        # Crear el registro de permisos
+        # Crear la secuencia de permisos si no existe
         seq = self._get_or_create_permission_sequence()
 
         for vals in vals_list:
-            # Si viene vacío o con "/" => generar
+            # Si no viene con un nombre, generamos uno con la secuencia
             if not vals.get("name") or vals.get("name") == "/":
                 vals["name"] = seq.next_by_id()
 
+            # Asignar el aprobador por defecto si no se ha asignado
+            if not vals.get("approver_id") and vals.get("employee_id"):
+                employee = self.env['hr.employee'].browse(vals['employee_id'])
+                approver = self._get_default_approver_user(employee)
+                if approver:
+                    vals["approver_id"] = approver.id
+
+        # Crear los registros
         records = super(ZleavePermission, self).create(vals_list)
         return records
     
     #############################
-    # Método para asignar aprobador cuando se presiona el botón "Enviar"
    
     def action_send_for_approval(self):
            
@@ -182,24 +202,32 @@ class ZleavePermission(models.Model):
             rec.state = "submitted"  # Cambiamos el estado a "Enviado"
 
             # Publicamos un mensaje indicando que se ha enviado para aprobación
-            rec.message_post(body=_("Permiso enviado para aprobación."))
+            rec.message_post(body=_("Permiso esta siendo enviado . . . . . "))
             
-            # Obtener el correo del aprobador (jefe)
-            approver_email = approver.email or False  # Obtener el correo del aprobador
-            # Obtener el correo del empleado
+            # Obtener los correos electrónicos
+            approver_email = approver.email or False  # Correo del aprobador
             employee_email = rec.employee_id.work_email or False  # Correo del empleado
-            # Obtener el correo del encargado de RRHH
-            hr_email = rec.hr_responsible_id.work_email or False  # Correo del encargado de RRHH
+            #hr_email = rec.hr_responsible_id.work_email or False  # Correo del encargado de RRHH
+            hr_email = "jbernui@gerens.pe, pmanrique@gerens.pe"
+            # Construir el mensaje con los correos electrónicos
+            email_message = "Aprobador: " + (approver_email or "No disponible") + ", "
+            email_message += "Empleado: " + (employee_email or "No disponible") + ", "
+            email_message += "RRHH: " + (hr_email or "No disponible")
+                
             # Enviar el correo de notificación
             template = self.env.ref('zleave.email_template_zleave_permission')  # Asegúrate de que el ID de la plantilla sea correcto
+            
             if template:
                 # Usamos el correo del aprobador en el campo "email_to" y ponemos en "CC" al empleado y al encargado de RRHH
                 template.write({
                     'email_to': approver_email,
                     'email_cc': f"{employee_email},{hr_email}"
                 })
-                template.send_mail(rec.id, force_send=True)  # Enviar el correo
-
+                # Enviar el correo
+                template.send_mail(rec.id, force_send=True)
+            
+            rec.message_post(body=_("Permiso ha sido enviado a los correos: " + email_message))
+               
         return True
 
     ##############
