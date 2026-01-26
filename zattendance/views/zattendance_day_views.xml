@@ -123,5 +123,25 @@
       </field>
     </record>
 
+    <!-- PIVOT -->
+    <record id="view_zattendance_day_pivot" model="ir.ui.view">
+        <field name="name">zattendance.day.pivot</field>
+        <field name="model">zattendance.day</field>
+        <field name="arch" type="xml">
+            <pivot string="Análisis de Asistencia">
+                <!-- DIMENSIONES (group by) -->
+                <field name="date" interval="month"/>
+                <field name="employee_id"/>
+                
+
+                <!-- MÉTRICAS -->
+                <field name="planned_total" type="measure"/>
+                <field name="actual_total" type="measure"/>
+                <field name="diff_attendance" type="measure"/>
+                <field name="late_min" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
   </data>
 </odoo>

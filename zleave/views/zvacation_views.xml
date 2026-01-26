@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- views/zvacation_views.xml -->
+<odoo>
+    <!-- Vista de Lista para las Solicitudes de Vacaciones -->
+    <record id="view_zvacation_list" model="ir.ui.view">
+        <field name="name">zleave.zvacation.list</field>
+        <field name="model">zleave.zvacation</field>
+        <field name="arch" type="xml">
+            <list string="Solicitudes de Vacaciones">
+                <field name="employee_id"/>
+                <field name="vacation_type"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+        
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista de Formulario para Solicitudes de Vacaciones -->
+    <record id="view_zvacation_form" model="ir.ui.view">
+        <field name="name">zleave.zvacation.form</field>
+        <field name="model">zleave.zvacation</field>
+        <field name="arch" type="xml">
+            <form string="Solicitud de Vacaciones">
+                <!-- Cabecera con el Status Bar -->
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,approved,refused" />
+                </header>
+
+                <sheet>
+                    <!-- Título de la Solicitud -->
+                    <group>
+                        
+                    <!-- Estructura de dos columnas -->
+                    <div class="row">
+                        <!-- Columna izquierda -->
+                        <div class="col-md-6 col-12">
+                            <group>
+                                <h1>Solicitud de Vacaciones</h1>
+                                <field name="employee_id"/>
+                                <field name="vacation_type"/>
+                            </group>
+
+                            <group>
+                                <field name="date_from"/>
+                                <field name="date_to"/>
+                            </group>
+
+                            <group>
+                                <field name="reason"/>
+                            </group>
+
+                            <group>
+                                <field name="approver_id"/>
+                            </group>
+                        </div>
+
+                        <!-- Columna derecha -->
+                        <div class="col-md-6 col-12 highlight-column">
+                            <group>
+                                <h3><i class="fa fa-calendar"></i> Saldo de Vacaciones Actual</h3>
+                            </group>
+
+                            <!-- Notebook para mostrar las acumulaciones -->
+                            
+                                    <!-- Vista de Lista para Mostrar las Acumulaciones -->
+                                    <field name="employee_id" invisible="1"/> <!-- Relacionar al empleado actual (hacerlo invisible) -->
+                                    <field name="vacation_year_ids" readonly="True" options="{'no_create': True}" >
+                                        <list  domain="[('employee_id', '=', employee_id)]">
+                                            <field name="year" string="Año"/>
+                                            <field name="start_date" string="Fecha Inicial"/>
+                                            <field name="end_date" string="Fecha Final"/>
+                                            <field name="closed" string="Cerrado"/>
+                                            <field name="accumulated_days" string="Días Acumulados"/>
+                                            <field name="consumed_days" string="Días Consumidos"/>                                            
+                                            <field name="balance_days" string="Saldo"/>
+                                        </list>
+                                    </field>
+                                   
+                        </div>
+                    </div>
+                    </group>
+                </sheet>
+
+                <chatter>
+            
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    <field name="activity_ids"/>
+                </chatter>  
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para abrir la vista de lista de vacaciones -->
+    <record id="action_zvacation" model="ir.actions.act_window">
+        <field name="name">Solicitudes de Vacaciones</field>
+        <field name="res_model">zleave.zvacation</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+    </record>
+
+    
+</odoo>

@@ -8,7 +8,7 @@ _logger = logging.getLogger(__name__)
 
 class ZleavePermission(models.Model):
     _name = "zleave.permission"
-    _description = "ZleavePErmission - Permisos"
+    _description = "ZleavePermission - Permiso o Ausencia"
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "create_date desc"
     _rec_name = "name" 
@@ -21,13 +21,23 @@ class ZleavePermission(models.Model):
                 default=lambda self: self.env.company,required=True, readonly=True,)
     employee_id = fields.Many2one("hr.employee",string="Empleado",required=True,     
                     tracking=True,)
+    employee_job = fields.Many2one(related='employee_id.job_id', string="Cargo del Empl.", readonly=True,)
+    employee_department_id = fields.Many2one(related='employee_id.department_id', string="Departamento", readonly=True)
+    cargo_id = fields.Many2one(related='employee_id.parent_id.job_id', string="Cargo", readonly=True)
+    name_id = fields.Many2one(related='employee_id.parent_id', string="Nombre", readonly=True)
+   
+
+
     requested_by_id = fields.Many2one( "res.users", string="Solicitado por",
                     default=lambda self: self.env.user,readonly=True, tracking=True,)
 
-    approver_id = fields.Many2one("res.users", string="Aprobador", tracking=True, readonly=True,
+    approver_id = fields.Many2one("res.users", string="Aprobador(a)", tracking=True, readonly=True,
         domain="[('share','=',False), ('company_ids','in', company_id)]",
         help="Por defecto: employee.leave_manager_id (Aprobador de Ausencias) y fallback a jefe directo.",
     )
+    # Campo para almacenar la firma del aprobador
+    approver_signature = fields.Binary("Firma del Aprobador(a)", attachment=True)     
+    
     hr_responsible_id = fields.Many2one('hr.employee', string="Encargado de RRHH")  # Asumiendo que tienes un campo para RRHH
 
     date_from = fields.Date(string="Desde", required=True, tracking=True)
@@ -135,7 +145,16 @@ class ZleavePermission(models.Model):
                 rec.approver_id = rec._get_default_approver_user(rec.employee_id) or False
             else:
                 rec.approver_id = False
-
+                
+    #Firma digital            
+    @api.onchange('approver_id')
+    def _onchange_approver_id(self):
+        """ Cuando se selecciona un aprobador, traer la firma desde el empleado """
+        if self.approver_id:
+            employee = self.env['hr.employee'].search([('user_id', '=', self.approver_id.id)], limit=1)
+            if employee:
+                self.approver_signature = employee.signature_image
+                
     ######################################################
     #creacion del nombre
     @api.model

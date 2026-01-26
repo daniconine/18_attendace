@@ -26,7 +26,21 @@
             </field>
         </record>
 
-        
+        <!-- Heredamos la vista de formulario de los empleados -->
+        <record id="view_employee_form_inherit" model="ir.ui.view">
+            <field name="name">hr.employee.form.inherit</field>
+            <field name="model">hr.employee</field>
+            <!-- Especificamos que estamos heredando la vista original de empleados -->
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <!-- Insertamos el campo de firma digital dentro de la página 'hr_settings' -->
+                <xpath expr="//page[@name='hr_settings']" position="inside">
+                    <group>
+                        <field name="signature_image" widget="image" options="{'preview_image': 'signature_image'}"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
 
     </data>
 </odoo>

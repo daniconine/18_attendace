@@ -1,0 +1,16 @@
+/* static/src/css/styles.css */
+
+.highlight-column {
+    background-color: #f4f4f4b5; /* Fondo ligero */
+    border-left: 2px solid #a0b0c2; /* Borde azul a la izquierda */
+    border-top: 2px solid #a0b0c2; /* Borde azul arriba */
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+    padding: 20px; /* Espaciado interno */
+    transition: all 0.3s ease; /* Transición suave para efectos */
+}
+
+.highlight-column:hover {
+    background-color: #e0e0e0; /* Fondo ligeramente más oscuro al pasar el ratón */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Sombra más intensa al pasar el ratón */
+}

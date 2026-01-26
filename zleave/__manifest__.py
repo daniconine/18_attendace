@@ -21,10 +21,19 @@
         #"views/ir_cron_jobs.xml", 
         #"views/r_calendar_attendance_views.xml",
         #'views/hr_work_entry_views.xml',
-        'views/permission_views.xml',  
+        'views/permission_views.xml',
+        'views/zvacation_views.xml',
+        'views/zvacation_year_views.xml',  
+          
         
         
         "views/zleave_menus.xml",
         
     ],
+    'assets': {
+        'web.assets_backend': [
+            'zleave/static/src/css/styles.css',  # Asegúrate de agregar tu archivo CSS aquí
+        ],
+    },
+    
 }

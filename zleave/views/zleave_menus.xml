@@ -16,20 +16,29 @@
               sequence="10"
               groups="base.group_user"/>
     
-    <!-- Vacaciones -->
+  
+    <!-- Añadir el menú para las Vacaciones -->
     <menuitem id="menu_zleave_vacation"
               name="Vacaciones"
               parent="menu_zleave_root"
-              action="action_zleave_permission"
+              action="action_zvacation"
               sequence="30"
               groups="base.group_user"/>
-    
+
+    <!-- Añadir el menú para las Vacaciones -->
+    <menuitem id="menu_zleave_vacation_year"
+              name="Acumulacion de Vacaciones"
+              parent="menu_zleave_root"
+              action="action_zvacation_year"
+              sequence="40"
+              groups="base.group_user"/>
+
     <!-- Horas Extras -->
     <menuitem id="menu_zleave_he"
               name="Horas Extras"
               parent="menu_zleave_root"
               action="action_zleave_permission"
-              sequence="30"
+              sequence="60"
               groups="base.group_user"/>
 
   </data>
