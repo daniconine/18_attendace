@@ -4,4 +4,3 @@ access_zattendance_day_boss,zattendance.day boss,model_zattendance_day,zattendan
 access_zattendance_day_hr,zattendance.day hr,model_zattendance_day,zattendance.group_hr_manager,1,1,1,1
 access_zattendance_note_hr,zattendance.note hr,model_zattendance_note,zattendance.group_hr_manager,1,1,1,1
 access_zattendance_note_all_users,zattendance.note all users,model_zattendance_note,base.group_user,1,1,1,1
-access_excel_report,excel_report_employee,model_excel_report,zattendance.group_employee,1,1,1,1

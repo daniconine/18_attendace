@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =========================
+         VISTA LISTA (LIST)
+         ========================= -->
+    <record id="view_zvacation_allocate_year_list" model="ir.ui.view">
+        <field name="name">zleave.zvacation.allocate.year.list</field>
+        <field name="model">zleave.zvacation.allocate.year</field>
+        <field name="arch" type="xml">
+            <list string="Asignación de Vacaciones por Año" create="1" edit="1">
+                <field name="vacation_id"/>
+                <field name="vacation_year_id"/>
+                <field name="state" string="Estado"/>
+                <field name="days_allocated"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- =========================
+         VISTA FORM (FORM)
+         ========================= -->
+    <record id="view_zvacation_allocate_year_form" model="ir.ui.view">
+        <field name="name">zleave.zvacation.allocate.year.form</field>
+        <field name="model">zleave.zvacation.allocate.year</field>
+        <field name="arch" type="xml">
+            <form string="Asignación de días por Año">
+                <sheet>
+                    <group>
+                        <field name="vacation_id" required="1"/>
+                        <field name="vacation_year_id" required="1"/>
+                        <field name="state" string="Estado"/>
+                        <field name="days_allocated" required="1"/>
+                    </group>
+                </sheet>
+                <chatter>
+            
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    <field name="activity_ids"/>
+                </chatter>  
+            </form>
+        </field>
+    </record>
+
+    <!-- =========================
+         ACCIÓN
+         ========================= -->
+    <record id="action_zvacation_allocate_year" model="ir.actions.act_window">
+        <field name="name">Asignación de Vacaciones por Año</field>
+        <field name="res_model">zleave.zvacation.allocate.year</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea asignaciones de días consumidos por año de vacaciones.
+            </p>
+        </field>
+    </record>
+
+</odoo>

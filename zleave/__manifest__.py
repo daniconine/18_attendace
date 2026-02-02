@@ -15,7 +15,7 @@
         
         "security/ir.model.access.csv",
         
-        'views/permission_email_template.xml',
+        'views/email_template.xml',
         #"views/zattendance_day_views.xml",
         #"views/hr_attendance_views.xml",
         #"views/ir_cron_jobs.xml", 
@@ -24,7 +24,7 @@
         'views/permission_views.xml',
         'views/zvacation_views.xml',
         'views/zvacation_year_views.xml',  
-          
+        'views/zvacation_allocate_views.xml',     
         
         
         "views/zleave_menus.xml",

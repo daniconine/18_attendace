@@ -4,3 +4,4 @@ access_zleave_permission_boss,zleave.permission boss,model_zleave_permission,zle
 access_zleave_permission_hr,zleave.permission hr,model_zleave_permission,zleave.group_hr_manager,1,1,1,1
 access_zvacation_user,access_zvacation_user,model_zleave_zvacation,base.group_user,1,1,1,1
 access_zvacation_year_user,Acceso a Acumulación de Vacaciones,model_zleave_zvacation_year,base.group_user,1,1,1,1
+access_zvacation_allocate_year,access_zvacation_allocate_year_user,model_zleave_zvacation_allocate_year,base.group_user,1,1,1,1

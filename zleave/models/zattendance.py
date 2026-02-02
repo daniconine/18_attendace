@@ -10,7 +10,7 @@ class ZAttendanceDay(models.Model):
     permission_id = fields.Many2one( "zleave.permission",
                         string="Solicitud de Permiso",tracking=True, index=True, )
 
-    #####
+    ###### cReación de Registro Zattendance
     @api.model
     def ensure_days(self, employee, date_from, date_to):
         if not employee or not date_from or not date_to:

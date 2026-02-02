@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Definición de la plantilla de correo para la solicitud de permiso -->
+    <record id="zleave.email_template_zleave_permission" model="mail.template">
+        <field name="name">Notificación de Solicitud de Permiso</field>
+         <!-- Correo del usuario actual -->
+        <field name="email_from">${'odoo18@gerens.pe'}</field>
+        <field name="reply_to">${'object.employee_id.work_email'}</field> <!-- No se permiten respuestas -->
+        <field name="subject">Solicitud de Ausencia/Permiso N° {{ object.name }} enviada por {{ object.create_uid.name }}</field> <!-- Nombre del creador -->
+        <field name="body_html">
+            <![CDATA[
+                <p>Estimado/a <t t-out="object.employee_id.parent_id.display_name"/> ,</p>
+                <p>Se ha generado una solicitud de permiso para el empleado GERENS</p>
+                <p>Detalles del permiso:</p>
+                <ul>
+                    <li><strong>N°:</strong> <t t-out="object.name"/></li>
+                    <li><strong>Referencia:</strong> <t t-out="object.display_name"/></li>
+                    <li><strong>Fecha de solicitud:</strong> <t t-out="object.create_date"/></li>
+                    <li><strong>Total de Días:</strong> <t t-out="object.duration_days"/></li>
+                    <li><strong>Estado:</strong> <t t-out="object.state"/></li>
+                </ul>
+                <p>Puede revisar y aprobar la solicitud de permiso haciendo clic en el siguiente enlace:</p>
+                <p>
+                    <a href="https://piloto.gerens.pe/odoo/action-225">Revisar y aprobar la solicitud de permiso</a>
+                </p>
+                <p>Saludos</p>
+                <p style="color: red; font-weight: bold;">Por favor, no responda a este correo ya que es una notificación automática del sistema.</p>
+
+            ]]>
+        </field>
+        <field name="model_id" ref="zleave.model_zleave_permission"/>
+    </record>
+
+
+    <record id="zleave.email_template_zleave_vacation" model="mail.template">
+        <field name="name">Notificación de Solicitud de Vacaciones</field>
+        <field name="email_from">${'odoo18@gerens.pe'}</field>
+        <field name="reply_to">${object.employee_id.work_email or ''}</field>
+        <field name="subject">Solicitud de Vacaciones N° ${object.name} enviada por ${object.create_uid.name}</field>
+        
+        <field name="body_html">
+            <![CDATA[
+                <p>Estimado/a 
+                    <t t-out="(object.employee_id.parent_id and object.employee_id.parent_id.display_name) or (object.approver_id and object.approver_id.name) or ''"/> ,
+                </p>
+
+                <p>Se ha generado una solicitud de vacaciones para el empleado <t t-out="object.employee_id.name"/>.</p>
+
+                <p><strong>Detalles de la solicitud:</strong></p>
+                <ul>
+                    <li><strong>N°:</strong> <t t-out="object.name"/></li>
+                    <li><strong>Referencia:</strong> <t t-out="object.display_name"/></li>
+                    <li><strong>Fecha de solicitud:</strong> <t t-out="object.create_date"/></li>
+                    <li><strong>Rango:</strong> <t t-out="object.date_from"/> → <t t-out="object.date_to"/></li>
+                    <li><strong>Total de días:</strong> <t t-out="object.duration_days"/></li>
+                    <li><strong>Estado:</strong> <t t-out="object.state"/></li>
+                </ul>
+
+                <p>Puede revisar y aprobar la solicitud ingresando al sistema.</p>
+
+                <p>Saludos</p>
+                <p style="color: red; font-weight: bold;">
+                    Por favor, no responda a este correo ya que es una notificación automática del sistema.
+                </p>
+            ]]>
+        </field>
+        <field name="model_id" ref="zleave.model_zleave_zvacation"/>
+    </record>
+
+
+
+
+</odoo>
+

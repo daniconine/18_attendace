@@ -4,7 +4,7 @@
 
     <!-- Menú raíz -->
     <menuitem id="menu_zleave_root"
-              name="ZLeave"
+              name="ZLeave GERENS"
               sequence="60"
               web_icon="zleave,static/description/icon.png"/>
 
@@ -25,13 +25,7 @@
               sequence="30"
               groups="base.group_user"/>
 
-    <!-- Añadir el menú para las Vacaciones -->
-    <menuitem id="menu_zleave_vacation_year"
-              name="Acumulacion de Vacaciones"
-              parent="menu_zleave_root"
-              action="action_zvacation_year"
-              sequence="40"
-              groups="base.group_user"/>
+    
 
     <!-- Horas Extras -->
     <menuitem id="menu_zleave_he"
@@ -40,6 +34,45 @@
               action="action_zleave_permission"
               sequence="60"
               groups="base.group_user"/>
+    
+
+    <!-- ================================
+         NUEVO MENÚ DE CONFIGURACIÓN
+       ================================ -->
+
+    <!-- Menú principal: Configuración -->
+    <menuitem id="menu_zleave_settings"
+              name="Configuración"
+              parent="menu_zleave_root"
+              sequence="90"
+              groups="base.group_system"/>
+
+    <!-- Submenú dentro de Configuración: Vacaciones -->
+    <menuitem id="menu_zleave_settings_vacation"
+              name="Vacaciones"
+              parent="menu_zleave_settings"
+              sequence="10"
+              groups="base.group_system"/>
+
+    <!-- Añadir el menú de acumulaciones -->
+    <menuitem id="menu_zleave_vacation_year"
+              name="1. Acumulacion de Vacaciones"
+              parent="menu_zleave_settings_vacation"
+              action="action_zvacation_year"
+              sequence="10"
+              groups="base.group_user"/>
+
+    
+    <!-- Ítem: Asignación por Año (Tabla Intermedia) -->
+    <menuitem id="menu_zvacation_allocate_year"
+              name="2. Asignación Solicitud-Periodo Año "
+              parent="menu_zleave_settings_vacation"
+              action="action_zvacation_allocate_year"
+              sequence="20"
+              groups="base.group_system"/>
+
+
+    
 
   </data>
 </odoo>

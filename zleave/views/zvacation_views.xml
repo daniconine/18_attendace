@@ -22,65 +22,133 @@
         <field name="name">zleave.zvacation.form</field>
         <field name="model">zleave.zvacation</field>
         <field name="arch" type="xml">
-            <form string="Solicitud de Vacaciones">
+            <form string="Vacation Zleave">
                 <!-- Cabecera con el Status Bar -->
                 <header>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,approved,refused" />
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,submitted,approved,refused,cancelled"/>
+
+                    <button name="action_send_for_approval"
+                            type="object"
+                            string="Enviar"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+
+                    <button name="action_approve"
+                            type="object"
+                            string="Aprobar"
+                            class="btn-primary"
+                            invisible="state != 'submitted'"/>
+
+                    <button name="action_refuse"
+                            type="object"
+                            string="Rechazar"
+                            invisible="state != 'submitted'"/>
+
+                    <button name="action_cancel"
+                            type="object"
+                            string="Anular"
+                            invisible="state in ('approved','refused','cancelled')"/>
+                    
                 </header>
 
                 <sheet>
-                    <!-- Título de la Solicitud -->
+                    <div>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <h3>
+                            <field name="display_name" readonly="1"/>
+                        </h3>
+                    </div><hr/>
+
                     <group>
-                        
-                    <!-- Estructura de dos columnas -->
-                    <div class="row">
-                        <!-- Columna izquierda -->
-                        <div class="col-md-6 col-12">
-                            <group>
-                                <h1>Solicitud de Vacaciones</h1>
-                                <field name="employee_id"/>
-                                <field name="vacation_type"/>
-                            </group>
+                        <div class="row">
+                            <!-- Columna izquierda -->
+                            <div class="col-md-6 col-12">
+                                <group>
+                                    <group string="Datos del Empleado">
+                                    <field name="company_id" readonly="1"/>
+                                    <field name="employee_id" options="{'no_create': True}" invisible="state != 'draft'"/>
+                                    <field name="employee_id" options="{'no_create': True}" readonly="1" invisible="state == 'draft'"/>
+                                    <field name="employee_job"/>
+                                    </group>                                    
+                                </group>
 
-                            <group>
-                                <field name="date_from"/>
-                                <field name="date_to"/>
-                            </group>
+                                <group string ="Detalles de Solicitud">
+                                    <field name="requested_by_id" readonly="1"/>
+                                    <field name="vacation_type"/>
+                                    <field name="date_from" widget="daterange" options="{'end_date_field': 'date_to'}"/>
+                                    <field name="date_to" invisible="1"/>
+                                    <field name="duration_days" readonly="1"/>
+                                </group>
 
-                            <group>
-                                <field name="reason"/>
-                            </group>
+                                <group>
+                                    <field name="description" 
+                                    placeholder="De manera opcional puede escribir el motivo de sus vacaciones aquí..."/>
+                                </group>
 
-                            <group>
-                                <field name="approver_id"/>
-                            </group>
+                                
+                            </div>
+
+                            <!-- Columna derecha -->
+                            <div class="col-md-6 col-12 highlight-column"
+                                invisible="state != 'draft'">
+                                <group>
+                                    <h3><i class="fa fa-calendar"></i> Saldo de Vacaciones Actual</h3>
+                                </group>
+
+                                <!-- Notebook para mostrar las acumulaciones -->
+                                
+                                        <!-- Vista de Lista para Mostrar las Acumulaciones -->
+                                        <field name="employee_id" invisible="1"/> <!-- Relacionar al empleado actual (hacerlo invisible) -->
+                                        <field name="vacation_year_ids" readonly="True" options="{'no_create': True}" >
+                                            <list  domain="[('employee_id', '=', employee_id)]">
+                                                <field name="year" string="Año"/>
+                                                <field name="start_date" string="Fecha Inicial"/>
+                                                <field name="end_date" string="Fecha Final"/>                                                
+                                                <field name="accumulated_days" string="Días Acumulados"/>
+                                                <field name="consumed_days" string="Días Consumidos"/>                                            
+                                                <field name="balance_days" string="Saldo"/>
+                                            </list>
+                                        </field>                                
+                                
+                                <hr/>
+                                <group string="Detalle de Autorizante">
+                                    <field name="employee_department_id"/>
+                                    <field name="approver_id"/>
+                                    <field name="cargo_id"/>
+                                </group>
+                                    
+                            </div>
+
+                            <div class="col-md-6 col-12 highlight-column"
+                                invisible="state not in ['submitted','approved']">
+
+                                <group>
+                                    <h3><i class="fa fa-calendar-check-o"></i> Asignación aplicada</h3>
+                                </group>
+
+                                <field name="allocation_ids" readonly="True" options="{'no_create': True, 'no_edit': True}">
+                                    <list>
+                                        <field name="vacation_year_id" string="Año"/>
+                                        <field name="days_allocated" string="Días asignados"/>
+                                        <field name="state" string="Estado"/>
+                                    </list>
+                                </field>
+
+                                <hr/>
+                                <group string="Detalle de Autorizante">
+                                    <field name="employee_department_id" readonly="True"/>
+                                    <field name="approver_id" readonly="True"/>
+                                    <field name="cargo_id" readonly="True"/>
+                                </group>
+                            </div>
+
+
                         </div>
-
-                        <!-- Columna derecha -->
-                        <div class="col-md-6 col-12 highlight-column">
-                            <group>
-                                <h3><i class="fa fa-calendar"></i> Saldo de Vacaciones Actual</h3>
-                            </group>
-
-                            <!-- Notebook para mostrar las acumulaciones -->
-                            
-                                    <!-- Vista de Lista para Mostrar las Acumulaciones -->
-                                    <field name="employee_id" invisible="1"/> <!-- Relacionar al empleado actual (hacerlo invisible) -->
-                                    <field name="vacation_year_ids" readonly="True" options="{'no_create': True}" >
-                                        <list  domain="[('employee_id', '=', employee_id)]">
-                                            <field name="year" string="Año"/>
-                                            <field name="start_date" string="Fecha Inicial"/>
-                                            <field name="end_date" string="Fecha Final"/>
-                                            <field name="closed" string="Cerrado"/>
-                                            <field name="accumulated_days" string="Días Acumulados"/>
-                                            <field name="consumed_days" string="Días Consumidos"/>                                            
-                                            <field name="balance_days" string="Saldo"/>
-                                        </list>
-                                    </field>
-                                   
-                        </div>
-                    </div>
-                    </group>
+                    </group>                   
+                    
                 </sheet>
 
                 <chatter>

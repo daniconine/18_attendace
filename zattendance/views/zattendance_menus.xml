@@ -22,7 +22,7 @@
 
     <!-- Menú raíz -->
     <menuitem id="menu_zattendance_root"
-              name="ZAttendance"
+              name="ZAttendance GERENS"
               sequence="60"
               web_icon="zattendance,static/description/icon.png"/>
 
@@ -66,20 +66,7 @@
               action="hr_attendance.hr_attendance_action"
               sequence="20"/>
 
-    <!-- Menú dentro de zattendance que abre la acción existente -->
-    <menuitem id="menu_report"
-              name="Reportes"
-              parent="menu_zattendance_root"
-              sequence="30"
-              groups="zattendance.group_employee"/>
-
-    <menuitem id="submenu_report"
-              name="Reporte Excel"
-              parent="zattendance.menu_report"
-              action="zattendance.action_excel_report"
-              sequence="10"
-              groups="zattendance.group_employee"/>
-
+    
 
   </data>
 </odoo>

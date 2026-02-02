@@ -23,9 +23,7 @@
         "views/r_calendar_attendance_views.xml",
         'views/hr_work_entry_views.xml',
          
-        'report/excel_report.xml',
-
-        
+              
         "views/zattendance_menus.xml",
         
     ],

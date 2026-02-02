@@ -35,9 +35,7 @@ class ZleavePermission(models.Model):
         domain="[('share','=',False), ('company_ids','in', company_id)]",
         help="Por defecto: employee.leave_manager_id (Aprobador de Ausencias) y fallback a jefe directo.",
     )
-    # Campo para almacenar la firma del aprobador
-    approver_signature = fields.Binary("Firma del Aprobador(a)", attachment=True)     
-    
+   
     hr_responsible_id = fields.Many2one('hr.employee', string="Encargado de RRHH")  # Asumiendo que tienes un campo para RRHH
 
     date_from = fields.Date(string="Desde", required=True, tracking=True)
@@ -146,14 +144,7 @@ class ZleavePermission(models.Model):
             else:
                 rec.approver_id = False
                 
-    #Firma digital            
-    @api.onchange('approver_id')
-    def _onchange_approver_id(self):
-        """ Cuando se selecciona un aprobador, traer la firma desde el empleado """
-        if self.approver_id:
-            employee = self.env['hr.employee'].search([('user_id', '=', self.approver_id.id)], limit=1)
-            if employee:
-                self.approver_signature = employee.signature_image
+ 
                 
     ######################################################
     #creacion del nombre
@@ -317,6 +308,7 @@ class ZleavePermission(models.Model):
         return True
 
     ###########################################################
+    ### Suspencion Perfecta e imperfecta de acuerdo al tipo seleccionado
     @api.depends("employee_id", "type_permission", "suspension_perfecta", "suspension_imperfecta", "date_from", "date_to")
     def _compute_display_name(self):
         for rec in self:

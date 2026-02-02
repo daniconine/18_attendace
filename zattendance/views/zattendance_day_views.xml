@@ -11,7 +11,7 @@
                                            decoration-success="state == 'permiso'">
             <field name="date"/>
             <field name="weekday"/>
-            <field name="employee_id"/>
+            <field name="employee_id" widget="many2one_avatar_employee"/>
             <field name="planned_attendance_type"/>
             <field name="tipo_asistencia"/>                    
             <field name="late_min"/>
@@ -104,6 +104,7 @@
               <page string="Notas-Comentarios">
                 <field name="note_ids">
                   <list>
+                    <field name="create_uid"/>
                     <field name="note"/>
                   </list>
                 </field>
