@@ -349,3 +349,8 @@ class ZleavePermission(models.Model):
                     raise ValidationError(_("Si es Licencia Con Goce / Permiso, debes seleccionar un tipo de Suspensión Imperfecta (PLAME)."))
                 if rec.suspension_perfecta:
                     raise ValidationError(_("Para Licencia Con Goce / Permiso no debes seleccionar Suspensión Perfecta."))
+    
+    approver_image_1920 = fields.Image(
+    string="Firmado por:",
+    related="approver_id.image_1920",
+    readonly=True,)            

@@ -4,7 +4,7 @@
 
     <!-- Menú raíz -->
     <menuitem id="menu_zleave_root"
-              name="ZLeave GERENS"
+              name="ZLeave GERENS |"
               sequence="60"
               web_icon="zleave,static/description/icon.png"/>
 
