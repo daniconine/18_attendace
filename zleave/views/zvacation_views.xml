@@ -122,8 +122,24 @@
                                     
                             </div>
 
+                             <div class="col-md-6 col-12 highlight-column"
+                                invisible="state != 'submitted'">
+
+                                <group>
+                                    <h3><i class="fa fa-calendar-check-o"></i> Asignación en curso ..</h3>
+                                </group>
+
+                                <field name="allocation_ids" readonly="True" options="{'no_create': True, 'no_edit': True}">
+                                    <list>
+                                        <field name="vacation_year_id" string="Año"/>
+                                        <field name="days_allocated" string="Días asignados"/>
+                                        <field name="state" string="Estado"/>
+                                    </list>
+                                </field>
+                            </div>
+
                             <div class="col-md-6 col-12 highlight-column"
-                                invisible="state not in ['submitted','approved']">
+                                invisible="state !='approved'">
 
                                 <group>
                                     <h3><i class="fa fa-calendar-check-o"></i> Asignación de Vacaciones Aplicada</h3>
