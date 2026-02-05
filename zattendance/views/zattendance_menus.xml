@@ -22,7 +22,7 @@
 
     <!-- Menú raíz -->
     <menuitem id="menu_zattendance_root"
-              name="ZAttendance GERENS |"
+              name="ZAttendance |"
               sequence="60"
               web_icon="zattendance,static/description/icon.png"/>
 

@@ -126,7 +126,7 @@
                                 invisible="state not in ['submitted','approved']">
 
                                 <group>
-                                    <h3><i class="fa fa-calendar-check-o"></i> Asignación aplicada</h3>
+                                    <h3><i class="fa fa-calendar-check-o"></i> Asignación de Vacaciones Aplicada</h3>
                                 </group>
 
                                 <field name="allocation_ids" readonly="True" options="{'no_create': True, 'no_edit': True}">
@@ -138,10 +138,62 @@
                                 </field>
 
                                 <hr/>
-                                <group string="Detalle de Autorizante">
-                                    <field name="employee_department_id" readonly="True"/>
-                                    <field name="approver_id" readonly="True"/>
-                                    <field name="cargo_id" readonly="True"/>
+                                <group string="Firma">
+                                    <div class="col-12 col-lg-6">
+                                        <div style="border:1px solid #e5e5e5; border-radius:8px; padding:12px;">
+
+                                        <div class="d-flex align-items-start" style="gap:12px;">
+                                            <!-- Foto -->
+                                            <div>
+                                                <field name="approver_image_1920"
+                                                    widget="image"
+                                                    readonly="1"
+                                                    options="{'preview_image': 'approver_image_1920'}"
+                                                    style="width:96px; height:96px; border-radius:6px; object-fit:cover;"/>
+                                            </div>
+
+                                            <!-- Texto -->
+                                            <div style="font-size:11px; line-height:1.25;">
+                                                <div style="font-weight:700; font-size:12px; margin-bottom:4px;">
+                                                    Firmado digitalmente por:
+                                                    <span style="font-weight:800;">
+                                                        <field name="approver_id" nolabel="1" readonly="1"/>
+                                                    </span>
+                                                </div>
+
+                                                <div style="font-size:11px; white-space:nowrap;">
+                                                    <span style="font-weight:600; display:inline-block; margin-right:6px;">Cargo:</span>
+                                                    <span style="display:inline-block;">
+                                                        <field name="cargo_id" nolabel="1" readonly="1"/>
+                                                    </span>
+                                                </div>
+
+                                                <div style="font-size:11px; white-space:nowrap;">
+                                                    <span style="font-weight:600; display:inline-block; margin-right:6px;">Fecha:</span>
+                                                    <span style="display:inline-block;">
+                                                        <field name="write_date" nolabel="1" readonly="1"/>
+                                                    </span>
+                                                </div>
+
+                                                <div style="font-size:11px; white-space:nowrap;">
+                                                    <span style="font-weight:600; display:inline-block; margin-right:6px;">Departamento:</span>
+                                                    <span style="display:inline-block;">
+                                                        <field name="employee_department_id" nolabel="1" readonly="1"/>
+                                                    </span>
+                                                </div>
+
+                                                <div style="color:#666;">
+                                                    <span style="font-weight:600; margin-right:6px;">Tipo:</span>
+                                                    <span>Validación interna</span>
+                                                </div>
+                                                <br/>
+                                                <br/>
+                                            
+                                            </div>
+                                        </div>
+
+                                        </div>
+                                    </div>
                                 </group>
                             </div>
 

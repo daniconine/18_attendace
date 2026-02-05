@@ -61,29 +61,30 @@
 
                     <!-- GRUPO PRINCIPAL -->
                     <group>
-                        <group>
+                        <group string ="Datos de Inicio">
                             <field name="employee_id" />
                             <field name="year" />
                             <field name="start_date"/>
                             <field name="end_date"/>
                         </group>
 
-                        <group string="Cálculo">
+                        <group string="Cálculo para Acumulación">
                             <field name="start_date_call" readonly="1"/>
                             <field name="end_date_call" readonly="1"/>
-                            <field name="days_not_work"/>
+                            
                         </group>
                     </group>
 
                     <!-- ACUMULACIÓN -->
-                    <group string="Resumen de Días">
-                        <group>
+                    <group string="RESUMEN">
+                        <group string="Resultado de Actualizar">
                             <field name="accumulated_days"/>
                             <field name="consumed_days"/>
-                        </group>
-                        <group>
-                            <field name="advance_days"/>
                             <field name="balance_days" readonly="1"/>
+                        </group>
+                        <group string="Campos Adicionales de Cálculo">
+                            <field name="advance_days"/>
+                            <field name="days_not_work"/>
                         </group>
                     </group>
 

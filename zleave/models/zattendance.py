@@ -10,6 +10,10 @@ class ZAttendanceDay(models.Model):
     permission_id = fields.Many2one( "zleave.permission",
                         string="Solicitud de Permiso",tracking=True, index=True, )
 
+    vacation_id = fields.Many2one("zleave.zvacation", string="Solicitud de Vacaciones",
+                        tracking=True, index=True,)
+
+
     ###### cReación de Registro Zattendance
     @api.model
     def ensure_days(self, employee, date_from, date_to):
@@ -48,6 +52,7 @@ class ZAttendanceDay(models.Model):
             rec.actual_virtual = 0
             rec.diff_attendance = 0  # Reiniciar el cálculo de exceso/defecto de horas
 
+    ##Modelo de PErmiso y ausencias
     # Método para manejar la actualización del estado cuando se aprueba un permiso
     def permiso(self, permiso_id):
         """
@@ -85,4 +90,26 @@ class ZAttendanceDay(models.Model):
             # Bloquear recalcular (si es necesario)
             rec._skip_recalcular_logic()
 
+        return True
+    
+    #Modelo de Vacaciones
+    # Método para manejar la actualización del estado cuando se aprueba un permiso
+    def vacaciones(self, vacation_id):
+        for rec in self:
+            if rec.state == "vacaciones":
+                continue
+
+            # aquí defines el tipo que usarás en planned_attendance_type
+            # (debes asegurarte que 'vacaciones' exista como opción del campo)
+            rec.planned_attendance_type = "vacaciones"
+
+            rec.state = "permiso"
+            rec.planned_start = False
+            rec.planned_end = False
+            rec.planned_presential = 0
+            rec.planned_virtual = 0
+
+            rec.vacation_id = vacation_id
+
+            rec._skip_recalcular_logic()
         return True

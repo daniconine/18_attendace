@@ -52,6 +52,12 @@ class ZVacation(models.Model):
 
     allocation_ids = fields.One2many('zleave.zvacation.allocate.year', 'vacation_id', string='Asignación por Años')
 
+    zattendance_ids = fields.One2many("zattendance.day", "vacation_id",
+                        string="Registros de Asistencia", readonly=True,)
+    
+    approver_image_1920 = fields.Image( string="Firmado por:", related="approver_id.image_1920",
+                            readonly=True,)     
+    
     #############################
     # Creación de nombre secuencial (similar a lo que tienes en ZleavePermission)
     @api.model
@@ -234,10 +240,37 @@ class ZVacation(models.Model):
                 raise UserError(_("Solo puedes aprobar solicitudes de vacaciones en estado Enviado."))
             
             rec._check_is_approver()
+            
+            # 1) Asegurar días de asistencia en el rango
+            created, _updated = self.env["zattendance.day"].ensure_days(
+                rec.employee_id, rec.date_from, rec.date_to
+            )
+            if created:
+                rec.message_post(
+                    body=_("Se generaron %s registros de asistencia para aplicar las vacaciones.") % created
+                )
+
+            # 2) Buscar días y aplicar vacaciones
+            attendance_days = self.env["zattendance.day"].search([
+                ("employee_id", "=", rec.employee_id.id),
+                ("date", ">=", rec.date_from),
+                ("date", "<=", rec.date_to),
+            ])
+            if not attendance_days:
+                raise UserError(_("No fue posible generar registros de asistencia para este rango de fechas."))
+
+            for att in attendance_days:
+                att.vacaciones(rec.id)
+            
             rec.state = "approved"
             rec.message_post(body=_("Vacaciones aprobadas."))
 
-            
+            # 4) Cerrar actividades pendientes
+            try:
+                rec.activity_feedback(["mail.mail_activity_data_todo"])
+            except Exception:
+                pass
+                
 
         return True   
         

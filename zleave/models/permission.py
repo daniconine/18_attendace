@@ -12,7 +12,7 @@ class ZleavePermission(models.Model):
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "create_date desc"
     _rec_name = "name" 
-
+    
     
     name = fields.Char( string="Código",copy=False,readonly=True,tracking=True,)
     display_name = fields.Char(compute="_compute_display_name", store=False)
@@ -99,6 +99,9 @@ class ZleavePermission(models.Model):
     )
     zattendance_ids = fields.One2many('zattendance.day', 'permission_id', 
                                       string="Registros de Asistencia")
+    
+    approver_image_1920 = fields.Image( string="Firmado por:", related="approver_id.image_1920",
+                            readonly=True,)         
     #######################
     #Busca el URL para enviar el correo
     #Revisar si funciona en entorno con dominio, si no reemplazar en plantilla la url dle sistema
@@ -350,7 +353,4 @@ class ZleavePermission(models.Model):
                 if rec.suspension_perfecta:
                     raise ValidationError(_("Para Licencia Con Goce / Permiso no debes seleccionar Suspensión Perfecta."))
     
-    approver_image_1920 = fields.Image(
-    string="Firmado por:",
-    related="approver_id.image_1920",
-    readonly=True,)            
+       

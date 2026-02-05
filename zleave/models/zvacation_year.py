@@ -23,7 +23,7 @@ class ZVacationYear(models.Model):
     start_date = fields.Date(string='Fecha inicial Acumulación', default=fields.Date.today)
     end_date = fields.Date(string='Fecha final Acumulación' )
     accumulated_days = fields.Float(string='Días Acumulados')
-    consumed_days = fields.Float(string='Días Consumidos')
+    consumed_days = fields.Float(string='Días Consumidos', compute='_compute_consumed', store=True)
     balance_days = fields.Float(string='Saldo', compute='_compute_balance', store=True)
     
     # Relación con la tabla puente
@@ -111,7 +111,13 @@ class ZVacationYear(models.Model):
         for rec in self:
             rec.balance_days = rec.advance_days + rec.accumulated_days - rec.consumed_days
     
-    
+    #Mapea los regsitros en allocate para descontar el consumo
+    @api.depends('allocation_ids.days_allocated', 'allocation_ids.state')
+    def _compute_consumed(self):
+        for rec in self:
+            rec.consumed_days = sum(
+                rec.allocation_ids.filtered(lambda a: a.state == 'approved').mapped('days_allocated')
+            )
     #######################################
     #CAlculo        
     def _compute_accrual(self):
@@ -160,11 +166,11 @@ class ZVacationYear(models.Model):
             # Trazabilidad
             rec.message_post(
                 body=(
-                    f"Actualización de acumulación:<br/>"
-                    f"• Días naturales: {days_total}<br/>"
-                    f"• Días no trabajados: {rec.days_not_work}<br/>"
-                    f"• Días efectivos: {effective_days}<br/>"
-                    f"• Días añadidos: {added_days}"
+                    f"Actualización de acumulación:.... "
+                    f"[Días naturales: {days_total} ] - "
+                    f"[Días no trabajados: {rec.days_not_work}] - "
+                    f"[Días efectivos: {effective_days}] - "
+                    f"[Días añadidos: {added_days}]"
                 )
             )
             

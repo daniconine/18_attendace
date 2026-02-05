@@ -50,7 +50,9 @@ class ZVacationAllocateYear(models.Model):
     @api.model
     def allocate_days_for_vacation(self, vacation):
         """Aplica FIFO y crea las líneas preliminares de asignación."""
-
+        #Realiza una limpieza de registrso anterirores
+        self.search([('vacation_id', '=', vacation.id)]).unlink()
+        
         remaining_days = vacation.duration_days
         employee = vacation.employee_id
 

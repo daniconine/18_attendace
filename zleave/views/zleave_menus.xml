@@ -4,7 +4,7 @@
 
     <!-- Menú raíz -->
     <menuitem id="menu_zleave_root"
-              name="ZLeave GERENS |"
+              name="ZLeave |"
               sequence="60"
               web_icon="zleave,static/description/icon.png"/>
 
@@ -45,14 +45,14 @@
               name="Configuración"
               parent="menu_zleave_root"
               sequence="90"
-              groups="base.group_system"/>
+              groups="base.group_user"/>
 
     <!-- Submenú dentro de Configuración: Vacaciones -->
     <menuitem id="menu_zleave_settings_vacation"
               name="Vacaciones"
               parent="menu_zleave_settings"
               sequence="10"
-              groups="base.group_system"/>
+              groups="base.group_user"/>
 
     <!-- Añadir el menú de acumulaciones -->
     <menuitem id="menu_zleave_vacation_year"
@@ -69,7 +69,7 @@
               parent="menu_zleave_settings_vacation"
               action="action_zvacation_allocate_year"
               sequence="20"
-              groups="base.group_system"/>
+              groups="base.group_user"/>
 
 
     
