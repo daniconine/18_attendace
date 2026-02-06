@@ -136,6 +136,14 @@
                                         <field name="state" string="Estado"/>
                                     </list>
                                 </field>
+
+                                <hr/>
+                                <group string="Enviado para aprobación">
+                                    <field name="employee_department_id"/>
+                                    <field name="approver_id"/>
+                                    <field name="cargo_id"/>
+                                </group>
+
                             </div>
 
                             <div class="col-md-6 col-12 highlight-column"
