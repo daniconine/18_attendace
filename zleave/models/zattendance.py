@@ -13,6 +13,8 @@ class ZAttendanceDay(models.Model):
     vacation_id = fields.Many2one("zleave.zvacation", string="Solicitud de Vacaciones",
                         tracking=True, index=True,)
 
+    overtime_ids = fields.One2many('zleave.overtime', 'zattendance_id', string="Solicitudes de Horas Extras")
+
 
     ###### cReación de Registro Zattendance
     @api.model

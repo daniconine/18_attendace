@@ -158,18 +158,18 @@
                             <field name="cargo_id" nolabel="1" readonly="1"/>
                           </span>
                         </div>
+                        
+                        <div style="font-size:11px; white-space:nowrap;">
+                          <span style="font-weight:600; display:inline-block; margin-right:6px;">Departamento:</span>
+                          <span style="display:inline-block;">
+                            <field name="employee_department_id" nolabel="1" readonly="1"/>
+                          </span>
+                        </div>
 
                         <div style="font-size:11px; white-space:nowrap;">
                           <span style="font-weight:600; display:inline-block; margin-right:6px;">Fecha:</span>
                           <span style="display:inline-block;">
                             <field name="write_date" nolabel="1" readonly="1"/>
-                          </span>
-                        </div>
-
-                        <div style="font-size:11px; white-space:nowrap;">
-                          <span style="font-weight:600; display:inline-block; margin-right:6px;">Departamento:</span>
-                          <span style="display:inline-block;">
-                            <field name="employee_department_id" nolabel="1" readonly="1"/>
                           </span>
                         </div>
 

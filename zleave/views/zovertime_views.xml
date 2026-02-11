@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de Listado -->
+    <record id="view_zleave_overtime_list" model="ir.ui.view">
+        <field name="name">zleave.overtime.list</field>
+        <field name="model">zleave.overtime</field>
+        <field name="arch" type="xml">
+            <list string="Solicitud de Horas Extras">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="zattendance_date"/>
+                <field name="zattendance_diff"/>
+                <field name="total_hours_requested"/>
+                <field name="approver_id"/>
+                <field name="state"/>
+                
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista de Formulario -->
+    <record id="view_zleave_overtime_form" model="ir.ui.view">
+        <field name="name">zleave.overtime.form</field>
+        <field name="model">zleave.overtime</field>
+        <field name="arch" type="xml">
+            <form string="Solicitud de Horas Extras">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,refused,cancelled"/>
+
+                </header>
+
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                        <h3><field name="display_name" readonly="1"/></h3>
+                    </div>
+                    <separator colspan="4"/>
+                    <div class="oe_clear"/>
+                    <hr/>
+                    <group>
+                        <group>
+                            <field name="company_id" readonly="1"/>
+                            <field name="employee_id" options="{'no_create': True}" invisible="state != 'draft'"/>
+                            <field name="employee_id" options="{'no_create': True}" readonly="1" invisible="state == 'draft'"/>
+                            <field name="employee_job" options="{'no_create': True}" readonly="1"/>
+                            <field name="approver_id"/>
+                        </group>
+                        <group>
+                            <field name="zattendance_id"/>
+                        </group>
+                    </group>
+                    <group string="Detalles de Solicitud">
+                        <group>
+                            <field name="total_hours_requested"/>
+                            <field name="horas_25"/>
+                            <field name="horas_35"/>
+                            <field name="horas_200"/>
+                            <field name="horas_300"/>
+                        </group>   
+                        <group>
+                            
+                            <field name="zattendance_diff"/>
+                            <field name="zattendance_state"/>
+                            <field name="zattendance_type"/>
+                        </group>
+                    </group>
+
+                    <group string="Motivo">
+                        <field name="description"/>
+                    </group>
+
+                    <div class="oe_clear"/>
+                </sheet>
+
+                <!-- Chatter -->
+                <chatter>
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    <field name="activity_ids"/>
+                </chatter>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- Acción -->
+    <record id="action_zleave_overtime" model="ir.actions.act_window">
+        <field name="name">Solicitud de Horas Extras</field>
+        <field name="res_model">zleave.overtime</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_zleave_overtime_list"/>
+        <field name="context">{'group_by': ['employee_id', 'zattendance_date:month']}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+            Crea una solicitud de hora extra y envíala para aprobación.
+            </p>
+        </field>
+    </record>
+    
+</odoo>

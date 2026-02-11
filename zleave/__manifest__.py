@@ -24,7 +24,8 @@
         'views/permission_views.xml',
         'views/zvacation_views.xml',
         'views/zvacation_year_views.xml',  
-        'views/zvacation_allocate_views.xml',     
+        'views/zvacation_allocate_views.xml',
+        'views/zovertime_views.xml',     
         
         
         "views/zleave_menus.xml",

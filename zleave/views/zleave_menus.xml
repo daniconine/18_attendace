@@ -31,7 +31,7 @@
     <menuitem id="menu_zleave_he"
               name="Horas Extras"
               parent="menu_zleave_root"
-              action="action_zleave_permission"
+              action="action_zleave_overtime"
               sequence="60"
               groups="base.group_user"/>
     

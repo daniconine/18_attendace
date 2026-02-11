@@ -6,13 +6,20 @@
         <field name="name">zleave.zvacation.list</field>
         <field name="model">zleave.zvacation</field>
         <field name="arch" type="xml">
-            <list string="Solicitudes de Vacaciones">
-                <field name="employee_id"/>
+            <list string="Solicitudes de Vacaciones" sample="1"
+                        decoration-warning="state == 'submitted'"
+                        decoration-success="state == 'approved'"
+                        decoration-danger="state == 'refused'">
+                <field name="name"/>
+                <field name="employee_id" widget="many2one_avatar_employee"/>
                 <field name="vacation_type"/>
                 <field name="date_from"/>
                 <field name="date_to"/>
-        
-                <field name="state"/>
+                <field name="duration_days"/>
+                <field name="state" widget="badge"
+                            decoration-warning="state == 'submitted'"
+                            decoration-success="state == 'approved'"
+                            decoration-danger="state == 'refused'"/>
             </list>
         </field>
     </record>
@@ -193,19 +200,19 @@
                                                 </div>
 
                                                 <div style="font-size:11px; white-space:nowrap;">
-                                                    <span style="font-weight:600; display:inline-block; margin-right:6px;">Fecha:</span>
-                                                    <span style="display:inline-block;">
-                                                        <field name="write_date" nolabel="1" readonly="1"/>
-                                                    </span>
-                                                </div>
-
-                                                <div style="font-size:11px; white-space:nowrap;">
                                                     <span style="font-weight:600; display:inline-block; margin-right:6px;">Departamento:</span>
                                                     <span style="display:inline-block;">
                                                         <field name="employee_department_id" nolabel="1" readonly="1"/>
                                                     </span>
                                                 </div>
 
+                                                <div style="font-size:11px; white-space:nowrap;">
+                                                    <span style="font-weight:600; display:inline-block; margin-right:6px;">Fecha:</span>
+                                                    <span style="display:inline-block;">
+                                                        <field name="write_date" nolabel="1" readonly="1"/>
+                                                    </span>
+                                                </div>
+                                                    
                                                 <div style="color:#666;">
                                                     <span style="font-weight:600; margin-right:6px;">Tipo:</span>
                                                     <span>Validación interna</span>
@@ -242,8 +249,14 @@
         <field name="name">Solicitudes de Vacaciones</field>
         <field name="res_model">zleave.zvacation</field>
         <field name="view_mode">list,form</field>
-        <field name="target">current</field>
+        <field name="view_id" ref="view_zvacation_list"/>
+        <field name="context">{'group_by': ['employee_id', 'date_from:month']}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+            Crea una solicitud de vacaciones y envíala para aprobación.
+            </p>
+      </field>
     </record>
 
-    
+
 </odoo>
