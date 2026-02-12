@@ -1,8 +1,11 @@
 from odoo import fields, models
+from odoo.exceptions import UserError
+from odoo.exceptions import AccessError
 
 class ZAttendanceNote(models.Model):
     _name = "zattendance.note"
-    _description = "Notas"
+    _description = "Justificaciones e Incidencias"
+    _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "create_date desc"
 
     zattendance_day_id = fields.Many2one(
@@ -12,4 +15,55 @@ class ZAttendanceNote(models.Model):
         ondelete="cascade",
         index=True,
     )
-    note = fields.Text(string="Nota", required=True)
+    
+    requested_by = fields.Many2one(
+        "res.users",
+        string="Solicitante",
+        default=lambda self: self.env.user,
+        readonly=True,
+    )
+
+    category = fields.Selection([
+        ("justificacion", "Justificación"),
+        ("incidencia", "Incidencia"),
+    ], string="Clase", default="incidencia", required=True, tracking=True)
+
+    reason = fields.Selection([
+        ("cambio_horario", "Cambio de horario"),        
+        ("hextra_comp", "Horas extra generadas para compensar"),
+        ("compensacion", "Compensación de horas extras (Descanso)"),
+        ("salud", "Salud / Terapia"),
+        ("otros", "Otros"),
+    ], string="Motivo", default="otros", required=True, tracking=True)
+
+    note = fields.Text(string="Detalle / Sustento", required=True)
+
+    state = fields.Selection([
+        ("submitted", "Enviada"),
+        ("approved", "Aprobada"),
+        ("rejected", "Rechazada"),
+    ], string="Estado", default="submitted", tracking=True)
+
+    approved_by = fields.Many2one("res.users", string="Decidido por", readonly=True)
+    decision_date = fields.Datetime(string="Fecha decisión", readonly=True)
+    n_horas = fields.Float(string="N° Horas Afectadas")
+    
+    def action_approve(self):
+        for rec in self:
+            if rec.state != "submitted":
+                raise UserError("Solo puedes aprobar solicitudes en estado 'Enviada'.")
+        self.write({
+            "state": "approved",
+            "approved_by": self.env.user.id,
+            "decision_date": fields.Datetime.now(),
+        })
+
+    def action_reject(self):
+        for rec in self:
+            if rec.state != "submitted":
+                raise UserError("Solo puedes rechazar solicitudes en estado 'Enviada'.")
+        self.write({
+            "state": "rejected",
+            "approved_by": self.env.user.id,
+            "decision_date": fields.Datetime.now(),
+        })

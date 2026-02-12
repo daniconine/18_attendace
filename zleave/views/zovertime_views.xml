@@ -5,7 +5,7 @@
         <field name="name">zleave.overtime.list</field>
         <field name="model">zleave.overtime</field>
         <field name="arch" type="xml">
-            <list string="Solicitud de Horas Extras">
+            <list string="Solicitud de Horas Extras Pagadas">
                 <field name="name"/>
                 <field name="employee_id"/>
                 <field name="zattendance_date"/>
@@ -23,7 +23,7 @@
         <field name="name">zleave.overtime.form</field>
         <field name="model">zleave.overtime</field>
         <field name="arch" type="xml">
-            <form string="Solicitud de Horas Extras">
+            <form string="Solicitud de Horas Extras PAgadas">
                 <header>
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,refused,cancelled"/>
 
@@ -34,28 +34,25 @@
                         <h1><field name="name" readonly="1"/></h1>
                         <h3><field name="display_name" readonly="1"/></h3>
                     </div>
-                    <separator colspan="4"/>
-                    <div class="oe_clear"/>
+                                       
                     <hr/>
-                    <group>
+                    <group string = "Datos">
                         <group>
                             <field name="company_id" readonly="1"/>
                             <field name="employee_id" options="{'no_create': True}" invisible="state != 'draft'"/>
                             <field name="employee_id" options="{'no_create': True}" readonly="1" invisible="state == 'draft'"/>
                             <field name="employee_job" options="{'no_create': True}" readonly="1"/>
-                            <field name="approver_id"/>
+                            
                         </group>
                         <group>
-                            <field name="zattendance_id"/>
+                            <field name="approver_id"/>
                         </group>
                     </group>
                     <group string="Detalles de Solicitud">
                         <group>
+                            <field name="zattendance_id"/>
                             <field name="total_hours_requested"/>
-                            <field name="horas_25"/>
-                            <field name="horas_35"/>
-                            <field name="horas_200"/>
-                            <field name="horas_300"/>
+                            
                         </group>   
                         <group>
                             
@@ -70,6 +67,21 @@
                     </group>
 
                     <div class="oe_clear"/>
+
+                    <!-- Secciones adicionales (más abajo) -->
+                    <notebook>
+                        <page string="Detalle de Horas">
+                            <group>
+                                <field name="horas_25"/>
+                                <field name="horas_35"/>
+                                <field name="horas_200"/>
+                                <field name="horas_300"/>
+                            </group>
+                        </page>
+                        
+                        
+                    </notebook>
+
                 </sheet>
 
                 <!-- Chatter -->
@@ -85,7 +97,7 @@
 
     <!-- Acción -->
     <record id="action_zleave_overtime" model="ir.actions.act_window">
-        <field name="name">Solicitud de Horas Extras</field>
+        <field name="name">Solicitud de Horas Extras Pagadas</field>
         <field name="res_model">zleave.overtime</field>
         <field name="view_mode">list,form</field>
         <field name="view_id" ref="view_zleave_overtime_list"/>

@@ -101,10 +101,11 @@
                 </group>
               </page>
               
-              <page string="Notas-Comentarios">
+              <page string="Justificación/Incidencia">
                 <field name="note_ids">
                   <list>
                     <field name="create_uid"/>
+                    <field name="reason"/>
                     <field name="note"/>
                   </list>
                 </field>
