@@ -97,7 +97,9 @@
               <page string="Tardanza">
                 <group>
                   <field name="late_min"/>
-                  <field name="permiso_late"/>
+                
+                  <field name="permiso_late" widget="boolean_toggle"/>
+              
                 </group>
               </page>
               

@@ -8,7 +8,8 @@
     "license": "AGPL-3",
     "application": True,          # <- IMPORTANTE para Apps
     "installable": True,
-    "depends": ["base", "mail", "hr","zattendance", "hr_attendance",'hr_work_entry'],
+    "depends": ["base", "mail", "hr","zattendance",
+                "hr_attendance",'hr_work_entry',"analytic",],
     "data": [
         "security/groups.xml", 
         "security/record_rules.xml",

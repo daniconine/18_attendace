@@ -1,0 +1,66 @@
+/* No ocupar toda la fila */
+.o_form_view .o_field_widget.big-boolean{
+  display: inline-flex !important;
+  width: fit-content !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+/* Caja bonita (más pequeña) */
+.o_form_view .o_field_widget.big-boolean .o_boolean_toggle{
+  padding: 4px 8px !important;  /* antes 6px 10px */
+  border: 2px solid rgba(0,0,0,.18) !important;
+  border-radius: 10px !important;
+  background: rgba(255,220,120,.20) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* OCULTAR el “punto/estilo” original */
+.o_form_view .o_field_widget.big-boolean .o_boolean_toggle input{
+  position: absolute !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Tamaño del switch (más pequeño) */
+.o_form_view .o_field_widget.big-boolean .o_boolean_toggle label{
+  display: inline-block !important;
+  width: 44px !important;   /* antes 52 */
+  height: 22px !important;  /* antes 26 */
+  position: relative !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+}
+
+/* Track */
+.o_form_view .o_field_widget.big-boolean .o_boolean_toggle label::before{
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 999px !important;
+  border: 2px solid rgba(0,0,0,.18) !important;
+  background: rgba(255,255,255,.65) !important;
+}
+
+/* Bolita (más pequeña) */
+.o_form_view .o_field_widget.big-boolean .o_boolean_toggle label::after{
+  content: "" !important;
+  position: absolute !important;
+  width: 16px !important;   /* antes 20 */
+  height: 16px !important;
+  left: 3px !important;
+  top: 3px !important;
+  border-radius: 999px !important;
+  background: rgba(0,0,0,.25) !important;
+  transition: transform .15s ease !important;
+}
+
+/* Movida al activar (ajustada al nuevo tamaño) */
+.o_form_view .o_field_widget.big-boolean .o_boolean_toggle input:checked + label::after{
+  transform: translateX(22px) !important; /* antes 26 */
+}

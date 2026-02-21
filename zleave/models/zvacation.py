@@ -19,6 +19,7 @@ class ZVacation(models.Model):
     company_id = fields.Many2one("res.company", string="Compañía",
                                  default=lambda self: self.env.company, required=True, readonly=True)
     employee_id = fields.Many2one("hr.employee", string="Empleado", required=True, tracking=True)
+    fech_ingreso = fields.Date(string='Fecha de Ingreso')
     employee_job = fields.Many2one(related='employee_id.job_id', string="Cargo del Empl.", readonly=True)
     employee_department_id = fields.Many2one(related='employee_id.department_id', string="Departamento", readonly=True)
     requested_by_id = fields.Many2one("res.users", string="Solicitado por",

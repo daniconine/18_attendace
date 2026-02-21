@@ -24,8 +24,32 @@
         <field name="model">zleave.overtime</field>
         <field name="arch" type="xml">
             <form string="Solicitud de Horas Extras PAgadas">
-                <header>
+                 <header>
+                    <!-- Barra de estado (statusbar) para los diferentes estados -->
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,refused,cancelled"/>
+
+                    <!-- Botones para cambiar el estado de la solicitud -->
+                    <button name="action_send_for_approval"
+                            type="object"
+                            string="Enviar"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+
+                    <button name="action_approve"
+                            type="object"
+                            string="Aprobar"
+                            class="btn-primary"
+                            invisible="state != 'submitted'"/>
+
+                    <button name="action_refuse"
+                            type="object"
+                            string="Rechazar"
+                            invisible="state != 'submitted'"/>
+
+                    <button name="action_cancel"
+                            type="object"
+                            string="Anular"
+                            invisible="state in ('approved','refused','cancelled')"/>
 
                 </header>
 
@@ -42,7 +66,6 @@
                             <field name="employee_id" options="{'no_create': True}" invisible="state != 'draft'"/>
                             <field name="employee_id" options="{'no_create': True}" readonly="1" invisible="state == 'draft'"/>
                             <field name="employee_job" options="{'no_create': True}" readonly="1"/>
-                            
                         </group>
                         <group>
                             <field name="approver_id"/>
@@ -51,36 +74,125 @@
                     <group string="Detalles de Solicitud">
                         <group>
                             <field name="zattendance_id"/>
-                            <field name="total_hours_requested"/>
-                            
+                            <field name="zattendance_date" readonly="1"/>
+                            <field name="total_hours_requested" widget="float_time"/>
+                            <field name="analytic_account_id"/>
+
                         </group>   
                         <group>
+                            <field name="zattendance_type" class="fst-italic"/>
+                            <field name="zattendance_state"  class="fst-italic"/>
+                            <field name="zattendance_diff"  class="fst-italic"/>                                                    
                             
-                            <field name="zattendance_diff"/>
-                            <field name="zattendance_state"/>
-                            <field name="zattendance_type"/>
+                            
                         </group>
                     </group>
 
-                    <group string="Motivo">
-                        <field name="description"/>
+                    
+                    <div class="row">
+                        <div class="col-6 shadow-sm p-3 mb-5 bg-white rounded border">
+                            <separator string="Actividad Realizada en la Hora Extra(s)"/>
+                            <field name="description" 
+                                placeholder="Escriba detalldamente lo realizado..." 
+                                nolabel="1" 
+                                class="w-100"/>
+                        </div>
+
+                        <div class="col-6 ps-4">
+                            <div class="border rounded shadow-sm bg-white p-2">
+                                
+                                <group string="Detalle de Horas Generadas">
+                                    <field name="horas_25" readonly="1"
+                                            widget="float_time" 
+                                            invisible="horas_25 == 0"/>
+                                        
+                                        <field name="horas_35" readonly="1"
+                                            widget="float_time" 
+                                            invisible="horas_35 == 0"/>
+                                        
+                                        <field name="horas_100" readonly="1"
+                                            widget="float_time" 
+                                            invisible="horas_100 == 0"/>
+                                        
+                                        <field name="horas_200" readonly="1"
+                                            widget="float_time" 
+                                            invisible="horas_200 == 0"/>
+                                </group>
+                                   
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div class="oe_clear"/>
+                    <group string="Firma" invisible="state != 'approved'">
+                    <div class="row">
+
+                        <!-- Columna izquierda vacía -->
+                        <div class="col-lg-3 d-none d-lg-block"></div>
+
+                        <!-- Columna central: firma -->
+                        <div class="col-12 col-lg-6">
+                        <div style="border:1px solid #e5e5e5; border-radius:8px; padding:12px;">
+
+                            <div class="d-flex align-items-start" style="gap:12px;">
+                            <!-- Foto -->
+                            <div>
+                                <field name="approver_image_1920"
+                                    widget="image"
+                                    readonly="1"
+                                    options="{'preview_image': 'approver_image_1920'}"
+                                    style="width:96px; height:96px; border-radius:6px; object-fit:cover;"/>
+                            </div>
+
+                            <!-- Texto -->
+                            <div style="font-size:11px; line-height:1.25;">
+                                <div style="font-weight:700; font-size:12px; margin-bottom:4px;">
+                                Firmado digitalmente por:
+                                <span style="font-weight:800;">
+                                    <field name="approver_id" nolabel="1" readonly="1"/>
+                                </span>
+                                </div>
+
+                                <div style="font-size:11px; white-space:nowrap;">
+                                <span style="font-weight:600; display:inline-block; margin-right:6px;">Cargo:</span>
+                                <span style="display:inline-block;">
+                                    <field name="cargo_id" nolabel="1" readonly="1"/>
+                                </span>
+                                </div>
+                                
+                                <div style="font-size:11px; white-space:nowrap;">
+                                <span style="font-weight:600; display:inline-block; margin-right:6px;">Departamento:</span>
+                                <span style="display:inline-block;">
+                                    <field name="employee_department_id" nolabel="1" readonly="1"/>
+                                </span>
+                                </div>
+
+                                <div style="font-size:11px; white-space:nowrap;">
+                                <span style="font-weight:600; display:inline-block; margin-right:6px;">Fecha:</span>
+                                <span style="display:inline-block;">
+                                    <field name="write_date" nolabel="1" readonly="1"/>
+                                </span>
+                                </div>
+
+                                <div style="color:#666;">
+                                <span style="font-weight:600; margin-right:6px;">Tipo:</span>
+                                <span>Validación interna</span>
+                                </div>
+                                <br/>
+                                <br/>
+                            
+                            </div>
+                            </div>
+
+                        </div>
+                        </div>
+
+                        <!-- Columna derecha vacía -->
+                        <div class="col-lg-3 d-none d-lg-block"></div>
+
+                    </div>
                     </group>
 
-                    <div class="oe_clear"/>
-
-                    <!-- Secciones adicionales (más abajo) -->
-                    <notebook>
-                        <page string="Detalle de Horas">
-                            <group>
-                                <field name="horas_25"/>
-                                <field name="horas_35"/>
-                                <field name="horas_200"/>
-                                <field name="horas_300"/>
-                            </group>
-                        </page>
-                        
-                        
-                    </notebook>
 
                 </sheet>
 

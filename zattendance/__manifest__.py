@@ -27,5 +27,10 @@
         "views/zattendance_menus.xml",
         
     ],
+    'assets': {
+        'web.assets_backend': [
+            #'zattendance/static/src/scss/boolean.scss',  # Asegúrate de agregar tu archivo CSS aquí
+        ],
+    },
     
 }

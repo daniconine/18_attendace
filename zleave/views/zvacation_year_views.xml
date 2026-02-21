@@ -63,6 +63,7 @@
                     <group>
                         <group string ="Datos de Inicio">
                             <field name="employee_id" />
+                            <field name="fech_ingreso" />
                             <field name="year" />
                             <field name="start_date"/>
                             <field name="end_date"/>

@@ -19,6 +19,9 @@ class ZVacationYear(models.Model):
                                  default=lambda self: self.env.company, required=True, readonly=True)
     
     employee_id = fields.Many2one('hr.employee', string='Empleado', required=True)
+    fech_ingreso = fields.Date(string='Fecha de Ingreso')
+
+    
     year = fields.Char(string='Año', required=True)
     start_date = fields.Date(string='Fecha inicial Acumulación', default=fields.Date.today)
     end_date = fields.Date(string='Fecha final Acumulación' )
