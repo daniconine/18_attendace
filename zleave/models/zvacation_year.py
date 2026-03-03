@@ -25,8 +25,10 @@ class ZVacationYear(models.Model):
     start_date = fields.Date(string='Fecha inicial Acumulación', default=fields.Date.today)
     end_date = fields.Date(string='Fecha final Acumulación' )
     accumulated_days = fields.Float(string='Días Acumulados')
-    consumed_days = fields.Float(string='Días Consumidos', compute='_compute_consumed', store=True)
+    consumed_days = fields.Float(string='Días Consumidos Totales', compute='_compute_consumed', store=True)
     balance_days = fields.Float(string='Saldo',compute='_compute_balance', store=True)
+    
+    consumed_days_manual = fields.Float(string='Días Consumidos Manuales')
     
     # Relación con la tabla puente
     allocation_ids = fields.One2many('zleave.zvacation.allocate.year',
@@ -127,15 +129,14 @@ class ZVacationYear(models.Model):
             else:
                 rec.enjoyment_deadline = False
                 
-    # Mapea los registros en allocate para descontar el consumo
-    @api.depends('allocation_ids.days_allocated', 'allocation_ids.state')
+    @api.depends('allocation_ids.days_allocated', 'allocation_ids.state', 'consumed_days_manual')
     def _compute_consumed(self):
         for rec in self:
-            # Filtramos solo las que están aprobadas
             approved_allocations = rec.allocation_ids.filtered(lambda a: a.state == 'approved')
-            # Sumamos los días mapeados
-            rec.consumed_days = sum(approved_allocations.mapped('days_allocated') or [0.0])
-
+            sum_allocated = sum(approved_allocations.mapped('days_allocated'))
+            # Sumamos lo calculado de Odoo + lo que subiste históricamente
+            rec.consumed_days = sum_allocated + rec.consumed_days_manual
+            
     ## calculo de saldo
     @api.depends('accumulated_days', 'consumed_days', 'advance_days')
     def _compute_balance(self):
