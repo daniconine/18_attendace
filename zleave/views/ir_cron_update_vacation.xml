@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_cron_auto_vacation_accrual" model="ir.cron">
+            <field name="name">Vacaciones: Actualización Diaria y Relevo Aniversario</field>
+            <field name="model_id" ref="model_zleave_zvacation_year"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_vacation_auto_cycle()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

@@ -22,7 +22,7 @@ class ZLeaveOvertime(models.Model):
     
         
     # Relación con ZAttendance para obtener la información de exceso/defecto y tipo de asistencia
-    zattendance_id = fields.Many2one('zattendance.day', 'Registro de Asistencia')
+    zattendance_id = fields.Many2one('zattendance.day', 'Día de Asistencia')
     zattendance_diff = fields.Float(string="Exceso de Horas", 
                                    related='zattendance_id.diff_attendance', readonly=True)
     zattendance_date = fields.Date( string="Fecha de Asistencia",

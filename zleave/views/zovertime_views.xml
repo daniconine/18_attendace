@@ -74,7 +74,6 @@
                     <group string="Detalles de Solicitud">
                         <group>
                             <field name="zattendance_id"/>
-                            <field name="zattendance_date" readonly="1"/>
                             <field name="total_hours_requested" widget="float_time"/>
                             <field name="analytic_account_id"/>
 
@@ -82,7 +81,7 @@
                         <group>
                             <field name="zattendance_type" class="fst-italic"/>
                             <field name="zattendance_state"  class="fst-italic"/>
-                            <field name="zattendance_diff"  class="fst-italic"/>                                                    
+                            <field name="zattendance_diff" widget="float_time" class="fst-italic"/>                                                    
                             
                             
                         </group>

@@ -23,7 +23,7 @@ class HrAttendanceExtended(models.Model):
     def _compute_horas_neto(self):
         for attendance in self:
             # Si worked_hours >= 6, restamos 1 hora, si no, mantenemos el valor original.
-            if attendance.worked_hours >= 6:
+            if attendance.worked_hours >= 7:
                 attendance.horas_neto = attendance.worked_hours - 1
             else:
                 attendance.horas_neto = attendance.worked_hours

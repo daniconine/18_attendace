@@ -24,8 +24,7 @@
         <field name="arch" type="xml">
 
             <form string="Acumulación de Vacaciones">
-
-                <!-- HEADER -->
+                 <!-- HEADER -->
                 <header>
 
                     <field name="state" widget="statusbar"
@@ -46,7 +45,7 @@
                             confirm="¿Está seguro de cerrar la acumulación anual? Esta acción no se puede deshacer."
                             modifiers="{'invisible': [['state', '=', 'closed']]}"/>
 
-                </header>
+                </header>    
 
                 <sheet>
 
@@ -61,40 +60,50 @@
 
                     <!-- GRUPO PRINCIPAL -->
                     <group>
-                        <group string ="Datos de Inicio">
-                            <field name="employee_id" />
-                            <field name="fech_ingreso" />
-                            <field name="year" />
+                        <group string ="Datos">
+                            <field name="employee_id" />                            
                             <field name="start_date"/>
-                            <field name="end_date"/>
+                            <field name="has_advance" widget="boolean_toggle"/>
+                            <field name="advance_days" invisible="not has_advance"/>
+                            <field name="has_discounts" widget="boolean_toggle"/>
+                            <field name="days_not_work" invisible="not has_discounts"/>
+                            
                         </group>
 
-                        <group string="Cálculo para Acumulación">
+                        <group string="Acumulación del Periodo Año">
+                            <field name="year" />
+                            <field name="end_date" readonly="1"/>                             
+                            <field name="working_days_per_week" readonly="1"/>
+                            <field name="min_effective_days" readonly="1"/>
+                            <separator string="Plazos de Goce Legal"/>
+                            <field name="enjoyment_deadline" 
+                                    widget="remaining_days" 
+                                    string="Límite para Tomarlas"
+                                    decoration-danger="enjoyment_deadline &lt;= context_today()"
+                                    decoration-warning="enjoyment_deadline &lt;= (context_today() + datetime.timedelta(days=60))"/>
+                            <p class="text-muted">
+                                * El trabajador debe gozar sus vacaciones antes de esta fecha para evitar indemnización.
+                            </p>            
+                            <separator string="Cálculo de Tramo de Acumulación"/>
                             <field name="start_date_call" readonly="1"/>
                             <field name="end_date_call" readonly="1"/>
+                            <separator string="Resumen Acumulación"/>
+                            <field name="accumulated_days" readonly="1"/>
+                            <field name="consumed_days"/>
+                            <field name="balance_days" readonly="1"/>
                             
                         </group>
                     </group>
 
-                    <!-- ACUMULACIÓN -->
-                    <group string="RESUMEN">
-                        <group string="Resultado de Actualizar">
-                            <field name="accumulated_days"/>
-                            <field name="consumed_days"/>
-                            <field name="balance_days" readonly="1"/>
-                        </group>
-                        <group string="Campos Adicionales de Cálculo">
-                            <field name="advance_days"/>
-                            <field name="days_not_work"/>
-                        </group>
-                    </group>
+                    <div colspan="2" style="height: 40px;"/>
 
                     <!-- ASIGNACIONES -->
                     <notebook>
-                        <page string="Asignaciones FIFO">
+                        <page string="Solicitudes de Vacaciones FIFO">
                             <field name="allocation_ids" readonly="1">
                                 <list>
                                     <field name="vacation_id"/>
+                                    <field name="state"/>
                                     <field name="days_allocated"/>
                                 </list>
                             </field>

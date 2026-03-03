@@ -28,6 +28,7 @@
         'views/zvacation_allocate_views.xml',
         'views/zovertime_views.xml',     
         
+        'views/ir_cron_update_vacation.xml',
         
         "views/zleave_menus.xml",
         
