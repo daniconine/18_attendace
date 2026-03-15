@@ -8,7 +8,7 @@ _logger = logging.getLogger(__name__)
 class ZVacation(models.Model):
     _name = 'zleave.zvacation'
     _description = 'Solicitud de Vacaciones'
-    _inherit = ["mail.thread", "mail.activity.mixin"]
+    _inherit = ["mail.thread", "mail.activity.mixin","hr.lock.mixin"]
     _order = "create_date desc"
     _rec_name = "name"
     
@@ -335,19 +335,8 @@ class ZVacation(models.Model):
                 vacation.vacation_year_ids = [(6, 0, vacation_years.ids)]
             else:
                 vacation.vacation_year_ids = [(5, 0, 0)]  #
-    
-        
-     
-    
-    
-    
-    
-    
-    
-    
-    
-   
- 
+                    
+          
     #Mapeo de registros de zvacation_year
     @api.depends('allocation_ids')
     def _compute_vacation_years(self):
@@ -355,3 +344,24 @@ class ZVacation(models.Model):
             # Usamos 'mapped' para traer los registros de vacation_year_id desde la tabla intermedia
             vacation_years = vacation.allocation_ids.mapped('vacation_year_id')
             vacation.vacation_year_ids = [(6, 0, vacation_years.ids)]
+            
+    
+    #######################
+    # Le decimos que ahora depende del estado para marcarse solo
+    is_locked = fields.Boolean(string="Bloqueado",
+        compute="_compute_is_locked", 
+        store=True, 
+        readonly=False,
+        tracking=True
+    )
+
+    @api.depends('state')
+    def _compute_is_locked(self):
+        for rec in self:
+            # Lógica: Si es borrador está abierto, cualquier otro estado bloquea
+            rec.is_locked = rec.state != 'draft'
+
+    # El permiso de RRHH para abrir el candado manualmente
+    def _check_lock_permission(self):
+        res = super(ZVacation, self)._check_lock_permission()
+        return res or self.env.user.has_group('zleave.group_hr_manager') 

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_zleave_dashboard_kanban" model="ir.ui.view">
+        <field name="name">zleave.dashboard.kanban</field>
+        <field name="model">zleave.dashboard</field>
+        <field name="arch" type="xml">
+            <kanban create="false" can_open="false">
+                <field name="name"/>
+                <field name="icon"/>
+                <field name="description"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                            <div class="oe_kanban_global_click p-4 shadow-sm border-0" 
+                                style="border-radius: 15px; background-color: white; min-height: 200px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s;">
+                                
+                                <div class="text-center mt-2">
+                                    <i t-attf-class="fa #{record.icon.raw_value} fa-4x" style="color: #714B67;"/>
+                                </div>
+
+                                <div class="text-center mt-3">
+                                    <h3 class="mb-1"><strong><field name="name"/></strong></h3>
+                                    <p class="text-muted small" style="min-height: 40px;"><field name="description"/></p>
+                                </div>
+
+                                <div class="text-center border-top pt-3">
+                                    <button name="action_open_target" type="object" class="btn btn-primary w-100" style="border-radius: 10px; background-color: #714B67; border: none;">
+                                        Entrar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_zleave_dashboard" model="ir.actions.act_window">
+        <field name="name">Panel Principal</field>
+        <field name="res_model">zleave.dashboard</field>
+        <field name="view_mode">kanban</field>
+    </record>
+</odoo>

@@ -95,6 +95,10 @@
                                 <group>
                                     <field name="description" 
                                     placeholder="De manera opcional puede escribir el motivo de sus vacaciones aquí..."/>
+                                    <field name="is_locked" 
+                                            widget="boolean_toggle" 
+                                            groups="zleave.group_hr_manager"
+                                            readonly="0"/>
                                 </group>
 
                                 
@@ -135,13 +139,13 @@
                                 invisible="state != 'submitted'">
 
                                 <group>
-                                    <h3><i class="fa fa-calendar-check-o"></i> Asignación en curso ..</h3>
+                                    <h3><i class="fa fa-calendar-check-o"></i> Asignación en curso enviado..</h3>
                                 </group>
 
                                 <field name="allocation_ids" readonly="True" options="{'no_create': True, 'no_edit': True}">
                                     <list>
-                                        <field name="vacation_year_id" string="Año"/>
-                                        <field name="days_allocated" string="Días asignados"/>
+                                        <field name="vacation_year_id" string="Año Periodo"/>
+                                        <field name="days_allocated" string="Días Solicitados"/>
                                         <field name="state" string="Estado"/>
                                     </list>
                                 </field>
@@ -164,7 +168,7 @@
 
                                 <field name="allocation_ids" readonly="True" options="{'no_create': True, 'no_edit': True}">
                                     <list>
-                                        <field name="vacation_year_id" string="Año"/>
+                                        <field name="vacation_year_id" string="Año Periodo"/>
                                         <field name="days_allocated" string="Días asignados"/>
                                         <field name="state" string="Estado"/>
                                     </list>
@@ -247,6 +251,22 @@
     </record>
 
     <!-- Acción para abrir la vista de lista de vacaciones -->
+  
+
+    <record id="action_zvacation_my" model="ir.actions.act_window">
+        <field name="name">Mis Vacaciones</field>
+        <field name="res_model">zleave.zvacation</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_zvacation_list"/>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+        <field name="context">{'group_by': ['date_from:month']}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+            Crea una solicitud de vacaciones y envíala para aprobación.
+            </p>
+        </field>
+    </record>
+
     <record id="action_zvacation" model="ir.actions.act_window">
         <field name="name">Solicitudes de Vacaciones</field>
         <field name="res_model">zleave.zvacation</field>
@@ -259,6 +279,5 @@
             </p>
       </field>
     </record>
-
 
 </odoo>

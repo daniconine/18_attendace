@@ -7,13 +7,13 @@ from odoo.exceptions import UserError
 class ZLeaveOvertime(models.Model):
     _name = "zleave.overtime"
     _description = "ZLeaveOvertime - Solicitud de Horas Extras"
-    _inherit = ["mail.thread", "mail.activity.mixin"]
+    _inherit = ["mail.thread", "mail.activity.mixin", "hr.lock.mixin"]
     _order = "create_date desc"
     _rec_name = "name"
     
     name = fields.Char(string="Código", copy=False, readonly=True, tracking=True)
     display_name = fields.Char(compute="_compute_display_name", store=True)
-    description = fields.Text(string="Motivo o Descripción")
+    description = fields.Text(string="Motivo o Descripción", required =True)
     approver_id = fields.Many2one("res.users", string="Aprobador", tracking=True)
 
     company_id = fields.Many2one("res.company", string="Compañía", default=lambda self: self.env.company, required=True)
@@ -275,3 +275,24 @@ class ZLeaveOvertime(models.Model):
             rec.message_post(body=_("Solicitud de horas extras anulada por el usuario."))
         
         return True
+    
+    
+     #######################
+    # Le decimos que ahora depende del estado para marcarse solo
+    is_locked = fields.Boolean(string="Bloqueado",
+        compute="_compute_is_locked", 
+        store=True, 
+        readonly=False,
+        tracking=True
+    )
+
+    @api.depends('state')
+    def _compute_is_locked(self):
+        for rec in self:
+            # Lógica: Si es borrador está abierto, cualquier otro estado bloquea
+            rec.is_locked = rec.state != 'draft'
+
+    # El permiso de RRHH para abrir el candado manualmente
+    def _check_lock_permission(self):
+        res = super(ZLeaveOvertime, self)._check_lock_permission()
+        return res or self.env.user.has_group('zleave.group_hr_manager') 

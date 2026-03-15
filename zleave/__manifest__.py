@@ -8,7 +8,7 @@
     "license": "AGPL-3",
     "application": True,          # <- IMPORTANTE para Apps
     "installable": True,
-    "depends": ["base", "mail", "hr","zattendance",
+    "depends": ["base", "base_rrhh", "mail", "hr","zattendance",
                 "hr_attendance",'hr_work_entry',"analytic",],
     "data": [
         "security/groups.xml", 
@@ -22,11 +22,16 @@
         #"views/ir_cron_jobs.xml", 
         #"views/r_calendar_attendance_views.xml",
         #'views/hr_work_entry_views.xml',
+        
+        
         'views/permission_views.xml',
         'views/zvacation_views.xml',
         'views/zvacation_year_views.xml',  
         'views/zvacation_allocate_views.xml',
-        'views/zovertime_views.xml',     
+        'views/zovertime_views.xml',
+        
+        'views/dashboard_views.xml',
+        'views/zleave_dashboard.xml',     
         
         'views/ir_cron_update_vacation.xml',
         

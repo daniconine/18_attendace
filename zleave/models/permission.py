@@ -9,14 +9,14 @@ _logger = logging.getLogger(__name__)
 class ZleavePermission(models.Model):
     _name = "zleave.permission"
     _description = "ZleavePermission - Permiso o Ausencia"
-    _inherit = ["mail.thread", "mail.activity.mixin"]
+    _inherit = ["mail.thread", "mail.activity.mixin", "hr.lock.mixin"]
     _order = "create_date desc"
     _rec_name = "name" 
     
     
     name = fields.Char( string="Código",copy=False,readonly=True,tracking=True,)
     display_name = fields.Char(compute="_compute_display_name", store=False)
-    description = fields.Text(string="Descripción o Motivo")
+    description = fields.Text(string="Descripción o Motivo", required=True)
     company_id = fields.Many2one("res.company", string="Compañía",
                 default=lambda self: self.env.company,required=True, readonly=True,)
     employee_id = fields.Many2one("hr.employee",string="Empleado",required=True,     
@@ -145,10 +145,9 @@ class ZleavePermission(models.Model):
             if rec.employee_id:
                 rec.approver_id = rec._get_default_approver_user(rec.employee_id) or False
             else:
-                rec.approver_id = False
-                
+                rec.approver_id = False                
  
-                
+    
     ######################################################
     #creacion del nombre
     @api.model
@@ -213,7 +212,7 @@ class ZleavePermission(models.Model):
             # Asignamos el aprobador
             rec.approver_id = approver.id
             rec.state = "submitted"  # Cambiamos el estado a "Enviado"
-
+            
             # Publicamos un mensaje indicando que se ha enviado para aprobación
             rec.message_post(body=_("Permiso esta siendo enviado . . . . . "))
             
@@ -353,4 +352,22 @@ class ZleavePermission(models.Model):
                 if rec.suspension_perfecta:
                     raise ValidationError(_("Para Licencia Con Goce / Permiso no debes seleccionar Suspensión Perfecta."))
     
-       
+    #######################
+    # Le decimos que ahora depende del estado para marcarse solo
+    is_locked = fields.Boolean(string="Bloqueado",
+        compute="_compute_is_locked", 
+        store=True, 
+        readonly=False,
+        tracking=True
+    )
+
+    @api.depends('state')
+    def _compute_is_locked(self):
+        for rec in self:
+            # Lógica: Si es borrador está abierto, cualquier otro estado bloquea
+            rec.is_locked = rec.state != 'draft'
+
+    # El permiso de RRHH para abrir el candado manualmente
+    def _check_lock_permission(self):
+        res = super(ZleavePermission, self)._check_lock_permission()
+        return res or self.env.user.has_group('zleave.group_hr_manager')   

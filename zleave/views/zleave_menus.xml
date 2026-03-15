@@ -8,12 +8,20 @@
               sequence="60"
               web_icon="zleave,static/description/icon.png"/>
 
+
+    <menuitem id="menu_zleave_dashboard_sub"
+                  name="Inicio"
+                  parent="menu_zleave_root"
+                  action="action_zleave_dashboard"
+                  sequence="10"
+                  groups="base.group_user"/>
+
     <!-- Permisos -->
     <menuitem id="menu_zleave_permission"
               name="Ausencias/Permisos"
               parent="menu_zleave_root"
-              action="action_zleave_permission"
-              sequence="10"
+              action="action_zleave_permission_my"
+              sequence="20"
               groups="base.group_user"/>
     
   
@@ -21,7 +29,7 @@
     <menuitem id="menu_zleave_vacation"
               name="Vacaciones"
               parent="menu_zleave_root"
-              action="action_zvacation"
+              action="action_zvacation_my"
               sequence="30"
               groups="base.group_user"/>
 
@@ -31,7 +39,7 @@
     <menuitem id="menu_zleave_he"
               name="Horas Extras"
               parent="menu_zleave_root"
-              action="action_zleave_overtime"
+              action="action_zleave_overtime_my"
               sequence="60"
               groups="base.group_user"/>
     
@@ -45,14 +53,14 @@
               name="Configuración"
               parent="menu_zleave_root"
               sequence="90"
-              groups="base.group_user"/>
+              groups="zleave.group_hr_manager"/>
 
     <!-- Submenú dentro de Configuración: Vacaciones -->
     <menuitem id="menu_zleave_settings_vacation"
               name="Vacaciones"
               parent="menu_zleave_settings"
               sequence="10"
-              groups="base.group_user"/>
+              groups="zleave.group_hr_manager"/>
 
     <!-- Añadir el menú de acumulaciones -->
     <menuitem id="menu_zleave_vacation_year"
@@ -60,7 +68,7 @@
               parent="menu_zleave_settings_vacation"
               action="action_zvacation_year"
               sequence="10"
-              groups="base.group_user"/>
+              groups="zleave.group_hr_manager"/>
 
     
     <!-- Ítem: Asignación por Año (Tabla Intermedia) -->
@@ -69,7 +77,7 @@
               parent="menu_zleave_settings_vacation"
               action="action_zvacation_allocate_year"
               sequence="20"
-              groups="base.group_user"/>
+              groups="zleave.group_hr_manager"/>
 
 
     
