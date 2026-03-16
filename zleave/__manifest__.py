@@ -11,32 +11,28 @@
     "depends": ["base", "base_rrhh", "mail", "hr","zattendance",
                 "hr_attendance",'hr_work_entry',"analytic",],
     "data": [
-        "security/groups.xml", 
-        "security/record_rules.xml",
+        "security/groups.xml",# 1. Grupos (Cimientos)
         
-        "security/ir.model.access.csv",
-        
-        'views/email_template.xml',
-        #"views/zattendance_day_views.xml",
-        #"views/hr_attendance_views.xml",
-        #"views/ir_cron_jobs.xml", 
-        #"views/r_calendar_attendance_views.xml",
-        #'views/hr_work_entry_views.xml',
-        
-        
-        'views/permission_views.xml',
+        # 2. Vistas y Acciones (Componentes)
+        # Aquí es donde se define 'action_zleave_permission_my'
+        'views/permission_views.xml',     
         'views/zvacation_views.xml',
         'views/zvacation_year_views.xml',  
         'views/zvacation_allocate_views.xml',
         'views/zovertime_views.xml',
         
-        'views/dashboard_views.xml',
+        # 3. Dashboard (Depende de las acciones de arriba)
         'views/zleave_dashboard.xml',     
         
+        # 4. Reglas de Seguridad (Dependen de los grupos y del dashboard)
+        "security/record_rules.xml",      
+        
+        # 5. Resto de configuraciones
+        "security/ir.model.access.csv",
+        'views/email_template.xml',
+        'views/dashboard_views.xml',
         'views/ir_cron_update_vacation.xml',
-        
         "views/zleave_menus.xml",
-        
     ],
     'assets': {
         'web.assets_backend': [
