@@ -1,0 +1,177 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* hr_payroll_account_community
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-25 01:16+0000\n"
+"PO-Revision-Date: 2025-02-25 01:16+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: hr_payroll_account_community
+#: model_terms:ir.ui.view,arch_db:hr_payroll_account_community.hr_contract_view_form
+#: model_terms:ir.ui.view,arch_db:hr_payroll_account_community.hr_salary_rule_view_form
+msgid "Accounting"
+msgstr "Contabilidad"
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,field_description:hr_payroll_account_community.field_hr_payslip__move_id
+msgid "Accounting Entry"
+msgstr "Asiento contable"
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,help:hr_payroll_account_community.field_hr_payslip__move_id
+msgid "Accounting entry associated with this record"
+msgstr "Asiento contable asociado a este registro"
+
+#. module: hr_payroll_account_community
+#. odoo-python
+#: code:addons/hr_payroll_account_community/models/hr_payslip.py:0
+msgid "Adjustment Entry"
+msgstr ""
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,field_description:hr_payroll_account_community.field_hr_contract__analytic_account_id
+#: model:ir.model.fields,field_description:hr_payroll_account_community.field_hr_payslip_line__analytic_account_id
+#: model:ir.model.fields,field_description:hr_payroll_account_community.field_hr_salary_rule__analytic_account_id
+msgid "Analytic Account"
+msgstr "Cuenta analítica"
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,help:hr_payroll_account_community.field_hr_payslip_line__analytic_account_id
+#: model:ir.model.fields,help:hr_payroll_account_community.field_hr_salary_rule__analytic_account_id
+msgid "Analytic account associated with the record"
+msgstr "Cuenta analítica asociada al registro"
+
+#. module: hr_payroll_account_community
+#. odoo-python
+#: code:addons/hr_payroll_account_community/models/hr_payslip.py:0
+msgid ""
+"As you installed the payroll accounting module you have to choose Debit and "
+"Credit account for at least one salary rule in the chosen Salary Structure."
+msgstr ""
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,field_description:hr_payroll_account_community.field_hr_payslip_line__account_credit_id
+#: model:ir.model.fields,field_description:hr_payroll_account_community.field_hr_salary_rule__account_credit_id
+msgid "Credit Account"
+msgstr "Cuenta de crédito"
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,help:hr_payroll_account_community.field_hr_payslip_line__account_credit_id
+#: model:ir.model.fields,help:hr_payroll_account_community.field_hr_salary_rule__account_credit_id
+msgid "Credit account associated with the record"
+msgstr "Cuenta de crédito asociada al registro"
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,field_description:hr_payroll_account_community.field_hr_payslip__date
+msgid "Date Account"
+msgstr "Fecha de la Cuenta"
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,field_description:hr_payroll_account_community.field_hr_payslip_line__account_debit_id
+#: model:ir.model.fields,field_description:hr_payroll_account_community.field_hr_salary_rule__account_debit_id
+msgid "Debit Account"
+msgstr "Cuenta de débito"
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,help:hr_payroll_account_community.field_hr_payslip_line__account_debit_id
+#: model:ir.model.fields,help:hr_payroll_account_community.field_hr_salary_rule__account_debit_id
+msgid "Debit account associated with the record"
+msgstr "Cuenta de débito asociada al registro"
+
+#. module: hr_payroll_account_community
+#: model:ir.model,name:hr_payroll_account_community.model_hr_contract
+msgid "Employee Contract"
+msgstr "Contrato del empleado"
+
+#. module: hr_payroll_account_community
+#: model:ir.model,name:hr_payroll_account_community.model_hr_payslip_employees
+msgid "Generate Payslips for All Selected Employees"
+msgstr "Generar las nóminas para todos los empleados seleccionados"
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,help:hr_payroll_account_community.field_hr_contract__journal_id
+#: model:ir.model.fields,help:hr_payroll_account_community.field_hr_payslip_run__journal_id
+msgid "Journal associated with the record"
+msgstr "Diario asociado al registro"
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,help:hr_payroll_account_community.field_hr_payslip__date
+msgid "Keep empty to use the period of the validation(Payslip) date."
+msgstr ""
+"Deje en blanco para usar el período de la fecha de validación de la nómina"
+
+#. module: hr_payroll_account_community
+#: model:ir.model,name:hr_payroll_account_community.model_hr_payslip
+msgid "Pay Slip"
+msgstr "Nómina"
+
+#. module: hr_payroll_account_community
+#: model:ir.model,name:hr_payroll_account_community.model_hr_payslip_run
+msgid "Payslip Batches"
+msgstr "Procesamientos de nóminas"
+
+#. module: hr_payroll_account_community
+#: model:ir.model,name:hr_payroll_account_community.model_hr_payslip_line
+msgid "Payslip Line"
+msgstr "Línea de nómina"
+
+#. module: hr_payroll_account_community
+#. odoo-python
+#: code:addons/hr_payroll_account_community/models/hr_payslip.py:0
+msgid "Payslip of %s"
+msgstr ""
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,field_description:hr_payroll_account_community.field_hr_contract__journal_id
+#: model:ir.model.fields,field_description:hr_payroll_account_community.field_hr_payslip__journal_id
+#: model:ir.model.fields,field_description:hr_payroll_account_community.field_hr_payslip_run__journal_id
+msgid "Salary Journal"
+msgstr "Diario de salarios"
+
+#. module: hr_payroll_account_community
+#: model:ir.model,name:hr_payroll_account_community.model_hr_salary_rule
+msgid "Salary Rule"
+msgstr "Regla de salario"
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,help:hr_payroll_account_community.field_hr_contract__analytic_account_id
+msgid "Select Analytic account"
+msgstr "Seleccione Cuenta analítica"
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,help:hr_payroll_account_community.field_hr_payslip__journal_id
+msgid "Select Salary Journal"
+msgstr "Seleccione Diario de salario"
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,field_description:hr_payroll_account_community.field_hr_payslip_line__account_tax_id
+#: model:ir.model.fields,field_description:hr_payroll_account_community.field_hr_salary_rule__account_tax_id
+msgid "Tax"
+msgstr "Impuesto"
+
+#. module: hr_payroll_account_community
+#: model:ir.model.fields,help:hr_payroll_account_community.field_hr_payslip_line__account_tax_id
+#: model:ir.model.fields,help:hr_payroll_account_community.field_hr_salary_rule__account_tax_id
+msgid "Tax account associated with the record"
+msgstr "Cuenta de impuestos asociada al registro"
+
+#. module: hr_payroll_account_community
+#. odoo-python
+#: code:addons/hr_payroll_account_community/models/hr_payslip.py:0
+msgid "The Expense Journal \"%s\" has not properly configured the Credit Account!"
+msgstr ""
+
+#. module: hr_payroll_account_community
+#. odoo-python
+#: code:addons/hr_payroll_account_community/models/hr_payslip.py:0
+msgid "The Expense Journal \"%s\" has not properly configured the Debit Account!"
+msgstr ""

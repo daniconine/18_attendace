@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Menú raíz -->
+        <menuitem id="menu_zperiod_root"
+                name="ZPeriod |"
+                sequence="70"
+                web_icon="zperiod,static/description/icon.png"/>
+
+
+        <menuitem id="menu_zperiod_main"
+                  name="Periodo para Planilla"
+                  parent="menu_zperiod_root"
+                  action="action_zperiod"
+                  sequence="20"/>
+
+        <menuitem id="menu_zperiod_batch_child"
+                  name="Lotes de Periodos"
+                  parent="menu_zperiod_root"
+                  action="action_zperiod_batch"
+                  sequence="30"/>
+
+        </data>
+</odoo>
