@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_hr_employee_declaracion_5ta_pe_form" model="ir.ui.view">
+            <field name="name">hr.employee.declaracion.5ta.pe.form</field>
+            <field name="model">hr.employee.declaracion.5ta.pe</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="button_validate" type="object" string="Validar" class="btn-primary"
+                            invisible="(not id) or (state not in ['draft'])"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,validated"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box"/>
+                        <widget name="web_ribbon" title="Archivado" bg_color="bg-danger" invisible="active"/>
+                        <div class="oe_title">
+                            <label for="employee_id"/>
+                            <h1>
+                                <field name="employee_id" readonly="(state not in ['draft'])"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="fiscal_year" readonly="(state not in ['draft'])"/>
+                                <field name="retention_partner_id" readonly="(state not in ['draft'])"/>
+                                <field name="company_id" groups="base.group_multi_company" readonly="1"/>
+                                <field name="signature_date" readonly="1"/>
+                                <field name="signature" widget="signature" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="external_revenue" readonly="(state not in ['draft'])"/>
+                                <field name="external_amount" readonly="(state not in ['draft'])"/>
+                                <field name="declaration_filename" invisible="1"/>
+                                <field name="declaration" filename="declaration_filename"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+        
+        <record id="view_hr_employee_declaracion_5ta_pe_form_signature" model="ir.ui.view">
+            <field name="name">hr.employee.declaracion.5ta.pe.form.signature</field>
+            <field name="model">hr.employee.declaracion.5ta.pe</field>
+            <field name="type">form</field>
+            <field name="priority" eval="100"/>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <field name="signature" widget="signature" required="1"/>
+                    </sheet>
+                    <footer>
+                        <button name="button_finish_sign" type="object" string="Firmar" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        
+        <record id="view_hr_employee_declaracion_5ta_pe_tree" model="ir.ui.view">
+            <field name="name">hr.employee.declaracion.5ta.pe.tree</field>
+            <field name="model">hr.employee.declaracion.5ta.pe</field>
+            <field name="type">list</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="employee_id"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="fiscal_year"/>
+                    <field name="external_revenue"/>
+                    <field name="external_amount"/>
+                    <field name="retention_partner_id"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

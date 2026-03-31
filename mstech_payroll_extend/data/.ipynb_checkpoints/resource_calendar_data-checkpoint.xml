@@ -1,0 +1,33 @@
+<!-- mstech_payroll_extend/data/resource_calendar_data.xml -->
+<odoo>
+    <data noupdate="0">
+
+        <record id="resource_calendar_48h_pe" model="resource.calendar">
+            <field name="name">Perú: Jornada 48 horas/semana (L-S)</field>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="hours_per_day">8</field>
+            <field name="tz">America/Lima</field>
+            <field name="two_weeks_calendar">False</field>
+            <field name="attendance_ids" eval="[
+                (5, 0, 0),
+                (0, 0, {'name': 'Lunes Mañana', 'dayofweek': '0', 'hour_from': 8, 'hour_to': 13, 'day_period': 'morning'}),
+                (0, 0, {'name': 'Lunes Tarde', 'dayofweek': '0', 'hour_from': 14, 'hour_to': 18, 'day_period': 'afternoon'}),
+
+                (0, 0, {'name': 'Martes Mañana', 'dayofweek': '1', 'hour_from': 8, 'hour_to': 13, 'day_period': 'morning'}),
+                (0, 0, {'name': 'Martes Tarde', 'dayofweek': '1', 'hour_from': 14, 'hour_to': 18, 'day_period': 'afternoon'}),
+
+                (0, 0, {'name': 'Miércoles Mañana', 'dayofweek': '2', 'hour_from': 8, 'hour_to': 13, 'day_period': 'morning'}),
+                (0, 0, {'name': 'Miércoles Tarde', 'dayofweek': '2', 'hour_from': 14, 'hour_to': 18, 'day_period': 'afternoon'}),
+
+                (0, 0, {'name': 'Jueves Mañana', 'dayofweek': '3', 'hour_from': 8, 'hour_to': 13, 'day_period': 'morning'}),
+                (0, 0, {'name': 'Jueves Tarde', 'dayofweek': '3', 'hour_from': 14, 'hour_to': 18, 'day_period': 'afternoon'}),
+
+                (0, 0, {'name': 'Viernes Mañana', 'dayofweek': '4', 'hour_from': 8, 'hour_to': 13, 'day_period': 'morning'}),
+                (0, 0, {'name': 'Viernes Tarde', 'dayofweek': '4', 'hour_from': 14, 'hour_to': 18, 'day_period': 'afternoon'}),
+
+                (0, 0, {'name': 'Sábado Mañana', 'dayofweek': '5', 'hour_from': 8, 'hour_to': 13, 'day_period': 'morning'})
+            ]"/>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+    <record id="hr_report_template_line_view_form" model="ir.ui.view">
+        <field name="name">hr.report.template.line.form</field>
+        <field name="model">hr.report.template.line</field>
+        <field name="arch" type="xml">
+            <form string="Línea/Columna">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nombre de Columna"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="template_id" readonly="1"/>
+                            <field name="value_type"/>
+                            <field name="fixed_value" invisible="value_type not in ['fixed']"/>
+                            <field name="field_path" invisible="value_type not in ['field']"/>
+                        </group>
+                        <group>
+                            <field name="padding_char"/>
+                            <field name="padding_length"/>
+                            <field name="padding_align"/>
+                        </group>
+                    </group>
+                    <group string="Python" name="python" invisible="value_type not in ['python']">
+                        <label for="code_executor_id"/>
+                        <field name="code_executor_id" nolabel="1"/>
+                        <field name="python_code" widget="ace" options="{'mode': 'python'}" invisible="code_executor_id"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_report_template_line_view_tree" model="ir.ui.view">
+        <field name="name">hr.report.template.line.tree</field>
+        <field name="model">hr.report.template.line</field>
+        <field name="arch" type="xml">
+            <list string="Línea/Columna">
+                <field name="name"/>
+                <field name="value_type"/>
+            </list>
+        </field>
+    </record>
+</data></odoo>

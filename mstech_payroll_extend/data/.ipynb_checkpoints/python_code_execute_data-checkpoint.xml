@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="0">
+    <record id="calculo_tmpl_ibk_exc" model="python.code.execute">
+        <field name="code_name">calculo_tmpl_ibk</field>
+        <field name="code_state">done</field>
+        <field name="modified_uid" ref="base.user_root"/>
+        <field name="execute_code">
+#NOTES:
+#por ahora solo se permiten transferencias a cuentas de ahorros del mismo banco
+#se debería agregar otro campo para CCI, de esa forma no importa el banco
+#en ese caso falta modificar la logica que divide los payslips por banco del empleado
+
+ctx = env.context.get('context')
+#bank = ctx['bank']
+employee = ctx['employee']
+partner = employee.work_contact_id
+payslip = ctx['payslip']
+contract = ctx['contract']
+
+l10n_pe_id_type_to_ibk = {
+  '1': '01',  #DNI
+  '4': '03',  #Carnet de extranjería
+  '7': '05',  #Pasaporte
+}
+id_type = l10n_pe_id_type_to_ibk.get(partner.l10n_pe_identification_type_id.code, '00')
+
+name = (partner.first_surname or '').ljust(20, ' ')
+name += (partner.second_surname or '').ljust(20, ' ')
+name += (partner.given_names or '').ljust(22, ' ')
+
+mobile = (partner.mobile or '').replace(' ', '').replace('-', '').replace('+', '')
+
+account_currency = '00'
+if contract.bank_account_currency.name=='PEN':
+    account_currency = '01'
+elif contract.bank_account_currency.name=='USD':
+    account_currency = '10'
+
+payment_currency = '00'
+if contract.currency_id.name=='PEN':
+    payment_currency = '01'
+elif contract.currency_id.name=='USD':
+    payment_currency = '10'
+
+amount = payslip.line_ids.filtered(lambda l: l.code=='NET_PE')[:1].amount
+
+values = {
+  'id_type': id_type,
+  'vat': (partner.vat or '').ljust(15, ' '),
+  'name': name,
+  'email': (partner.email or '').ljust(140, ' '),
+  'mobile': mobile[-9:].ljust(40, ' '),
+  'payment_type': '09',  #09: en cuenta | 99: interbancario
+  'account_type': '002',  #none en interb | 002: cuenta de ahorros
+  'account_currency': account_currency,  #FIXME: hardcoded  #01: soles | 10: dolares | none en interb
+  'account_number': contract.bank_account_number,  #13 o 20 de longitud  #validar? -> se puede dejar eso al excel
+  'payment_currency': payment_currency,
+  'amount': str(int(amount*100)).zfill(15),
+}
+
+res = "02%(id_type)s%(vat)s                                %(payment_currency)s%(amount)s %(payment_type)s%(account_type)s%(account_currency)s%(account_number)s          P%(id_type)s%(vat)s%(name)s000000000000000      %(mobile)s%(email)s" % values
+
+print(res)
+        </field>
+    </record>
+
+    <record id="calculo_plame_rem_exc" model="python.code.execute">
+        <field name="code_name">calculo_plame_rem</field>
+        <field name="code_state">done</field>
+        <field name="modified_uid" ref="base.user_root"/>
+        <field name="execute_code">
+ctx = env.context.get('context')
+employee = ctx['employee']
+partner = employee.work_contact_id
+payslip = ctx['payslip']
+contract = ctx['contract']
+item = ctx['item']  #payslip.line_ids
+plame_code = item.plame_code  #already formatted
+
+res = []
+
+forbidden_plame_codes = ['0100', '0200', '0300', '0400', '0500', '0600', '0603', '0604', '0607', '0610', '0612', '0616', '0800', '0802', '0804', '0806', '0808']
+
+if plame_code and (plame_code not in forbidden_plame_codes):
+    #1	Tipo de documento del trabajador
+    res.append(partner.l10n_pe_identification_type_id.code.zfill(2))
+    #2	Número de documento del trabajador
+    res.append(partner.vat)
+    #3	Código de concepto remunerativo y/o no remunerativo
+    res.append(plame_code)
+    #4	Monto devengado
+    res.append('%.2f' % abs(item.amount))
+    #5	Monto pagado/descontado#
+    res.append('%.2f' % abs(item.amount))
+
+print('|'.join(res))
+        </field>
+    </record>
+
+    <record id="calculo_plame_for_exc" model="python.code.execute">
+        <field name="code_name">calculo_plame_for</field>
+        <field name="code_state">done</field>
+        <field name="modified_uid" ref="base.user_root"/>
+        <field name="execute_code">
+#NOTES:
+#solo se están considerando contratos de tipo modalidad formativa
+
+ctx = env.context.get('context')
+employee = ctx['employee']
+partner = employee.work_contact_id
+payslip = ctx['payslip']
+contract = ctx['contract']
+contract_type = contract.contract_type_id
+
+res = []
+if contract_type.id == env.ref('mstech_payroll_extend.contract_type_formacion_pe').id:
+    #1	Tipo de documento del personal en formación
+    res.append(partner.l10n_pe_identification_type_id.code.zfill(2))
+    #2	Número de documento del personal en formación - modalidad formativa laboral
+    res.append(partner.vat)
+    #3	Monto pagado
+    amount = payslip.line_ids.filtered(lambda l: l.code=='NET_PE')[:1].amount
+    res.append('%.2f' % abs(amount))
+
+print('|'.join(res))
+        </field>
+    </record>
+
+    <record id="calculo_plame_jor_exc" model="python.code.execute">
+        <field name="code_name">calculo_plame_jor</field>
+        <field name="code_state">done</field>
+        <field name="modified_uid" ref="base.user_root"/>
+        <field name="execute_code">
+ctx = env.context.get('context')
+employee = ctx['employee']
+partner = employee.work_contact_id
+payslip = ctx['payslip']
+contract = ctx['contract']
+worked_days_line_ids = payslip.worked_days_line_ids
+
+ordinary = worked_days_line_ids.filtered(lambda x: x.work_entry_type_id.is_working_day)
+ordinary = sum(ordinary.mapped('number_of_hours'))
+ordinary = round(ordinary*60)  #in minutes
+ordinary = divmod(ordinary, 60)
+
+overtime = worked_days_line_ids.filtered(lambda x: x.work_entry_type_id.is_overtime)
+overtime = sum(overtime.mapped('number_of_hours'))
+overtime = round(overtime*60)  #in minutes
+overtime = divmod(overtime, 60)
+
+res = []
+
+#1	Tipo de documento del trabajador
+res.append(partner.l10n_pe_identification_type_id.code.zfill(2))
+#2	Número de documento del trabajador
+res.append(partner.vat)
+#3	Número de horas ordinarias trabajadas
+res.append(str(ordinary[0]))
+#4	Número de minutos ordinarios trabajados 
+res.append(str(ordinary[1]))
+#5	Número de horas en sobretiempo trabajadas 
+res.append(str(overtime[0]))
+#6	Número de minutos en sobretiempo trabajados 
+res.append(str(overtime[1]))
+
+print('|'.join(res))
+        </field>
+    </record>
+
+    <record id="calculo_tregistro_pfl_exc" model="python.code.execute">
+        <field name="code_name">calculo_tregistro_pfl</field>
+        <field name="code_state">done</field>
+        <field name="modified_uid" ref="base.user_root"/>
+<field name="execute_code">
+#NOTES:
+#se usa una api externa para traer onu_code de pais emisor
+#considerar agregar campo onu_code en res.country y cargar su data
+
+
+import requests
+
+ctx = env.context.get('context')
+employee = ctx['employee']
+partner = employee.work_contact_id
+payslip = ctx['payslip']
+contract = ctx['contract']
+    
+res = []
+if contract.formative_modality_id:
+    onu_code = ''
+    id_code = partner.l10n_pe_identification_type_id.code.zfill(2)
+    if id_code in ['07', '24']:
+        url = 'https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/countries-codes/records'
+        params = {'select': 'onu_code', 'where': "iso2_code='%s'" % employee.country_id.code, 'limit': 1}
+        response = requests.get(url, params=params)
+        if response.status_code == 200:
+            response = response.json()
+            onu_code = response.get('results', {}).get('onu_code', '')
+    
+    #1	Tipo de documento del personal en formación
+    res.append(id_code)
+    #2	N.° de documento del personal en formación
+    res.append(partner.vat)
+    #3	País emisor del documento
+    res.append(onu_code)
+    #4	Tipo de modalidad formativa laboral
+    res.append(contract.formative_modality_id.code or "")
+    #5	Seguro Médico (1)
+    res.append("2" if contract.pe_health_scheme in ["eps", "eps_sctr"] else "1")
+    #6	Situación Educativa (2)
+    res.append(employee.educational_situation.code or "")
+    #7	Ocupación (1)
+    res.append(contract.job_occupation_id.code if contract.job_occupation_id else "")
+    #8	Madre con responsabilidad Familiar (1)
+    res.append(employee.is_family_mother if employee.is_family_mother not in [False, 'none'] else "")
+    #9	Discapacidad (1)
+    res.append("1" if employee.is_disabled_person else "0")
+    #10	Tipo de Centro de Formación Profesional (1)
+    res.append(employee.study_school_type or "")
+    #11	Sujeto a trabajo en horario nocturno (1)
+    res.append("1" if contract.has_night_hours else "0")
+    
+print('|'.join(res))
+        </field>
+    </record>
+
+    <record id="calculo_tregistro_pen_exc" model="python.code.execute">
+        <field name="code_name">calculo_tregistro_pen</field>
+        <field name="code_state">done</field>
+        <field name="modified_uid" ref="base.user_root"/>
+        <field name="execute_code">
+#NOTES:
+#no se considera caso '99': no aplica regimen pensionario
+#solo tipos de pago en efectivo o deposito en cuenta
+
+
+import requests
+
+ctx = env.context.get('context')
+employee = ctx['employee']
+partner = employee.work_contact_id
+payslip = ctx['payslip']
+contract = ctx['contract']
+is_pensionista = contract.pe_health_scheme in ["essalud_regular"] and employee.pensioner_type
+    
+res = []
+if is_pensionista:
+    onu_code = ''
+    id_code = partner.l10n_pe_identification_type_id.code.zfill(2)
+    if id_code in ['07', '24']:
+        url = 'https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/countries-codes/records'
+        params = {'select': 'onu_code', 'where': "iso2_code='%s'" % employee.country_id.code, 'limit': 1}
+        response = requests.get(url, params=params)
+        if response.status_code == 200:
+            response = response.json()
+            onu_code = response.get('results', {}).get('onu_code', '')
+
+    pensioner_regime = '98'  #PENDIENTE
+    if contract.pe_pension_scheme == 'onp':
+        pensioner_regime = '02'  #DECRETO LEY 19990 - SISTEMA NACIONAL DE PENSIONES - ONP
+    elif contract.pe_pension_scheme == 'spp' and contract.afp_id:
+        afp_name = contract.afp_id.name.upper()
+        afp_codes = {
+            'INTEGRA': '21',
+            'HORIZONTE': '22',
+            'PROFUTURO': '23',
+            'PRIMA': '24',
+            'HABITAT': '25',
+        }
+        for name, code in afp_codes.items():
+            if name in afp_name:
+                pensioner_regime = code
+    
+    #1	Tipo de documento del personal en formación
+    res.append(id_code)
+    #2	N.° de documento del personal en formación
+    res.append(partner.vat)
+    #3	País emisor del documento
+    res.append(onu_code)
+    #4	Tipo de pensionista
+    res.append(employee.pensioner_type or '')
+    #5	Régimen pensionario 
+    res.append(pensioner_regime)
+    #6	CUSPP
+    res.append(employee.cuspp or '')
+    #7	Tipo de pago
+        #1	EFECTIVO
+        #2	DEPÓSITO EN CUENTA
+        #3	OTROS
+    res.append('2' if contract.bank_id else '1')
+    
+print('|'.join(res))
+        </field>
+    </record>
+
+    <record id="calculo_tregistro_tra_exc" model="python.code.execute">
+        <field name="code_name">calculo_tregistro_tra</field>
+        <field name="code_state">done</field>
+        <field name="modified_uid" ref="base.user_root"/>
+<field name="execute_code">
+#NOTES:
+#establece a todos los empleados como activo
+
+
+import requests
+
+ctx = env.context.get('context')
+employee = ctx['employee']
+partner = employee.work_contact_id
+payslip = ctx['payslip']
+contract = ctx['contract']
+
+res = []
+onu_code = ''
+id_code = partner.l10n_pe_identification_type_id.code.zfill(2)
+if id_code in ['07', '24']:
+    url = 'https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/countries-codes/records'
+    params = {'select': 'onu_code', 'where': "iso2_code='%s'" % employee.country_id.code, 'limit': 1}
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        response = response.json()
+        onu_code = response.get('results', {}).get('onu_code', '')
+
+sctr = "0"
+if contract.sctr_table:
+    if contract.sctr_table == 'sctr_public':
+        sctr = "1"
+    else:
+        sctr = "2"
+
+
+#1	Tipo de documento del trabajador (TD)
+res.append(id_code)
+#2	N.° de documento del trabajador
+res.append(partner.vat)
+#3	País emisor del documento
+res.append(onu_code)
+#4	Regimen Laboral (1)
+res.append(contract.pe_labor_regime_id.plame_code if contract.pe_labor_regime_id else '')
+#5	Situación Educativa (2)
+res.append(employee.educational_situation.code or "")
+#6	Ocupación
+res.append(contract.job_occupation_id.code if contract.job_occupation_id else "")
+#7	Discapacidad
+res.append("1" if employee.is_disabled_person else "0")
+#8	CUSPP
+res.append(employee.cuspp or "")
+#9	SCTR Pensión
+res.append(sctr)
+#10	Tipo de contrato de trabajo/condición laboral (1)
+res.append(contract.contract_type_id.plame_code if contract.contract_type_id else "")
+#11	Sujeto a régimen alternativo, acumulativo o atípico de jornada de trabajo y descanso.
+res.append("1" if contract.has_atypical_hours else "0")
+#12	Sujeto a jornada de trabajo máxima
+res.append("1" if contract.has_maximum_hours else "0")
+#13	Sujeto a horario nocturno
+res.append("1" if contract.has_night_hours else "0")
+#14	Es sindicalizado (1)
+res.append("1" if contract.is_unionized else "0")
+#15	Periodicidad de la remuneración o ingreso (1)
+schedule_pay_codes = {
+    'monthly': '1',
+    'bi-weekly': '2',
+    'weekly': '3',
+    'daily': '4',  #considerar agregar
+}
+res.append(schedule_pay_codes.get(contract.schedule_pay, "5"))
+#16	Monto de la remuneración básica inicial de los trabajadores sujetos al régimen del D.Leg. 728
+res.append('%.2f' % contract.wage)
+#17	Situación
+res.append('1')  #HARDCODE: 1	ACTIVO O SUBSIDIADO (1)
+#18	Rentas de 5ta categoría exoneradas (inciso e) del Art. 19 de la Ley del Impuesto a la Renta)
+res.append('0')  #HARDCODE: 0: No
+#19	Situación especial del trabajador
+res.append(contract.special_situation or "")
+#20	Tipo de pago (1)
+    #1	EFECTIVO
+    #2	DEPÓSITO EN CUENTA
+    #3	OTROS
+res.append('2' if contract.bank_id else '1')
+#21	Categoría ocupacional del trabajador
+res.append("")  #HARDCODE: no aplica en mayoría de casos
+#22	Convenio para evitar la doble tributación
+res.append("")  #HARDCODE: no aplica en mayoría de casos
+#23	N.° de RUC
+res.append("")  #HARDCODE: no aplica en mayoría de casos, sino se debe agregar un nuevo campo
+    
+print('|'.join(res))
+        </field>
+    </record>
+</data></odoo>

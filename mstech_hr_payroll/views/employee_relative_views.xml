@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+    <record id="employee_relative_view_form" model="ir.ui.view">
+        <field name="name">employee.relative.form</field>
+        <field name="model">employee.relative</field>
+        <field name="arch" type="xml">
+            <form string="Form">
+                <sheet>
+                    <field name="employee_id" invisible="1"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Datos" name="data">
+                            <field name="relationship"/>
+                            <field name="vat"/>
+                            <field name="gender"/>
+                            <field name="birthday"/>
+                            <field name="age"/>
+                        </group>
+                        <group string="Asignación Familiar" name="assign">
+                            <field name="is_child"/>
+                            <field name="is_disabled" invisible="not is_child"/>
+                            <field name="has_disability_pension" invisible="not is_child"/>
+                            <field name="is_student" invisible="not is_child"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="employee_relative_view_tree" model="ir.ui.view">
+        <field name="name">employee.relative.tree</field>
+        <field name="model">employee.relative</field>
+        <field name="arch" type="xml">
+            <list string="Familiares">
+                <field name="name"/>
+                <field name="relationship"/>
+                <field name="employee_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+</data></odoo>

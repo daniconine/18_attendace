@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_employee_relative,employee_relative,model_employee_relative,,1,1,1,1
+access_employment_regime,employment_regime,model_employment_regime,,1,1,1,1
+access_pension_system,pension_system,model_pension_system,,1,1,1,1
+access_health_care_system,health_care_system,model_health_care_system,,1,1,1,1
+access_sctr_table,sctr_table,model_sctr_table,,1,1,1,1

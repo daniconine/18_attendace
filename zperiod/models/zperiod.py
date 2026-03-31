@@ -1,4 +1,5 @@
 from odoo import api, fields, models, _
+from datetime import datetime
 from odoo.exceptions import UserError, ValidationError
 
 class ZPeriod(models.Model):
@@ -14,7 +15,7 @@ class ZPeriod(models.Model):
     # Heredamos las fechas del lote o se ponen manualmente
     date_start = fields.Date(string="Fecha Inicio", required=True, tracking=True)
     date_end = fields.Date(string="Fecha Fin", required=True, tracking=True)
-
+    
     state = fields.Selection([
         ("draft", "Borrador"),
         ("sent", "Enviado.."),
@@ -31,7 +32,7 @@ class ZPeriod(models.Model):
     #CAmpos de Modulos Z
     
     days_attended = fields.Float(string='Días Asistidos (Conforme)')
-    days_unattended = fields.Float(string='Inasistencias (Conflicto)')
+    days_unattended = fields.Float(string='Días Inasistencias (Conflicto)')
     diff_attendance_total = fields.Float(string="Exceso/Defecto (Hrs)")
     late_min_total = fields.Integer(string="Tardanzas (min)")
     permiso_late_total = fields.Integer(string="N° Permisos de Tardanza")
@@ -61,6 +62,23 @@ class ZPeriod(models.Model):
     # Campo técnico para la moneda de bonos/comisiones
     company_currency_id = fields.Many2one(
         'res.currency', related='batch_id.company_id.currency_id', string="Moneda")
+    
+    # Campo calculado para el mes
+    month = fields.Selection([
+        ('01', 'Enero'), ('02', 'Febrero'), ('03', 'Marzo'), ('04', 'Abril'),
+        ('05', 'Mayo'), ('06', 'Junio'), ('07', 'Julio'), ('08', 'Agosto'),
+        ('09', 'Septiembre'), ('10', 'Octubre'), ('11', 'Noviembre'), ('12', 'Diciembre')
+    ], string="Mes del Periodo", compute="_compute_month", store=True, tracking=True)
+
+    @api.depends('date_end')
+    def _compute_month(self):
+        # Usamos 'self' que contiene el conjunto de registros a procesar
+        for record in self: 
+            if record.date_end:
+                # Extraemos el mes (ej: '03')
+                record.month = record.date_end.strftime('%m')
+            else:
+                record.month = False
 
     # --- Lógica de Nombre Automático ---
     @api.model
@@ -118,9 +136,8 @@ class ZPeriod(models.Model):
             total_permisos = len(attendance_days.filtered(lambda x: x.permiso_late))
 
             # 4. Diferencia de horas (Exceso/Defecto)
-            total_real = sum(attendance_days.mapped('actual_total'))
-            total_planificado = sum(attendance_days.mapped('planned_total'))
-            diferencia_horas = total_real - total_planificado
+            
+            diferencia_horas = sum(attendance_days.mapped('diff_attendance'))
             
             # 5. Vacaciones Aprobadas (Sumamos las vacaciones aprobadas en el periodo)
             vacations_approved = self.env['zleave.zvacation'].search([

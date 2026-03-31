@@ -1,0 +1,132 @@
+<odoo>
+    <data noupdate="0">
+        <!-- Pagados -->
+        <record id="hr_work_entry.work_entry_type_attendance" model="hr.work.entry.type">
+            <field name="is_working_day" eval="True"/>
+        </record>
+        
+        <record id="hr_work_entry_contract.work_entry_type_legal_leave" model="hr.work.entry.type">
+            <field name="is_working_day" eval="True"/>
+        </record>
+
+        <!-- no pagados -->
+        <record id="hr_work_entry_contract.work_entry_type_unpaid_leave" model="hr.work.entry.type">
+            <field name="is_working_day" eval="True"/>
+        </record>
+
+        <!-- Horas Extras -->
+        <record id="hr_work_entry_type_overtime_25" model="hr.work.entry.type">
+            <field name="name">Hora Extra 25%</field>
+            <field name="code">HE25</field>
+            <field name="is_overtime">True</field>
+            <field name="pe_overtime_code">25</field>
+        </record>
+
+        <record id="hr_work_entry_type_overtime_35" model="hr.work.entry.type">
+            <field name="name">Hora Extra 35%</field>
+            <field name="code">HE35</field>
+            <field name="is_overtime">True</field>
+            <field name="pe_overtime_code">35</field>
+        </record>
+
+        <record id="hr_work_entry_type_overtime_night_25" model="hr.work.entry.type">
+            <field name="name">Hora Extra Nocturna 25%</field>
+            <field name="code">HEN25</field>
+            <field name="is_overtime">True</field>
+            <field name="pe_overtime_code">night_25</field>
+        </record>
+
+        <record id="hr_work_entry_type_overtime_night_35" model="hr.work.entry.type">
+            <field name="name">Hora Extra Nocturna 35%</field>
+            <field name="code">HEN35</field>
+            <field name="is_overtime">True</field>
+            <field name="pe_overtime_code">night_35</field>
+        </record>
+
+        <record id="hr_work_entry_type_overtime_sunday" model="hr.work.entry.type">
+            <field name="name">Hora Extra Domingo</field>
+            <field name="code">HEDOM</field>
+            <field name="is_overtime">True</field>
+            <field name="pe_overtime_code">sunday</field>
+        </record>
+
+        <record id="hr_work_entry_type_overtime_holiday" model="hr.work.entry.type">
+            <field name="name">Hora Extra Feriado</field>
+            <field name="code">HEFER</field>
+            <field name="is_overtime">True</field>
+            <field name="pe_overtime_code">holiday</field>
+        </record>
+
+        <record id="hr_work_entry_type_compensatory_work" model="hr.work.entry.type">
+            <field name="name">Trabajo Compensatorio</field>
+            <field name="code">TCOMP</field>
+            <field name="pe_overtime_code">compensatory</field>
+        </record>
+
+        <!-- ================================================================= -->
+        <!-- ================================================================= -->
+
+        <!-- Tardanzas -->
+        <record id="hr_work_entry_type_tardiness_min" model="hr.work.entry.type">
+            <field name="name">Tardanza Descuento Tiempo Min</field>
+            <field name="code">TMIN</field>
+            <field name="is_leave">True</field>
+        </record>
+
+        <record id="hr_work_entry_type_tardiness_halfday" model="hr.work.entry.type">
+            <field name="name">Tardanza Descuento Medio Día</field>
+            <field name="code">TMD</field>
+            <field name="is_leave">True</field>
+        </record>
+
+        <record id="hr_work_entry_type_tardiness_fullday" model="hr.work.entry.type">
+            <field name="name">Tardanza Descuento Día Completo</field>
+            <field name="code">TDC</field>
+            <field name="is_leave">True</field>
+        </record>
+
+        <!-- Permisos y otros -->
+        <record id="hr_work_entry_type_compensated_leave" model="hr.work.entry.type">
+            <field name="name">Permiso Compensatorio</field>
+            <field name="code">PCOMP</field>
+            <field name="is_compensatory_leave">True</field>
+        </record>
+
+        <record id="hr_work_entry_type_special_leave" model="hr.work.entry.type">
+            <field name="name">Permiso Especial</field>
+            <field name="code">PESP</field>
+        </record>
+
+        <record id="hr_work_entry_type_vacation_advance" model="hr.work.entry.type">
+            <field name="name">Vacaciones a Cuenta</field>
+            <field name="code">VADV</field>
+            <field name="is_vacation_leave">True</field>
+        </record>
+
+        <!-- TIPO 1: VACACIONES REGULARES -->
+        <record id="hr_work_entry_type_vacation_regular" model="hr.work.entry.type">
+            <field name="name">Vacaciones Regulares</field>
+            <field name="code">VAC_REG</field>
+            <!-- Consume saldo, pero NO es un adelanto -->
+            <field name="is_vacation_leave">True</field>
+            <field name="is_advanced_vacation_type">False</field>
+        </record>
+
+        <!-- TIPO 2: ADELANTO DE VACACIONES -->
+        <record id="hr_work_entry_type_vacation_advance" model="hr.work.entry.type">
+            <field name="name">Adelanto de Vacaciones</field>
+            <field name="code">VAC_ADV</field>
+            <field name="is_vacation_leave">True</field>
+            <field name="is_advanced_vacation_type">True</field>
+        </record>
+
+        <record id="work_entry_type_holiday_pe" model="hr.work.entry.type">
+            <field name="name">Día Feriado</field>
+            <field name="code">FERIADO</field>
+            <!-- Es un tipo de ausencia, y es pagada (el valor por defecto de is_unpaid es False) -->
+            <field name="is_leave">True</field>
+            <!--<field name="color">#D81B60</field>-->
+            <field name="color">9</field>  <!-- Un color para distinguirlo visualmente -->
+        </record>
+    </data>
+</odoo>

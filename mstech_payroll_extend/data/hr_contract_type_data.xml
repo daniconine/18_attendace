@@ -1,0 +1,80 @@
+<!-- mstech_payroll_extend/data/hr_contract_type_data.xml -->
+<odoo>
+    <data noupdate="0">
+        <!-- =============================================== -->
+        <!-- ➤ Contratos a Plazo Indeterminado             -->
+        <!-- =============================================== -->
+        <record id="contract_type_indefinido_pe" model="hr.contract.type">
+            <field name="name">Contrato a Plazo Indeterminado (728)</field>
+            <field name="plame_code">01</field>
+        </record>
+
+        <!-- =============================================== -->
+        <!-- ➤ Contratos Sujetos a Modalidad (Plazo Fijo)    -->
+        <!-- =============================================== -->
+
+        <!-- A. De Naturaleza Temporal -->
+        <record id="contract_type_temporal_inicio_pe" model="hr.contract.type">
+            <field name="name">Temporal: Inicio o Lanzamiento de Nueva Actividad</field>
+            <field name="plame_code">03</field>
+        </record>
+        <record id="contract_type_temporal_mercado_pe" model="hr.contract.type">
+            <field name="name">Temporal: Necesidades del Mercado</field>
+            <field name="plame_code">04</field>
+        </record>
+        <record id="contract_type_temporal_reconversion_pe" model="hr.contract.type">
+            <field name="name">Temporal: Reconversión Empresarial</field>
+            <field name="plame_code">05</field>
+        </record>
+
+        <!-- B. De Naturaleza Accidental -->
+        <record id="contract_type_accidental_ocasional_pe" model="hr.contract.type">
+            <field name="name">Accidental: Ocasional</field>
+            <field name="plame_code">06</field>
+        </record>
+        <record id="contract_type_accidental_suplencia_pe" model="hr.contract.type">
+            <field name="name">Accidental: Suplencia</field>
+            <field name="plame_code">07</field>
+        </record>
+        <record id="contract_type_accidental_emergencia_pe" model="hr.contract.type">
+            <field name="name">Accidental: Emergencia</field>
+            <field name="plame_code">08</field>
+        </record>
+
+        <!-- C. De Obra o Servicio Específico -->
+        <record id="contract_type_obra_servicio_pe" model="hr.contract.type">
+            <field name="name">Para Obra Determinada o Servicio Específico</field>
+            <field name="plame_code">09</field>
+        </record>
+        <record id="contract_type_intermitente_pe" model="hr.contract.type">
+            <field name="name">Intermitente</field>
+            <field name="plame_code">10</field>
+        </record>
+        <record id="contract_type_temporada_pe" model="hr.contract.type">
+            <field name="name">De Temporada</field>
+            <field name="plame_code">11</field>
+        </record>
+
+        <!-- =============================================== -->
+        <!-- ➤ Otros Tipos de Contratos Laborales          -->
+        <!-- =============================================== -->
+        <record id="contract_type_part_time_pe" model="hr.contract.type">
+            <field name="name">Contrato a Tiempo Parcial (Part-Time)</field>
+            <field name="plame_code">02</field>
+        </record>
+
+        <!-- =============================================== -->
+        <!-- ➤ Vínculos No Laborales (Contratos Civiles)   -->
+        <!-- =============================================== -->
+        <record id="contract_type_locacion_pe" model="hr.contract.type">
+            <field name="name">Locación de Servicios (No Laboral - Recibo por Honorarios)</field>
+            <field name="receives_gratification" eval="False"/>
+            <field name="plame_code">99</field>  <!-- CHECK -->
+        </record>
+        <record id="contract_type_formacion_pe" model="hr.contract.type">
+            <field name="name">Modalidad Formativa (Practicante)</field>
+            <field name="receives_gratification" eval="False"/>
+            <field name="plame_code">99</field>
+        </record>
+    </data>
+</odoo>

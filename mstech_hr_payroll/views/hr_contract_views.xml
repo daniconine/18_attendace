@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+    <record id="hr_contract_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.form.mstech</field>
+        <field name="model">hr.contract</field>
+        <field name="inherit_id" ref="hr_contract.hr_contract_view_form"/>
+        <field name="arch" type="xml"><data>
+            <xpath expr="//notebook" position="inside">
+                <page string="Perú" name="peru">
+                    <group>
+                        <group name="pe_general" string="General">
+                            <field name="employment_regime_id"/>
+                            <field name="pension_system_id"/>
+                            <field name="health_care_system_id"/>
+                            <field name="afp_comission_type"/>
+                        </group>
+                        <group name="pe_other" string="Otros conceptos">
+                            <field name="main_feed_money"/>
+                            <field name="productivity_bonus"/>
+                            <field name="eps_cost"/>
+                            <field name="mobility"/>
+                            <field name="sctr_table_id"/>
+                        </group>
+                        <group name="pe_discount" string="Descuentos">
+                            <field name="discount_type"/>
+                            <field name="discount" invisible="not discount_type"/>
+                        </group>
+                        <group name="pe_rent" string="Cálculo de la renta de 5ta">
+                            <field name="receives_commission"/>
+                            <field name="estimated_monthly_bonus" invisible="not receives_commission"/>
+                            <field name="estimated_monthly_commission" invisible="not receives_commission"/>
+                            <field name="past_compensation" invisible="not receives_commission"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+</data></field>
+    </record>
+</data></odoo>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+    <record id="hr_commission_view_form" model="ir.ui.view">
+        <field name="name">hr.commission.form</field>
+        <field name="model">hr.commission</field>
+        <field name="arch" type="xml">
+            <form string="Comisión">
+                <header>
+                    <button string="Abrir documento" name="action_open_source_document" type="object" class="btn-primary"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <!--
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Referencia"/>
+                        </h1>
+                    </div>
+                    -->
+                    <group name="main_group">
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="config_id"/>
+                            <field name="payslip_id"/>
+                        </group>
+                        <group>
+                            <field name="amount"/>
+                            <field name="date"/>
+                            <field name="company_id"/>
+                            <field name="company_currency_id" invisible=""/>
+                        </group>
+                        <group>
+                            <field name="source_amount" readonly="1"/>
+                            <field name="source_currency_id" readonly="1"/>
+                            <field name="exchange_rate"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_commission_view_tree" model="ir.ui.view">
+        <field name="name">hr.commission.tree</field>
+        <field name="model">hr.commission</field>
+        <field name="arch" type="xml">
+            <list string="Comisión">
+                <field name="employee_id"/>
+                <field name="config_id"/>
+                <field name="payslip_id"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_commission_action" model="ir.actions.act_window">
+        <field name="name">Comisión</field>
+        <field name="res_model">hr.commission</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aun no hay comisiones creadas.
+            </p>
+        </field>
+    </record>
+</data></odoo>

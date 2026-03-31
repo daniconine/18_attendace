@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+    <record id="hr_payslip_analytic_cost_view_tree" model="ir.ui.view">
+        <field name="name">hr.payslip.analytic.cost.tree</field>
+        <field name="model">hr.payslip.analytic.cost</field>
+        <field name="arch" type="xml">
+            <list string="Distribución de Costo de Nómina por Centro de Costo" editable="top">
+                <field name="analytic_account_id"/>
+                <field name="amount"/>
+                <field name="payslip_id"/>
+                <field name="currency_id"/>
+                <field name="payslip_line_id"/>
+                <field name="salary_rule_id"/>
+            </list>
+        </field>
+    </record>
+</data></odoo>

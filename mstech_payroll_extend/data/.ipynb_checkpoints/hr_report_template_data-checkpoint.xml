@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="0">
+    <!-- PAGOS MASIVOS -->
+    <record id="ibk_payment_tmpl" model="hr.report.template">
+        <field name="name">Pagos masivos Interbank</field>
+        <field name="file_extension">txt</field>
+        <field name="is_bank_payment" eval="True"/>
+    </record>
+        <record id="ibk_payment_tmpl_line" model="hr.report.template.line">
+            <field name="name">Línea</field>
+            <field name="template_id" ref="ibk_payment_tmpl"/>
+            <field name="value_type">python</field>
+            <field name="code_executor_id" ref="calculo_tmpl_ibk_exc"/>
+        </record>
+    
+    <!-- PLAME -->
+    <record id="plame_rem_tmpl" model="hr.report.template">
+        <field name="name">ESTRUCTURA 18:  Trabajador - Detalle de ingresos, tributos y descuentos.</field>
+        <field name="filename">f"0601{payslip_run.date_end.year}{str(payslip_run.date_end.month).zfill(2)}{payslip_run.company_id.vat}"</field>
+        <field name="file_extension">rem</field>
+        <field name="iterator">line_ids</field>
+        <field name="is_bank_payment" eval="False"/>
+    </record>
+        <record id="plame_rem_tmpl_line" model="hr.report.template.line">
+            <field name="name">Línea</field>
+            <field name="template_id" ref="plame_rem_tmpl"/>
+            <field name="value_type">python</field>
+            <field name="code_executor_id" ref="calculo_plame_rem_exc"/>
+        </record>
+    
+    <record id="plame_for_tmpl" model="hr.report.template">
+        <field name="name">ESTRUCTURA 21: Modalidad en Formación - Modalidad formativa laboral y Otros - Monto pagado.</field>
+        <field name="filename">f"0601{payslip_run.date_end.year}{str(payslip_run.date_end.month).zfill(2)}{payslip_run.company_id.vat}"</field>
+        <field name="file_extension">for</field>
+        <field name="is_bank_payment" eval="False"/>
+    </record>
+        <record id="plame_for_tmpl_line" model="hr.report.template.line">
+            <field name="name">Línea</field>
+            <field name="template_id" ref="plame_for_tmpl"/>
+            <field name="value_type">python</field>
+            <field name="code_executor_id" ref="calculo_plame_for_exc"/>
+        </record>
+    
+    <record id="plame_jor_tmpl" model="hr.report.template">
+        <field name="name">ESTRUCTURA 14:  Trabajador - Datos de la Jornada Laboral.</field>
+        <field name="filename">f"0601{payslip_run.date_end.year}{str(payslip_run.date_end.month).zfill(2)}{payslip_run.company_id.vat}"</field>
+        <field name="file_extension">jor</field>
+        <field name="is_bank_payment" eval="False"/>
+    </record>
+        <record id="plame_jor_tmpl_line" model="hr.report.template.line">
+            <field name="name">Línea</field>
+            <field name="template_id" ref="plame_jor_tmpl"/>
+            <field name="value_type">python</field>
+            <field name="code_executor_id" ref="calculo_plame_jor_exc"/>
+        </record>
+
+    <!-- T-REGISTRO -->
+    <record id="tregistro_pfl_tmpl" model="hr.report.template">
+        <field name="name">ESTRUCTURA 9: Datos del PERSONAL EN FORMACIÓN -  modalidad formativa laboral y otros.</field>
+        <field name="filename">f"RP_{payslip_run.company_id.vat}"</field>
+        <field name="file_extension">pfl</field>
+        <field name="is_bank_payment" eval="False"/>
+    </record>
+        <record id="tregistro_pfl_tmpl_line" model="hr.report.template.line">
+            <field name="name">Línea</field>
+            <field name="template_id" ref="tregistro_pfl_tmpl"/>
+            <field name="value_type">python</field>
+            <field name="code_executor_id" ref="calculo_tregistro_pfl_exc"/>
+        </record>
+    
+    <record id="tregistro_pen_tmpl" model="hr.report.template">
+        <field name="name">ESTRUCTURA 6: Datos del PENSIONISTA.</field>
+        <field name="filename">f"RP_{payslip_run.company_id.vat}"</field>
+        <field name="file_extension">pen</field>
+        <field name="is_bank_payment" eval="False"/>
+    </record>
+        <record id="tregistro_pen_tmpl_line" model="hr.report.template.line">
+            <field name="name">Línea</field>
+            <field name="template_id" ref="tregistro_pen_tmpl"/>
+            <field name="value_type">python</field>
+            <field name="code_executor_id" ref="calculo_tregistro_pen_exc"/>
+        </record>
+    
+    <record id="tregistro_tra_tmpl" model="hr.report.template">
+        <field name="name">ESTRUCTURA 5: Datos del TRABAJADOR</field>
+        <field name="filename">f"RP_{payslip_run.company_id.vat}"</field>
+        <field name="file_extension">tra</field>
+        <field name="is_bank_payment" eval="False"/>
+    </record>
+        <record id="tregistro_tra_tmpl_line" model="hr.report.template.line">
+            <field name="name">Línea</field>
+            <field name="template_id" ref="tregistro_tra_tmpl"/>
+            <field name="value_type">python</field>
+            <field name="code_executor_id" ref="calculo_tregistro_tra_exc"/>
+        </record>
+</data></odoo>

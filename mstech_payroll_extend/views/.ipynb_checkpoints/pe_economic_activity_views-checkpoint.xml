@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+    <record id="pe_economic_activity_view_tree" model="ir.ui.view">
+        <field name="name">pe.economic.activity.tree</field>
+        <field name="model">pe.economic.activity</field>
+        <field name="arch" type="xml">
+            <list string="Actividad Económica SUNAT" editable="top">
+                <field name="name"/>
+                <field name="code"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="pe_economic_activity_action" model="ir.actions.act_window">
+        <field name="name">Actividad Económica SUNAT</field>
+        <field name="res_model">pe.economic.activity</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aun no hay registros creados.
+            </p>
+        </field>
+    </record>
+</data></odoo>

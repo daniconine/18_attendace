@@ -1,0 +1,16 @@
+<!-- mstech_payroll_extend/data/cron_data.xml -->
+<odoo>
+    <data noupdate="0">
+        <record id="cron_unjustified_absences_pe" model="ir.cron">
+            <field name="name">Planilla PE: Generar Faltas Injustificadas</field>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_create_unjustified_absences()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <!-- Se ejecuta todos los días a las 11:30 PM (hora del servidor) -->
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 23:30:00')"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+        </record>
+    </data>
+</odoo>

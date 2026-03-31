@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+    <record id="hr_plame_suspension_type_view_tree" model="ir.ui.view">
+        <field name="name">hr.plame.suspension.type.tree</field>
+        <field name="model">hr.plame.suspension.type</field>
+        <field name="arch" type="xml">
+            <list string="PLAME: Tipos de Suspensión de Labores" editable="top">
+                <field name="name"/>
+                <field name="code"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_plame_suspension_type_action" model="ir.actions.act_window">
+        <field name="name">PLAME: Tipos de Suspensión de Labores</field>
+        <field name="res_model">hr.plame.suspension.type</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aun no hay registros creados.
+            </p>
+        </field>
+    </record>
+</data></odoo>

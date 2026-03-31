@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+    <record id="employee_family_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.family.pe.form</field>
+        <field name="model">hr.employee.family.pe</field>
+        <field name="arch" type="xml">
+            <form string="Familia">
+                <sheet>
+                    <field name="employee_id" invisible="1"/>
+                    <div class="oe_title">
+                        <label for="partner_id"/>
+                        <h1>
+                            <field name="partner_id"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Datos" name="data">
+                            <field name="relationship"/>
+                            <field name="document_number"/>
+                            <field name="gender"/>
+                            <field name="birth_date"/>
+                            <field name="age"/>
+                        </group>
+                        <group string="Asignación Familiar" name="assign">
+                            <field name="is_child"/>
+                            <field name="is_disabled"/>
+                            <field name="receives_disability_pension"/>
+                            <field name="is_student"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_employee_family_pe_view_tree" model="ir.ui.view">
+        <field name="name">hr.employee.family.pe.tree</field>
+        <field name="model">hr.employee.family.pe</field>
+        <field name="arch" type="xml">
+            <list string="Familiares">
+                <field name="partner_id"/>
+                <field name="relationship"/>
+                <field name="employee_id" invisible="1"/>
+            </list>
+        </field>
+    </record>
+</data></odoo>
