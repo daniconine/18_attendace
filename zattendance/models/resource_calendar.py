@@ -51,8 +51,9 @@ class ResourceCalendar(models.Model):
     "hr.employee",
     string="Empleado",
     required=True,        
-    tracking=True,
-    )
+    tracking=True,)
+    
+    #employee_id=fields.Integer(string="parche",)
         
     # --- Helper interno ---
     def _float_to_time(self, float_hour):
@@ -61,7 +62,7 @@ class ResourceCalendar(models.Model):
         return time(hours, minutes)
 
     def _local_to_utc(self, dt, tz_name=False):
-        """Convierte un datetime 'local' a UTC según la tz del calendario o usuario."""
+        #Convierte un datetime 'local' a UTC según la tz del calendario o usuario.
         self.ensure_one()
         tz_name = tz_name or self.tz or self.env.user.tz or 'UTC'
         tz = pytz.timezone(tz_name)
@@ -162,3 +163,4 @@ class ResourceCalendar(models.Model):
                 'type': 'success',
             }
         }
+        

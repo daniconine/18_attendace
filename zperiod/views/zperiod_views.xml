@@ -14,9 +14,9 @@
                 <field name="days_permissions"/>
                 <field name="days_attended"/>
                 <field name="days_unattended"/>
-                <field name="diff_attendance_total"/>
+                <field name="diff_attendance_total" widget="float_time"/>
                 <field name="late_min_total"/>
-                <field name="hrs_total"/>
+                <field name="hrs_total" widget="float_time"/>
                 <field name="state" widget="badge"/>
             </list>
         </field>
