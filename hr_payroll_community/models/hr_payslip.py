@@ -333,6 +333,7 @@ class HrPayslip(models.Model):
                 res.append(input_data)
         return res
 
+    ###################Clave para leer la relacion de formula que se progrma en la regla salarial
     @api.model
     def _get_payslip_lines(self, contract_ids, payslip_id):
         """Function for getting Payslip Lines"""

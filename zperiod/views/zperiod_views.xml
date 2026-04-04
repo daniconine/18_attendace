@@ -30,8 +30,7 @@
                 <header>
                     <button name="action_actualizar" string="Actualizar Asistencias" type="object" 
                             class="btn-outline-danger" invisible="state == 'cancel'"/>
-                    <button name="action_submit" string="Enviar a Nomina" type="object" 
-                            class="oe_highlight" invisible="state != 'draft'"/>
+                    
                     <button name="action_approve" string="Aprobar para Nomina" type="object" 
                             class="oe_highlight" invisible="state != 'sent'" groups="hr.group_hr_manager"/>
                     <button name="action_draft" string="Volver a Borrador" type="object" 
@@ -67,13 +66,26 @@
                                 <field name="days_vacations"/>
                                 <field name="days_permissions"/>
                             </group>
+                            
                             <group>
-                                <field name="hrs_25" widget="float_time"/>
-                                <field name="hrs_35" widget="float_time"/>
-                                <field name="hrs_100" widget="float_time"/>
-                                <field name="hrs_200" widget="float_time"/>
-                                <field name="hrs_total" widget="float_time"/>
+                                <field name="hrs_total" widget="float_time" class="fw-bold text-primary"/>
+
+                                <div groups="zleave.group_boss,zleave.group_hr_manager" colspan="2" class="mt-2">
+                                                                       
+
+                                    <group col="2" class="mt-0">
+                                        <field name="hrs_25" widget="float_time" invisible="hrs_25 == 0"/>
+                                        <field name="hrs_35" widget="float_time" invisible="hrs_35 == 0"/>
+                                        <field name="hrs_100" widget="float_time" 
+                                            invisible="hrs_100 == 0" 
+                                            class="text-danger fw-bold"/>
+                                        <field name="hrs_200" widget="float_time" 
+                                            invisible="hrs_200 == 0" 
+                                            class="text-danger fw-bold"/>
+                                    </group>
+                                </div>
                             </group>
+
                     </group>
                     
                     <separator colspan="4"/>

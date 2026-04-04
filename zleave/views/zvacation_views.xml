@@ -117,12 +117,12 @@
                                         <field name="employee_id" invisible="1"/> <!-- Relacionar al empleado actual (hacerlo invisible) -->
                                         <field name="vacation_year_ids" readonly="True" options="{'no_create': True}" >
                                             <list  domain="[('employee_id', '=', employee_id)]">
-                                                <field name="year" string="Año"/>
-                                                <field name="start_date" string="Fecha Inicial"/>
-                                                <field name="end_date" string="Fecha Final"/>                                                
+                                                <field name="year" string="Año"/>                                                                                              
                                                 <field name="accumulated_days" string="Días Acumulados"/>
                                                 <field name="consumed_days" string="Días Consumidos"/>                                            
-                                                <field name="balance_days" string="Saldo"/>
+                                                <field name="balance_days" string="SALDO" decoration-bf="1"/>
+                                                <field name="start_date" string="Fecha Inicial"/>
+                                                <field name="end_date" string="Fecha Final"/>  
                                             </list>
                                         </field>                                
                                 

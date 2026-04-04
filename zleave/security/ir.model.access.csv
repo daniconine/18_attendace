@@ -6,6 +6,12 @@ access_overtime_emp,zleave.overtime.emp,model_zleave_overtime,zleave.group_emplo
 access_overtime_boss,zleave.overtime.boss,model_zleave_overtime,zleave.group_boss,1,1,1,0
 access_overtime_hr,zleave.overtime.hr,model_zleave_overtime,zleave.group_hr_manager,1,1,1,1
 access_zleave_dashboard,zleave.dashboard.user,model_zleave_dashboard,base.group_user,1,1,1,0
-access_zvacation_user,access_zvacation_user,model_zleave_zvacation,base.group_user,1,1,1,0
-access_zvacation_year_user,Acceso a Acumulación de Vacaciones,model_zleave_zvacation_year,base.group_user,1,1,1,0
-access_zvacation_allocate_year_user,access_zvacation_allocate_year_user,model_zleave_zvacation_allocate_year,base.group_user,1,1,1,0
+access_zvacation_year_employee,Acceso Lectura Empleado,model_zleave_zvacation_year,zleave.group_employee,1,1,0,0
+access_zvacation_year_boss,Acceso Lectura Jefe,model_zleave_zvacation_year,zleave.group_boss,1,1,0,0
+access_zvacation_year_hr,Acceso Total RRHH,model_zleave_zvacation_year,zleave.group_hr_manager,1,1,1,1
+access_zvacation_employee,Acceso Solicitud Empleado,model_zleave_zvacation,zleave.group_employee,1,1,1,0
+access_zvacation_boss,Acceso Solicitud Jefe,model_zleave_zvacation,zleave.group_boss,1,1,1,0
+access_zvacation_hr,Acceso Total Solicitud RRHH,model_zleave_zvacation,zleave.group_hr_manager,1,1,1,1
+access_zvacation_allocate_employee,Acceso Puente Empleado,model_zleave_zvacation_allocate_year,zleave.group_employee,1,1,1,0
+access_zvacation_allocate_boss,Acceso Puente Jefe,model_zleave_zvacation_allocate_year,zleave.group_boss,1,1,1,0
+access_zvacation_allocate_hr,Acceso Total Puente RRHH,model_zleave_zvacation_allocate_year,zleave.group_hr_manager,1,1,1,1

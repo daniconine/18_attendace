@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_zperiod_form_inherit_payroll" model="ir.ui.view">
+            <field name="name">zperiod.form.inherit.payroll</field>
+            <field name="model">zperiod</field>
+            <field name="inherit_id" ref="zperiod.view_zperiod_form"/>
+            <field name="arch" type="xml">
+
+                <!-- Insertar botón en el header antes de action_actualizar -->
+                <xpath expr="//header" position="inside">
+                    <button name="create_payslip_from_zperiod"
+                            string="Enviar a Nómina"
+                            type="object"
+                            class="btn-primary"
+                            />
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>

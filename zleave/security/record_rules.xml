@@ -47,6 +47,77 @@
       </record>
 
 
+
+            <!-- Reglas para acceso a acumualcion de año vaaciones-->
+
+      <record id="zleave_rule_vacation_year_employee" model="ir.rule">
+          <field name="name">Vacaciones Año: Empleado solo propio</field>
+          <field name="model_id" ref="model_zleave_zvacation_year"/>
+          <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+          <field name="groups" eval="[(4, ref('zleave.group_employee'))]"/>
+      </record>
+
+      <record id="zleave_rule_vacation_year_boss" model="ir.rule">
+          <field name="name">Vacaciones Año: Jefe ve equipo</field>
+          <field name="model_id" ref="model_zleave_zvacation_year"/>
+          <field name="domain_force">['|', ('employee_id.user_id', '=', user.id), ('employee_id.parent_id.user_id', '=', user.id)]</field>
+          <field name="groups" eval="[(4, ref('zleave.group_boss'))]"/>
+      </record>
+
+      <record id="zleave_rule_vacation_year_hr" model="ir.rule">
+          <field name="name">Vacaciones Año: RRHH acceso completo</field>
+          <field name="model_id" ref="model_zleave_zvacation_year"/>
+          <field name="domain_force">[(1, '=', 1)]</field>
+          <field name="groups" eval="[(4, ref('zleave.group_hr_manager'))]"/>
+      </record>
+
+
+                <!-- Reglas para acceso a acumualcion de año vaaciones-->
+
+        <record id="zleave_rule_vacation_employee" model="ir.rule">
+            <field name="name">Vacaciones: Empleado solo propio</field>
+            <field name="model_id" ref="model_zleave_zvacation"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('zleave.group_employee'))]"/>
+        </record>
+
+        <record id="zleave_rule_vacation_boss" model="ir.rule">
+            <field name="name">Vacaciones: Jefe ve equipo</field>
+            <field name="model_id" ref="model_zleave_zvacation"/>
+            <field name="domain_force">['|', ('employee_id.user_id', '=', user.id), ('employee_id.parent_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('zleave.group_boss'))]"/>
+        </record>
+
+        <record id="zleave_rule_vacation_hr" model="ir.rule">
+            <field name="name">Vacaciones: RRHH acceso completo</field>
+            <field name="model_id" ref="model_zleave_zvacation"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('zleave.group_hr_manager'))]"/>
+        </record>
+
+                    <!-- Reglas para acceso a acumualcion de año vaaciones-->
+        <record id="zleave_rule_vacation_allocate_employee" model="ir.rule">
+            <field name="name">Vacaciones Asignación: Empleado solo propio</field>
+            <field name="model_id" ref="model_zleave_zvacation_allocate_year"/>
+            <field name="domain_force">[('vacation_year_id.employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('zleave.group_employee'))]"/>
+        </record>
+
+        <record id="zleave_rule_vacation_allocate_boss" model="ir.rule">
+            <field name="name">Vacaciones Asignación: Jefe ve equipo</field>
+            <field name="model_id" ref="model_zleave_zvacation_allocate_year"/>
+            <field name="domain_force">['|', ('vacation_year_id.employee_id.user_id', '=', user.id), ('vacation_year_id.employee_id.parent_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('zleave.group_boss'))]"/>
+        </record>
+
+        <record id="zleave_rule_vacation_allocate_hr" model="ir.rule">
+            <field name="name">Vacaciones Asignación: RRHH acceso completo</field>
+            <field name="model_id" ref="model_zleave_zvacation_allocate_year"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('zleave.group_hr_manager'))]"/>
+        </record>
+
+
       <!-- Reglas para acceso a Dashboard-->
       <record id="rule_dashboard_boss_only" model="ir.rule">
           <field name="name">Dashboard: Solo Jefes ven aprobaciones</field>
