@@ -16,7 +16,7 @@
     "installable": True,
     "depends": ["base", "base_rrhh", "mail", "hr","zattendance","zleave","zperiod",
                 "hr_attendance",'hr_work_entry',"analytic","hr_payroll_community",
-                "mstech_hr_payroll",],
+                ],
     "data": [
             #"security/ir.model.access.csv",
             #"views/zperiod_batch_views.xml",
