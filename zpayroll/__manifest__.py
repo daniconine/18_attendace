@@ -18,10 +18,24 @@
                 "hr_attendance",'hr_work_entry',"analytic","hr_payroll_community",
                 ],
     "data": [
-            #"security/ir.model.access.csv",
+            "security/ir.model.access.csv",
             #"views/zperiod_batch_views.xml",
             "views/zperiod_views.xml",
             #"views/menus.xml",
+             'views/zemployee_extension_views.xml',
+            'views/hr_labor_regime_pe_views.xml',
+            'views/hr_afp_views.xml',
+            'views/hr_afp_rate_views.xml',
+            'views/employee_family_views.xml',
+            'views/zemployee_bank_info_views.xml',
+            #'views/zemployee_views.xml',
+            
+            'data/hr_afp_data.xml',
+            'data/hr_afp_rate_data.xml',
+            'data/hr_labor_regime_data.xml',
+            
+            
+            'views/zemployee_menu.xml',
             ],
     'assets': {
         'web.assets_backend': [

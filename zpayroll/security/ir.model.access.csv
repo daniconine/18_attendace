@@ -1,0 +1,18 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_zemployee_extension_user,zemployee.extension user,model_zemployee_extension,hr.group_hr_user,1,1,1,0
+access_zemployee_extension_manager,zemployee.extension manager,model_zemployee_extension,hr.group_hr_manager,1,1,1,1
+
+access_hr_labor_regime_pe_user,hr.labor.regime.pe user,model_hr_labor_regime_pe,hr.group_hr_user,1,1,1,0
+access_hr_labor_regime_pe_manager,hr.labor.regime.pe manager,model_hr_labor_regime_pe,hr.group_hr_manager,1,1,1,1
+
+access_hr_afp_user,hr.afp user,model_hr_afp,hr.group_hr_user,1,1,1,0
+access_hr_afp_manager,hr.afp manager,model_hr_afp,hr.group_hr_manager,1,1,1,1
+
+access_hr_afp_rate_user,hr.afp.rate user,model_hr_afp_rate,hr.group_hr_user,1,1,1,0
+access_hr_afp_rate_manager,hr.afp.rate manager,model_hr_afp_rate,hr.group_hr_manager,1,1,1,1
+
+access_employee_family_user,employee.family user,model_employee_family,hr.group_hr_user,1,1,1,0
+access_employee_family_manager,employee.family manager,model_employee_family,hr.group_hr_manager,1,1,1,1
+
+access_zemployee_bank_info_user,zemployee.bank.info user,model_zemployee_bank_info,hr.group_hr_user,1,1,1,0
+access_zemployee_bank_info_manager,zemployee.bank.info manager,model_zemployee_bank_info,hr.group_hr_manager,1,1,1,1

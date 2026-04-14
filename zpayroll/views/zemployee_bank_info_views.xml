@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LIST -->
+    <record id="view_zemployee_bank_info_list" model="ir.ui.view">
+        <field name="name">zemployee.bank.info.list</field>
+        <field name="model">zemployee.bank.info</field>
+        <field name="arch" type="xml">
+            <list string="Cuentas Bancarias">
+                <field name="employee_extension_id"/>
+                <field name="name"/>
+                <field name="bank_id"/>
+                <field name="account_number"/>
+                <field name="cci"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM -->
+    <record id="view_zemployee_bank_info_form" model="ir.ui.view">
+        <field name="name">zemployee.bank.info.form</field>
+        <field name="model">zemployee.bank.info</field>
+        <field name="arch" type="xml">
+            <form string="Cuenta Bancaria">
+                <sheet>
+                    <group>
+                        <field name="employee_extension_id"/>
+                        <field name="name"/>
+                        <field name="bank_id"/>
+                        <field name="account_number"/>
+                        <field name="cci"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_zemployee_bank_info" model="ir.actions.act_window">
+        <field name="name">Cuentas Bancarias</field>
+        <field name="res_model">zemployee.bank.info</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

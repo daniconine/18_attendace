@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LIST -->
+    <record id="view_zemployee_extension_list" model="ir.ui.view">
+        <field name="name">zemployee.extension.list</field>
+        <field name="model">zemployee.extension</field>
+        <field name="arch" type="xml">
+            <list string="Extensiones de Empleado">
+                <field name="employee_id"/>
+                <field name="cuspp"/>
+                <field name="pe_labor_regime_id"/>
+                <field name="pe_pension_scheme"/>
+                <field name="pe_health_scheme"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM -->
+    <record id="view_zemployee_extension_form" model="ir.ui.view">
+        <field name="name">zemployee.extension.form</field>
+        <field name="model">zemployee.extension</field>
+        <field name="arch" type="xml">
+            <form string="Extensión del Empleado">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="cuspp"/>
+                            <field name="is_disabled_person"/>
+                            <field name="is_family_mother"/>
+                            <field name="study_school_type"/>
+                            <field name="pensioner_type"/>
+                        </group>
+                        <group>
+                            <field name="pe_labor_regime_id"/>
+                            <field name="pe_pension_scheme"/>
+                            <field name="afp_id"/>
+                            <field name="afp_commission_type"/>
+                            <field name="pe_health_scheme"/>
+                            <field name="sctr_table"/>
+                        </group>
+                    </group>
+
+                    <group string="Descuento Judicial">
+                        <field name="judicial_deduction_type"/>
+                        <field name="judicial_deduction_amount"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Familiares">
+                            <field name="family_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="relationship"/>
+                                    <field name="birth_date"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Cuentas Bancarias">
+                            <field name="cuenta_sueldo">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="bank_id"/>
+                                    <field name="account_number"/>
+                                    <field name="cci"/>
+                                    <field name="currency_id"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_zemployee_extension" model="ir.actions.act_window">
+        <field name="name">Extension del Empleado Zemployee</field>
+        <field name="res_model">zemployee.extension</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

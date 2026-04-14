@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LIST -->
+    <record id="view_hr_labor_regime_pe_list" model="ir.ui.view">
+        <field name="name">hr.labor.regime.pe.list</field>
+        <field name="model">hr.labor.regime.pe</field>
+        <field name="arch" type="xml">
+            <list string="Regímenes Laborales">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="plame_code"/>
+                <field name="annual_vacation_days"/>
+                <field name="receives_gratification"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM -->
+    <record id="view_hr_labor_regime_pe_form" model="ir.ui.view">
+        <field name="name">hr.labor.regime.pe.form</field>
+        <field name="model">hr.labor.regime.pe</field>
+        <field name="arch" type="xml">
+            <form string="Régimen Laboral">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="code"/>
+                        <field name="plame_code"/>
+                        <field name="receives_gratification"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_hr_labor_regime_pe" model="ir.actions.act_window">
+        <field name="name">Regímenes Laborales</field>
+        <field name="res_model">hr.labor.regime.pe</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

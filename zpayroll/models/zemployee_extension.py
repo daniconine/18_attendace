@@ -10,9 +10,18 @@ class HrLaborRegimePE(models.Model):
 
     name = fields.Char(string='Nombre del Régimen', required=True)
     code = fields.Char(string='Código', help="Código interno o del decreto ley, ej: 728, MYPE")
-    plame_code = fields.Char(string='Código en PLAME')    
+    plame_code = fields.Char(string='Código en PLAME')
+    annual_vacation_days = fields.Integer(
+        string='Días de Vacaciones Anuales',
+        required=True,
+        default=0,
+        help="Número de días de vacaciones que un empleado gana al cumplir un año de servicio bajo este régimen."
+    )
     active = fields.Boolean(default=True)
     receives_gratification = fields.Boolean(string="Recibe gratificaciones", default=True)
+    
+    
+    
 
 class ZEmployeeExtension(models.Model):
     _name = 'zemployee.extension'
@@ -53,36 +62,27 @@ class ZEmployeeExtension(models.Model):
                                             ('sis', 'SIS'),
                                         ], string='Régimen de salud', tracking=True)
     
-    eps_cost = fields.Monetary(string='Costo EPS')
+    currency_id = fields.Many2one('res.currency',string='Moneda',
+                        default=lambda self: self.env.company.currency_id.id)
+    
+    eps_cost = fields.Monetary(string='Costo EPS',currency_field='currency_id')
+    judicial_deduction_type = fields.Selection([('fixed', 'Fijo'),('percent', 'Porcentaje'),], string='Tipo de retención judicial')
+    judicial_deduction_amount = fields.Monetary( string='Descuento judicial', currency_field='currency_id')
     
     sctr_table = fields.Selection([('sctr_public', 'SCTR Público'),
                                     ('sctr_private_percentage', 'SCTR Privado Porcentaje'),
                                     ('sctr_private_flat', 'SCTR Privado Monto fijo'),], string='Tabla SCTR')
     
-    judicial_deduction_type = fields.Selection([('fixed', 'Fijo'),('percent', 'Porcentaje'),], string='Tipo de retención judicial')
-    judicial_deduction_amount = fields.Monetary( string='Descuento judicial')
     
-    cuenta_sueldo = fields.Many2one(
-        'zemployee.bank.info',
-        string='Cuenta Sueldo',
-        ondelete='set null'
-    )
+    
+    cuenta_sueldo = fields.Many2one( 'zemployee.bank.info',string='Cuenta Sueldo',ondelete='set null')
 
-    cuenta_cts = fields.Many2one(
-        'zemployee.bank.info',
-        string='Cuenta CTS',
-        ondelete='set null'
-    )
+    cuenta_cts = fields.Many2one('zemployee.bank.info',string='Cuenta CTS',ondelete='set null')
 
-    cuenta_eps = fields.Many2one(
-        'zemployee.bank.info',
-        string='Cuenta EPS',
-        ondelete='set null'
-    )
+    cuenta_eps = fields.Many2one('zemployee.bank.info',string='Cuenta EPS',ondelete='set null')
 
     _sql_constraints = [
-        ('employee_id_unique', 'unique(employee_id)', 'Ya existe una extensión para este empleado.')
-    ]
+        ('employee_id_unique', 'unique(employee_id)', 'Ya existe una extensión para este empleado.')]
 
     @api.model_create_multi
     def create(self, vals_list):

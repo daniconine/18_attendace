@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- MENÚ PADRE -->
+    <menuitem
+        id="menu_zemployee_root"
+        name="ZEmployee"
+        parent="hr.menu_hr_root"
+        sequence="90"
+        groups="hr.group_hr_user"/>
+
+    <!-- SUBMENÚS -->
+    <menuitem
+        id="menu_zemployee_extension"
+        name="Empleados Normativa Peruana"
+        parent="menu_zemployee_root"
+        action="action_zemployee_extension"
+        sequence="10"
+        groups="hr.group_hr_user"/>
+
+    <menuitem
+        id="menu_hr_labor_regime_pe"
+        name="Regímenes Laborales"
+        parent="menu_zemployee_root"
+        action="action_hr_labor_regime_pe"
+        sequence="20"
+        groups="hr.group_hr_user"/>
+
+    <menuitem
+        id="menu_hr_afp"
+        name="AFP"
+        parent="menu_zemployee_root"
+        action="action_hr_afp"
+        sequence="30"
+        groups="hr.group_hr_user"/>
+
+    <menuitem
+        id="menu_hr_afp_rate"
+        name="Tasas AFP"
+        parent="menu_zemployee_root"
+        action="action_hr_afp_rate"
+        sequence="40"
+        groups="hr.group_hr_user"/>
+
+    <menuitem
+        id="menu_employee_family"
+        name="Familiares"
+        parent="menu_zemployee_root"
+        action="action_employee_family"
+        sequence="50"
+        groups="hr.group_hr_user"/>
+
+    <menuitem
+        id="menu_zemployee_bank_info"
+        name="Cuentas Bancarias"
+        parent="menu_zemployee_root"
+        action="action_zemployee_bank_info"
+        sequence="60"
+        groups="hr.group_hr_user"/>
+
+</odoo>

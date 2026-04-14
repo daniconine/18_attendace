@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LIST -->
+    <record id="view_hr_afp_list" model="ir.ui.view">
+        <field name="name">hr.afp.list</field>
+        <field name="model">hr.afp</field>
+        <field name="arch" type="xml">
+            <list string="AFP">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM -->
+    <record id="view_hr_afp_form" model="ir.ui.view">
+        <field name="name">hr.afp.form</field>
+        <field name="model">hr.afp</field>
+        <field name="arch" type="xml">
+            <form string="AFP">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Tasas">
+                            <field name="rate_ids">
+                                <list editable="bottom">
+                                    <field name="afp_id"/>
+                                    <field name="date_from"/>
+                                    <field name="mandatory_contribution_rate"/>
+                                    <field name="insurance_premium_rate"/>
+                                    <field name="commission_rate"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_hr_afp" model="ir.actions.act_window">
+        <field name="name">AFP</field>
+        <field name="res_model">hr.afp</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

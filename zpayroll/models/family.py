@@ -11,7 +11,12 @@ class EmployeeFamily(models.Model):
     _description = 'Familiares'
     
     name = fields.Char(string='Nombre Completo', required=True)
-    employee_id = fields.Many2one(string="Empleado", comodel_name="hr.employee", ondelete="cascade")
+    zemployee_extension_id = fields.Many2one(
+        'zemployee.extension',
+        string='Ficha del empleado',
+        required=True,
+        ondelete='cascade'
+    )
 
     #DATOS
     relationship = fields.Selection([
@@ -20,7 +25,7 @@ class EmployeeFamily(models.Model):
         ('parent', 'Padre/Madre'),
         ('other', 'Otro'),
     ], string='Parentesco', required=True)
-    vat = fields.Char(string="Nro. de identificación")
+    vat_dni = fields.Char(string="Nro. de identificación (DNI)")
     gender = fields.Selection(string="Género", selection=[('male', 'Masculino'), ('female', 'Femenino')])
     birth_date = fields.Date(
         string='Fecha de nacimiento',
