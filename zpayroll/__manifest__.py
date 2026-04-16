@@ -28,11 +28,13 @@
             'views/hr_afp_rate_views.xml',
             'views/employee_family_views.xml',
             'views/zemployee_bank_info_views.xml',
+            'views/hr_contract_views.xml',
             #'views/zemployee_views.xml',
             
             'data/hr_afp_data.xml',
             'data/hr_afp_rate_data.xml',
             'data/hr_labor_regime_data.xml',
+            
             
             
             'views/zemployee_menu.xml',

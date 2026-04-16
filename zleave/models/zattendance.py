@@ -115,3 +115,24 @@ class ZAttendanceDay(models.Model):
 
             rec._skip_recalcular_logic()
         return True
+    
+    
+    def horas_extras(self, overtime_id):
+        """
+        Aplica al día de asistencia el efecto de una solicitud aprobada de horas extras.
+        Para días de descanso o feriado, activa permiso de tardanza para evitar
+        que el sistema calcule tardanza artificial.
+        """
+        for rec in self:
+            overtime = self.env['zleave.overtime'].browse(overtime_id)
+
+            # Vincular la solicitud al día
+            if overtime and overtime.id not in rec.overtime_ids.ids:
+                rec.overtime_ids = [(4, overtime.id)]
+
+            # Solo para descanso o feriado: quitar tardanza artificial
+            if rec.planned_attendance_type in ('descanso', 'feriado'):
+                rec.permiso_late = True
+        
+
+        return True

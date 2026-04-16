@@ -2,26 +2,7 @@ from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import date, datetime, timedelta
 from odoo.modules.module import get_module_root
-
-class HrLaborRegimePE(models.Model):
-    _name = 'hr.labor.regime.pe'
-    _description = 'Régimen Laboral (Perú)'
-    _order = 'name'
-
-    name = fields.Char(string='Nombre del Régimen', required=True)
-    code = fields.Char(string='Código', help="Código interno o del decreto ley, ej: 728, MYPE")
-    plame_code = fields.Char(string='Código en PLAME')
-    annual_vacation_days = fields.Integer(
-        string='Días de Vacaciones Anuales',
-        required=True,
-        default=0,
-        help="Número de días de vacaciones que un empleado gana al cumplir un año de servicio bajo este régimen."
-    )
-    active = fields.Boolean(default=True)
-    receives_gratification = fields.Boolean(string="Recibe gratificaciones", default=True)
-    
-    
-    
+  
 
 class ZEmployeeExtension(models.Model):
     _name = 'zemployee.extension'

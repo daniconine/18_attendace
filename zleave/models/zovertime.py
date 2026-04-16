@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 
@@ -160,37 +161,30 @@ class ZLeaveOvertime(models.Model):
     
     ######Metodo para el caluclo de horas
     def _calculate_overtime_hours(self, total_hours_requested, zattendance_type):
-        """
-        Calcula la distribución de horas extras según el tipo de asistencia.
-        :param total_hours_requested: Total de horas solicitadas por el empleado.
-        :param zattendance_type: Tipo de asistencia ('presencial', 'virtual', 'descanso', 'feriado')
-        :return: Diccionario con la distribución de las horas (horas_25, horas_35, horas_100, horas_200)
-        """
         horas_25 = 0.0
         horas_35 = 0.0
         horas_100 = 0.0
         horas_200 = 0.0
 
+        total_hours_requested = max(total_hours_requested or 0.0, 0.0)
+
         if zattendance_type in ['presencial', 'virtual']:
-            # Para presencia o virtual, las primeras 2 horas son al 25% y el resto al 35%
-            horas_25 = min(2, total_hours_requested)  # Hasta 2 horas al 25%
-            horas_35 = total_hours_requested - horas_25  # El resto va al 35%
-        
+            horas_25 = min(2.0, total_hours_requested)
+            horas_35 = max(total_hours_requested - horas_25, 0.0)
+
         elif zattendance_type == 'descanso':
-            # Para descanso, siempre asignamos 8 horas al 100%
-            horas_100 = 8  # Máximo 8 horas al 100%
-        
+            horas_100 = total_hours_requested
+
         elif zattendance_type == 'feriado':
-            # Para feriado, siempre asignamos 8 horas al 200%
-            horas_200 = 8  # Máximo 8 horas al 200%
-        
+            horas_200 = total_hours_requested
+
         return {
             'horas_25': horas_25,
             'horas_35': horas_35,
             'horas_100': horas_100,
-            'horas_200': horas_200
+            'horas_200': horas_200,
         }
-    
+        
                  
    
     
@@ -259,7 +253,23 @@ class ZLeaveOvertime(models.Model):
 
             # Verificación de si el usuario es el aprobador asignado
             rec._check_is_approver()
-          
+
+            #logica para enlazar con zattendnace y se vea relejada la aprobaciom
+            attendance = rec.zattendance_id
+            if not attendance:
+                attendance = rec.env['zattendance.day'].search([
+                    ('employee_id', '=', rec.employee_id.id),
+                    ('date', '=', rec.date),
+                ], limit=1)
+
+
+            if not attendance:
+                raise UserError(_("No existe el registro de asistencia relacionado para esta solicitud de horas extras."))
+                        
+            attendance.horas_extras(rec.id)
+
+            rec.zattendance_id = attendance.id
+            
             # Cambiar el estado a "Aprobado"
             rec.state = "approved"
             

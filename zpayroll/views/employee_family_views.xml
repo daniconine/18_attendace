@@ -9,8 +9,13 @@
             <list string="Familiares">
                 <field name="zemployee_extension_id"/>
                 <field name="name"/>
-                <field name="relationship"/>
-                <field name="birth_date"/>
+                <field name="relationship"/>                            
+                <field name="age"/>
+                <field name="vat_dni"/>                            
+                <field name="is_under_age"/>
+                <field name="is_student"/>
+                <field name="is_disabled"/>
+                            
             </list>
         </field>
     </record>
@@ -23,10 +28,24 @@
             <form string="Familiar">
                 <sheet>
                     <group>
-                        <field name="zemployee_extension_id"/>
-                        <field name="name"/>
-                        <field name="relationship"/>
-                        <field name="birth_date"/>
+                        <group>
+                            <field name="zemployee_extension_id"/>
+                            <field name="name"/>
+                            <field name="relationship"/>                            
+                            <field name="birth_date"/>
+                            <field name="age"/>                            
+                            
+                        </group>
+
+                        <group>
+                            <field name="gender"/>
+                            <field name="vat_dni"/>                            
+                            <field name="is_under_age"/>
+                            <field name="is_student"/>
+                            <field name="is_disabled"/>
+                            <field name="has_disability_pension"/>                       
+                        </group>
+                        
                     </group>
                 </sheet>
             </form>
