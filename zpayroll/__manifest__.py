@@ -30,6 +30,7 @@
             'views/zemployee_bank_info_views.xml',
             'views/hr_contract_views.xml',
             #'views/zemployee_views.xml',
+            'views/hr_payslip_views.xml',
             
             'data/hr_afp_data.xml',
             'data/hr_afp_rate_data.xml',
