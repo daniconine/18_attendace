@@ -6,3 +6,4 @@ from . import zemployee_extension
 from . import hr_employee
 from . import hr_contract
 from . import hr_payslip
+from . import zpayroll_closing

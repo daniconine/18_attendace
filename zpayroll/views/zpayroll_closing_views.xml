@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- LIST -->
+    <record id="view_zpayroll_closing_list" model="ir.ui.view">
+        <field name="name">zpayroll.closing.list</field>
+        <field name="model">zpayroll.closing</field>
+        <field name="arch" type="xml">
+            <list string="Cierres de Planilla">
+                <field name="state" widget="badge"/>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="payroll_month"/>             
+                <field name="basic_amount"/>
+                <field name="vacation" />
+                <field name="leave" />
+                <field name="overtime_amount"/>
+                <field name="gross_amount"/>
+                <field name="onp_amount"/>
+                <field name="afp_amount"/>
+                <field name="fifth_income_tax_amount"/>
+                <field name="essalud_amount"/>
+                <field name="total_deductions"/>
+                <field name="net_amount"/>
+                <field name="company_cost_amount"/>
+                <field name="company_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM -->
+    <record id="view_zpayroll_closing_form" model="ir.ui.view">
+        <field name="name">zpayroll.closing.form</field>
+        <field name="model">zpayroll.closing</field>
+        <field name="arch" type="xml">
+            <form string="Cierre de Planilla">
+                <header>
+                    <button name="action_validate"
+                            string="Contabilizar"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state not in ('draft','calculated')"/>
+
+
+                    <button name="action_reset_to_draft"
+                            string="Volver a borrador"
+                            type="object"
+                            invisible="state not in ('accounted','cancelled')"/>
+
+                    <button name="action_cancel"
+                            string="Cancelar"
+                            type="object"
+                            invisible="state in ('cancelled','accounted')"/>
+
+                    <field name="state"
+                           widget="statusbar"
+                           statusbar_visible="draft,calculated,accounted"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="state != 'draft'"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Datos de la nómina">
+                            <field name="payslip_id" readonly="state != 'draft'"/>
+                            <field name="employee_id" />
+                            <field name="company_id" readonly="state != 'draft'"/>
+                            <field name="date_from" readonly="state != 'draft'"/>
+                            <field name="date_to" readonly="state != 'draft'"/>
+                        </group>
+
+                        <group string="Parámetros usados">
+                            <field name="payroll_month"/>
+                            <field name="payroll_uit" readonly="1"/>
+                            <field name="payroll_rmv" readonly="1"/>
+                            <field name="payroll_onp_rate" readonly="1"/>
+                            <field name="payroll_essalud_rate" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Resumen remunerativo">
+                            <group>
+                                <group string="Ingresos">
+                                    <field name="basic_amount" readonly="1"/>
+                                    <field name="overtime_amount" readonly="1"/>
+                                    <field name="gross_amount" readonly="1"/>
+                                </group>
+
+                                <group string="Descuentos y aportes">
+                                    <field name="onp_amount" readonly="1"/>
+                                    <field name="afp_amount" readonly="1"/>
+                                    <field name="fifth_income_tax_amount" readonly="1"/>
+                                    <field name="essalud_amount" readonly="1"/>
+                                    <field name="total_deductions" readonly="1"/>
+                                </group>
+                            </group>
+
+                            <group string="Resultado">
+                                <field name="net_amount" readonly="1"/>
+                                <field name="company_cost_amount" readonly="1"/>
+                            </group>
+                        </page>
+
+                        <page string="Contabilidad">
+                            <group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_zpayroll_closing" model="ir.actions.act_window">
+        <field name="name">Cierre de Planilla</field>
+        <field name="res_model">zpayroll.closing</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- MENU -->
+    <menuitem id="menu_zpayroll_closing"
+              name="Cierre de Planilla"
+              parent="hr_payroll_community.menu_hr_payroll_community_root"
+              action="action_zpayroll_closing"
+              sequence="80"/>
+
+</odoo>

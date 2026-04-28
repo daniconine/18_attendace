@@ -27,6 +27,7 @@
                     </group>
 
                     <group string="Parámetros de cálculo">
+                        <field name="payroll_month" readonly="1"/>
                         <field name="uit" readonly="1"/>
                         <field name="rmv" readonly="1"/>
                         <field name="onp_rate" readonly="1"/>
@@ -39,4 +40,24 @@
 
         </field>
     </record>
+
+    <!-- Agrupa por mes las nominas -->
+    <record id="hr_payroll_community.hr_payslip_action" model="ir.actions.act_window">
+        <field name="context">{'search_default_group_by_payroll_month': 1}</field>
+    </record>
+
+    <!-- Agrupa por mes las nominas en la vista search-->
+    <record id="hr_payslip_search_inherit_payroll_month" model="ir.ui.view">
+        <field name="name">hr.payslip.search.inherit.payroll.month</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll_community.hr_payslip_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search/group" position="inside">
+                <filter string="Mes"
+                        name="group_by_payroll_month"
+                        context="{'group_by':'payroll_month'}"/>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>

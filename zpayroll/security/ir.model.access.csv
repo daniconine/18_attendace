@@ -16,3 +16,6 @@ access_employee_family_manager,employee.family manager,model_employee_family,hr.
 
 access_zemployee_bank_info_user,zemployee.bank.info user,model_zemployee_bank_info,hr.group_hr_user,1,1,1,0
 access_zemployee_bank_info_manager,zemployee.bank.info manager,model_zemployee_bank_info,hr.group_hr_manager,1,1,1,1
+
+access_zpayroll_closing_user,zpayroll.closing user,model_zpayroll_closing,hr.group_hr_user,1,0,0,0
+access_zpayroll_closing_manager,zpayroll.closing manager,model_zpayroll_closing,hr.group_hr_manager,1,1,1,1
