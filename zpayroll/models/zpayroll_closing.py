@@ -55,9 +55,15 @@ class ZPayrollClosing(models.Model):
     payroll_essalud_rate = fields.Float(string='% EsSalud usado', readonly=True)
 
     # Resumen remunerativo
-    basic_amount = fields.Float(string='Básico', readonly=True)
-    overtime_amount = fields.Float(string='Horas extras', readonly=True)
-    gross_amount = fields.Float(string='Remuneración bruta', readonly=True)
+    basic_amount = fields.Float(string='Básico')
+    overtime_amount = fields.Float(string='Horas Extras (HE)')
+    rc_overtime= fields.Float(string='HE Remuneracion Computable')
+    comision_amount= fields.Float(string='Comisiones (COM)')
+    rc_comision= fields.Float(string='COM Remuneracion Computable')
+    bono_amount= fields.Float(string='Bonificaciones (BONO)')
+    bono_amount= fields.Float(string='BONO Remuneracion Computable')
+    
+    gross_amount = fields.Float(string='Remuneración bruta')
 
     # Descuentos y aportes
     onp_amount = fields.Float(string='ONP', readonly=True)

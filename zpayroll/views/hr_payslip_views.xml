@@ -24,10 +24,16 @@
                         <field name="struct_id" readonly="state != 'draft'"/>
                         <field name="name" readonly="state != 'draft'"/>
                         <field name="credit_note" readonly="state != 'draft'"/>
+                        <field name="payroll_type"/>
+                        <field name="remuneracion_computable"/>
+                        <field name="renta_5ta_retencion"/>
                     </group>
 
                     <group string="Parámetros de cálculo">
+                        <field name="payroll_year" readonly="1"/>
                         <field name="payroll_month" readonly="1"/>
+                        <field name="payroll_month_number" readonly="1"/>
+                        <field name="payroll_period_code" readonly="1"/>
                         <field name="uit" readonly="1"/>
                         <field name="rmv" readonly="1"/>
                         <field name="onp_rate" readonly="1"/>
@@ -40,6 +46,21 @@
 
         </field>
     </record>
+
+      <record id="hr_payslip_tree_inherit_zpayroll_fields" model="ir.ui.view">
+            <field name="name">hr.payslip.tree.inherit.zpayroll.fields</field>
+            <field name="model">hr.payslip</field>
+            <field name="inherit_id" ref="hr_payroll_community.hr_payslip_view_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='state']" position="before">
+                    <field name="payroll_month"/>
+                    <field name="payroll_year"/>
+                    <field name="payroll_type"/>
+                    <field name="renta_5ta_retencion"/>
+                </xpath>
+            </field>
+        </record>
+
 
     <!-- Agrupa por mes las nominas -->
     <record id="hr_payroll_community.hr_payslip_action" model="ir.actions.act_window">

@@ -31,6 +31,7 @@
             'views/hr_contract_views.xml',
             #'views/zemployee_views.xml',
             'views/hr_payslip_views.xml',
+            'views/hr_salary_rule_views.xml',
             'views/zpayroll_closing_views.xml',
             
             'data/hr_afp_data.xml',
