@@ -102,20 +102,22 @@ class ZleavePermission(models.Model):
     
     approver_image_1920 = fields.Image( string="Firmado por:", related="approver_id.image_1920",
                             readonly=True,)         
-    #######################
-    #Busca el URL para enviar el correo
-    #Revisar si funciona en entorno con dominio, si no reemplazar en plantilla la url dle sistema
-    def get_permission_approval_url(self):
+    #######################       
+    #ction_id
+    # Campo computado para almacenar el ID de la acción
+    # Campo para almacenar el ID de la acción
+    action_url = fields.Char(string="URL de Aprobación", compute='get_action_url', store=False)
+
+    def get_action_url(self):
         """
-        Genera una URL para que el aprobador pueda revisar y aprobar la solicitud de permiso.
+        Genera la URL correcta usando el ID de la acción y el ID del registro.
         """
-        # Obtener la URL base del sistema
-        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-        if base_url:
-            return f"{base_url}/web#id={self.id}&view_type=form&model=zleave.permission"
-        else:
-            # Si no se encuentra la URL base, devuelve un mensaje de error o una URL por defecto
-            return "URL no configurada correctamente"
+        action_id = 225  # Suponiendo que el ID de la acción es 225, este es un valor fijo
+        record_id = self.id  # Este es el ID del registro, obtenido directamente del modelo
+
+        # Generamos la URL completa usando los IDs de la acción y el registro
+        self.action_url = f"https://piloto.gerens.pe/odoo/action-{action_id}/{record_id}"
+        
     #######################
     # Método para abrir los documentos adjuntos
     def action_open_documents(self):

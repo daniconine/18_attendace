@@ -20,12 +20,13 @@
                     <li><strong>Estado:</strong> <t t-out="object.state"/></li>
                 </ul>
                 <p>Puede revisar y aprobar la solicitud de permiso haciendo clic en el siguiente enlace:</p>
+                <p><t t-out="object.action_url"/></p>
+
+                <!-- Generar correctamente el enlace de aprobación con la URL calculada -->
                 <p>
-                    <a href="https://piloto.gerens.pe/odoo/action-225">Revisar y aprobar la solicitud de permiso</a>
+                    <a t-att-href="object.action_url">Revisar y aprobar la solicitud de permiso</a>
                 </p>
-                <p>
-                    <a href="<t t-out='object.get_permission_approval_url()'/>">URL Dinamica Revisar y aprobar la solicitud de permiso</a>
-                </p>
+
                 <p>Saludos</p>
                 <p style="color: red; font-weight: bold;">Por favor, no responda a este correo ya que es una notificación automática del sistema.</p>
 

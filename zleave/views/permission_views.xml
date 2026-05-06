@@ -101,6 +101,8 @@
               <group>
                 <field name="approver_id" readonly="1"/>
                 <field name="requested_by_id" readonly="1"/>
+                <!--field name="approval_url" readonly="1"/>
+                <field name="action_url" readonly="1"/-->
               </group>
             </group>
             <group string="Detalles de Solicitud">
