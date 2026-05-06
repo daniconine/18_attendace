@@ -54,7 +54,7 @@ class HrPayslip(models.Model):
     
     #########################################
         #CAlculo de Remuneracion_computable
-    remuneracion_computable = fields.Float(string='Remuneración Computable',
+    remuneracion_computable = fields.Float(string='Remuneración Computable Base',
                             compute='_compute_remuneracion_computable',store=True)
     
     #Metodo de busqueda en las relsa salariales

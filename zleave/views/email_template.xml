@@ -2,7 +2,7 @@
 <odoo>
     <!-- Definición de la plantilla de correo para la solicitud de permiso -->
     <record id="zleave.email_template_zleave_permission" model="mail.template">
-        <field name="name">Notificación de Solicitud de Permiso</field>
+        <field name="name">Notificación de Solicitud de Ausencia</field>
          <!-- Correo del usuario actual -->
         <field name="email_from">${'odoo18@gerens.pe'}</field>
         <field name="reply_to">${'object.employee_id.work_email'}</field> <!-- No se permiten respuestas -->
@@ -11,7 +11,7 @@
             <![CDATA[
                 <p>Estimado/a <t t-out="object.employee_id.parent_id.display_name"/> ,</p>
                 <p>Se ha generado una solicitud de permiso para el trabajador <t t-out="object.employee_id.name"/>.</p>
-                <p>Detalles del permiso:</p>
+                <p>Detalles de la Solicitud de Ausencia:</p>
                 <ul>
                     <li><strong>N°:</strong> <t t-out="object.name"/></li>
                     <li><strong>Referencia:</strong> <t t-out="object.display_name"/></li>
@@ -22,6 +22,9 @@
                 <p>Puede revisar y aprobar la solicitud de permiso haciendo clic en el siguiente enlace:</p>
                 <p>
                     <a href="https://piloto.gerens.pe/odoo/action-225">Revisar y aprobar la solicitud de permiso</a>
+                </p>
+                <p>
+                    <a href="<t t-out='object.get_permission_approval_url()'/>">URL Dinamica Revisar y aprobar la solicitud de permiso</a>
                 </p>
                 <p>Saludos</p>
                 <p style="color: red; font-weight: bold;">Por favor, no responda a este correo ya que es una notificación automática del sistema.</p>
