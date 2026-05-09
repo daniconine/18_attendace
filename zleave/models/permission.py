@@ -110,13 +110,18 @@ class ZleavePermission(models.Model):
 
     def get_action_url(self):
         """
-        Genera la URL correcta usando el ID de la acción y el ID del registro.
+        Obtiene dinámicamente el ID de la acción asociada al modelo zleave.permission y lo almacena en el campo action_url.
         """
-        action_id = 225  # Suponiendo que el ID de la acción es 225, este es un valor fijo
-        record_id = self.id  # Este es el ID del registro, obtenido directamente del modelo
+        # Buscar la acción asociada al modelo zleave.permission             
+        action = self.env['ir.actions.act_window'].sudo().search([
+            ('res_model', '=', 'zleave.overtime')], limit=1)
 
-        # Generamos la URL completa usando los IDs de la acción y el registro
-        self.action_url = f"https://piloto.gerens.pe/odoo/action-{action_id}/{record_id}"
+
+        # Si se encuentra la acción, construimos la URL con el ID de la acción y el ID del registro
+        if action:
+            self.action_url = f"https://erp.gerens.pe/odoo/action-{action.id}/{self.id}"
+        else:
+            self.action_url = "Acción no encontrada"
         
     #######################
     # Método para abrir los documentos adjuntos

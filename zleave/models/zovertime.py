@@ -321,6 +321,26 @@ class ZLeaveOvertime(models.Model):
         
         return True
     
+    ###############################       
+    # Campo computado para almacenar el ID de la acción
+    # Campo para almacenar el ID de la acción
+    action_url = fields.Char(string="URL de Aprobación", compute='get_action_url', store=False)
+
+    def get_action_url(self):
+        """
+        Obtiene dinámicamente el ID de la acción asociada al modelo zleave.overtime
+        y construye la URL fija de aprobación.
+        """
+        action = self.env['ir.actions.act_window'].sudo().search([
+            ('res_model', '=', 'zleave.overtime')
+        ], limit=1)
+
+        for record in self:
+            if action:
+                record.action_url = f"https://erp.gerens.pe/odoo/action-{action.id}/{record.id}"
+            else:
+                record.action_url = "Acción no encontrada"
+                
     
      #######################
     # Le decimos que ahora depende del estado para marcarse solo

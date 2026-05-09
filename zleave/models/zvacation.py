@@ -345,6 +345,26 @@ class ZVacation(models.Model):
             vacation_years = vacation.allocation_ids.mapped('vacation_year_id')
             vacation.vacation_year_ids = [(6, 0, vacation_years.ids)]
             
+    ###############################       
+    # Campo computado para almacenar el ID de la acción
+    # Campo para almacenar el ID de la acción
+    action_url = fields.Char(string="URL de Aprobación", compute='get_action_url', store=False)
+
+    def get_action_url(self):
+        """
+        Obtiene dinámicamente el ID de la acción asociada al modelo zleave.zvacation
+        y construye la URL fija de aprobación.
+        """
+        action = self.env['ir.actions.act_window'].sudo().search([
+            ('res_model', '=', 'zleave.zvacation')
+        ], limit=1)
+
+        for record in self:
+            if action:
+                record.action_url = f"https://erp.gerens.pe/odoo/action-{action.id}/{record.id}"
+            else:
+                record.action_url = "Acción no encontrada"
+                
     
     #######################
     # Le decimos que ahora depende del estado para marcarse solo

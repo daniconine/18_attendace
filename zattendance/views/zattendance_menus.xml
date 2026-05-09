@@ -41,13 +41,13 @@
               sequence="10"
               groups="zattendance.group_employee"/>
 
-    <!-- Submenú: Gestión / Todas las asistencias (solo para quien corresponda) -->
+    <!-- Submenú: Gestión / Todas las asistencias (solo para quien corresponda) >
     <menuitem id="menu_zattendance_manage_day"
               name="Gestión de Asistencias"
               parent="menu_zattendance_day"
               action="action_zattendance_day"
               sequence="20"
-              groups="zattendance.group_boss,zattendance.group_hr_manager"/>
+              groups="zattendance.group_boss,zattendance.group_hr_manager"/-->
 
     
 
@@ -59,12 +59,20 @@
             sequence="30"
             groups="zattendance.group_employee"/>
 
+    <!-- Menú DE Gestion de Asistencia -->
+    <menuitem id="menu_zattendance_manager_day"
+              name="Gestión de Asistencias"
+              parent="menu_zattendance_root"
+              action="action_zattendance_day"
+              sequence="20"
+              groups="zattendance.group_boss,zattendance.group_hr_manager"/>
+
     <!-- Menú dentro de zattendance que abre la acción existente -->
     <menuitem id="zattendance_menu_hr_attendance"
-              name="Detalles de Asistencias"
+              name="Marcación de Asistencias"
               parent="menu_zattendance_root"
               action="hr_attendance.hr_attendance_action"
-              sequence="20"/>
+              sequence="30"/>
 
     
 
