@@ -1,6 +1,16 @@
 <odoo>
   <data noupdate="0">
 
+    <!-- ###################### PERMISOS-->
+        <!-- Regla global multiempresa de permisos-->
+      <record id="zleave_rule_permission_company" model="ir.rule">
+        <field name="name">Permisos: acceso por compañías permitidas</field>
+        <field name="model_id" ref="model_zleave_permission"/>
+        <field name="domain_force">
+            [('company_id', 'in', company_ids)]
+        </field>
+      </record>
+
       <record id="zleave_rule_permission_employee" model="ir.rule">
         <field name="name">Empleado: permisos solo propios</field>
         <field name="model_id" ref="model_zleave_permission"/>
@@ -23,33 +33,51 @@
       </record>
 
 
+    <!-- ###################### HORAS EXTRAS ##########-->
+        <!-- Regla global multiempresa para Horas Extras -->
+        <record id="rule_zleave_overtime_company" model="ir.rule">
+            <field name="name">Horas Extras: acceso por compañías permitidas</field>
+            <field name="model_id" ref="model_zleave_overtime"/>
+            <field name="domain_force">
+                [('company_id', 'in', company_ids)]
+            </field>
+        </record>
 
+        <record id="rule_zleave_overtime_employee" model="ir.rule">
+            <field name="name">Horas Extras: Propias</field>
+            <field name="model_id" ref="model_zleave_overtime"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('zleave.group_employee'))]"/>
+        </record>
 
-      <record id="rule_zleave_overtime_employee" model="ir.rule">
-          <field name="name">Horas Extras: Propias</field>
-          <field name="model_id" ref="model_zleave_overtime"/>
-          <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
-          <field name="groups" eval="[(4, ref('zleave.group_employee'))]"/>
-      </record>
+        <record id="rule_zleave_overtime_boss" model="ir.rule">
+            <field name="name">Horas Extras: Equipo</field>
+            <field name="model_id" ref="model_zleave_overtime"/>
+            <field name="domain_force">[('employee_id.parent_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('zleave.group_boss'))]"/>
+        </record>
 
-      <record id="rule_zleave_overtime_boss" model="ir.rule">
-          <field name="name">Horas Extras: Equipo</field>
-          <field name="model_id" ref="model_zleave_overtime"/>
-          <field name="domain_force">[('employee_id.parent_id.user_id', '=', user.id)]</field>
-          <field name="groups" eval="[(4, ref('zleave.group_boss'))]"/>
-      </record>
+        <record id="rule_zleave_overtime_hr" model="ir.rule">
+            <field name="name">Horas Extras: RRHH Total</field>
+            <field name="model_id" ref="model_zleave_overtime"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('zleave.group_hr_manager'))]"/>
+        </record>
 
-      <record id="rule_zleave_overtime_hr" model="ir.rule">
-          <field name="name">Horas Extras: RRHH Total</field>
-          <field name="model_id" ref="model_zleave_overtime"/>
-          <field name="domain_force">[(1, '=', 1)]</field>
-          <field name="groups" eval="[(4, ref('zleave.group_hr_manager'))]"/>
-      </record>
+    
+    <!-- ###################### VACACIONES -->
+       
+        
+        <!-- Regla global multiempresa para Vacaciones Año -->
+        <record id="zleave_rule_vacation_year_company" model="ir.rule">
+            <field name="name">Vacaciones Año: acceso por compañías permitidas</field>
+            <field name="model_id" ref="model_zleave_zvacation_year"/>
+            <field name="domain_force">
+                [('company_id', 'in', company_ids)]
+            </field>
+        </record>
 
-
-
-            <!-- Reglas para acceso a acumualcion de año vaaciones-->
-
+    <!-- Reglas para acceso a acumualcion de año vaaciones-->
       <record id="zleave_rule_vacation_year_employee" model="ir.rule">
           <field name="name">Vacaciones Año: Empleado solo propio</field>
           <field name="model_id" ref="model_zleave_zvacation_year"/>
@@ -72,8 +100,18 @@
       </record>
 
 
-                <!-- Reglas para acceso a acumualcion de año vaaciones-->
 
+
+        <!-- Regla global multiempresa para Vacaciones -->
+        <record id="zleave_rule_vacation_company" model="ir.rule">
+            <field name="name">Vacaciones: acceso por compañías permitidas</field>
+            <field name="model_id" ref="model_zleave_zvacation"/>
+            <field name="domain_force">
+                [('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <!-- Reglas para acceso a acumualcion de año vaaciones-->
         <record id="zleave_rule_vacation_employee" model="ir.rule">
             <field name="name">Vacaciones: Empleado solo propio</field>
             <field name="model_id" ref="model_zleave_zvacation"/>
@@ -95,7 +133,9 @@
             <field name="groups" eval="[(4, ref('zleave.group_hr_manager'))]"/>
         </record>
 
-                    <!-- Reglas para acceso a acumualcion de año vaaciones-->
+
+
+        <!-- Reglas para acceso a acumualcion de año vaaciones-->
         <record id="zleave_rule_vacation_allocate_employee" model="ir.rule">
             <field name="name">Vacaciones Asignación: Empleado solo propio</field>
             <field name="model_id" ref="model_zleave_zvacation_allocate_year"/>

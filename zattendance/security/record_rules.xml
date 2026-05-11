@@ -23,6 +23,16 @@
         <field name="groups" eval="[(4, ref('zattendance.group_hr_manager'))]"/>
     </record>
 
+    <record id="zattendance_rule_company_access" model="ir.rule">
+        <field name="name">ZAttendance: acceso por compañías permitidas</field>
+        <field name="model_id" ref="model_zattendance_day"/>
+        <field name="domain_force">
+            [('company_id', 'in', company_ids)]
+        </field>
+    </record>
+
+
+
     <record id="rule_zattendance_note_all_users" model="ir.rule">
         <field name="name">Notas: acceso total</field>
         <field name="model_id" ref="model_zattendance_note"/>

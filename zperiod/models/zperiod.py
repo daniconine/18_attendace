@@ -25,11 +25,7 @@ class ZPeriod(models.Model):
         ("cancel", "Cancelado"),
     ], string="Estado", default="draft", tracking=True)
 
-    company_id = fields.Many2one(
-        "res.company", 
-        string="Compañía", 
-        default=lambda self: self.env.company
-    )
+    company_id = fields.Many2one("res.company",string="Compañía",default=lambda self: self.env.company)
     
     #CAmpos de Modulos Z
     
