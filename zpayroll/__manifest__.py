@@ -19,6 +19,8 @@
                 ],
     "data": [
             "security/ir.model.access.csv",
+            'security/record_rules.xml',
+            
             #"views/zperiod_batch_views.xml",
             "views/zperiod_views.xml",
             #"views/menus.xml",
@@ -33,6 +35,7 @@
             'views/hr_payslip_views.xml',
             'views/hr_salary_rule_views.xml',
             'views/zpayroll_closing_views.xml',
+            
             
             'data/hr_afp_data.xml',
             'data/hr_afp_rate_data.xml',

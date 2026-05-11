@@ -10,3 +10,5 @@ class HrContract(models.Model):
     hours_per_day = fields.Float(
         string="Horas de trabajo promedio al día",
         digits=(16, 2),)
+    
+    code = fields.Char(string='Código Contrato', help="Código interno del contrato")

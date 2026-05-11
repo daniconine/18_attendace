@@ -12,6 +12,10 @@ class ZEmployeeExtension(models.Model):
 
     employee_id = fields.Many2one(comodel_name='hr.employee',string='Empleado', required=True,
                                  ondelete='cascade', tracking=True)
+    
+    company_id = fields.Many2one(comodel_name='res.company',
+                    string='Compañía',related='employee_id.company_id',
+                    store=True, readonly=True,index=True)
 
     cuspp = fields.Char(string='CUSPP (PE)')    
     is_disabled_person = fields.Boolean(string="Tiene alguna discapacidad")

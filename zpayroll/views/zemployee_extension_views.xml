@@ -8,7 +8,8 @@
         <field name="arch" type="xml">
             <list string="Extensiones de Empleado">
                 <field name="employee_id"/>
-                <field name="cuspp"/>
+                <field name="company_id"/>
+                
                 <field name="pe_labor_regime_id"/>
                 <field name="pe_pension_scheme"/>
                 <field name="pe_health_scheme"/>
@@ -26,6 +27,7 @@
                     <group>
                         <group>
                             <field name="employee_id"/>
+                            <field name="company_id" readonly="1"/>
                             <field name="cuspp"/>
                             <field name="is_disabled_person"/>
                             <field name="is_family_mother"/>

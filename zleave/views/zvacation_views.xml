@@ -72,36 +72,49 @@
                     <group>
                         <div class="row">
                             <!-- Columna izquierda -->
-                            <div class="col-md-6 col-12">
-                                <group>
-                                    <group string="Datos del Empleado">
+                            <div class="col-md-6 col-12 zleave-left-column">
+
+                                <group string="Datos del Empleado">
                                     <field name="company_id" readonly="1"/>
-                                    <field name="employee_id" options="{'no_create': True}" invisible="state != 'draft'"/>
-                                    <field name="employee_id" options="{'no_create': True}" readonly="1" invisible="state == 'draft'"/>
+
+                                    <field name="employee_id"
+                                        options="{'no_create': True}"
+                                        invisible="state != 'draft'"/>
+
+                                    <field name="employee_id"
+                                        options="{'no_create': True}"
+                                        readonly="1"
+                                        invisible="state == 'draft'"/>
+
                                     <field name="employee_job"/>
-                                    <field name="fech_ingreso" />
-
-                                    </group>                                    
+                                    <!--field name="fech_ingreso"/-->
                                 </group>
+                                <br/><br/>
 
-                                <group string ="Detalles de Solicitud">
+                                <group string="Detalles de Solicitud">
                                     <field name="requested_by_id" readonly="1"/>
                                     <field name="vacation_type"/>
-                                    <field name="date_from" widget="daterange" options="{'end_date_field': 'date_to'}"/>
+
+                                    <field name="date_from"
+                                        widget="daterange"
+                                        options="{'end_date_field': 'date_to'}"/>
+
                                     <field name="date_to" invisible="1"/>
                                     <field name="duration_days" readonly="1"/>
                                 </group>
+                                <br/>
+                                <br/>
 
                                 <group>
-                                    <field name="description" 
-                                    placeholder="De manera opcional puede escribir el motivo de sus vacaciones aquí..."/>
-                                    <field name="is_locked" 
-                                            widget="boolean_toggle" 
-                                            groups="zleave.group_hr_manager"
-                                            readonly="0"/>
+                                    <field name="description"
+                                        placeholder="De manera opcional puede escribir el motivo de sus vacaciones aquí..."/>
+
+                                    <field name="is_locked"
+                                        widget="boolean_toggle"
+                                        groups="zleave.group_hr_manager"
+                                        readonly="0"/>
                                 </group>
 
-                                
                             </div>
 
                             <!-- Columna derecha -->
