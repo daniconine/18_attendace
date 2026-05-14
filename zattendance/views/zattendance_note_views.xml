@@ -41,9 +41,15 @@
                 <sheet>
                     <group>
                     <group string="Referencia">
-                        <field name="zattendance_day_id" required="1"/>
+                        <field name="zattendance_day_id"
+                            required="1"
+                            options="{'no_create': True}"
+                            context="{'search_default_group_by_month': 1}"/>
+
+                        <field name="employee_id" readonly="1"/>
+                        <field name="company_id" readonly="1"/>
+                        <field name="attendance_date" readonly="1"/>
                         <field name="requested_by" readonly="1"/>
-                        
                     </group>
                     <group string="Clasificación">
                         <field name="category"/>

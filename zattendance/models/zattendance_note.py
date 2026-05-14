@@ -16,6 +16,29 @@ class ZAttendanceNote(models.Model):
         index=True,
     )
     
+    company_id = fields.Many2one(
+        "res.company",
+        string="Compañía",
+        related="zattendance_day_id.company_id",
+        store=True,
+        readonly=True,
+    )
+
+    employee_id = fields.Many2one(
+        "hr.employee",
+        string="Empleado",
+        related="zattendance_day_id.employee_id",
+        store=True,
+        readonly=True,
+    )
+
+    attendance_date = fields.Date(
+        string="Fecha de Asistencia",
+        related="zattendance_day_id.date",
+        store=True,
+        readonly=True,
+    )
+    
     requested_by = fields.Many2one(
         "res.users",
         string="Solicitante",

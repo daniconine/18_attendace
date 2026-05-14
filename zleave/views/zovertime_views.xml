@@ -63,8 +63,10 @@
                     <group string = "Datos">
                         <group>
                             <field name="company_id" readonly="1"/>
-                            <field name="employee_id" options="{'no_create': True}" invisible="state != 'draft'"/>
-                            <field name="employee_id" options="{'no_create': True}" readonly="1" invisible="state == 'draft'"/>
+                            <field name="employee_id" options="{'no_create': True}" domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]"
+                                      invisible="state != 'draft'"/> 
+                            <field name="employee_id" options="{'no_create': True}" readonly="1" domain="[('company_id', '=', company_id)]"
+                                      invisible="state == 'draft'"/>
                             <field name="employee_job" options="{'no_create': True}" readonly="1"/>
                         </group>
                         <group>
@@ -74,7 +76,11 @@
                     </group>
                     <group string="Detalles de Solicitud">
                         <group>
-                            <field name="zattendance_id"/>
+                            <field name="zattendance_id"
+                                options="{'no_create': True}"
+                                domain="[('employee_id', '=', employee_id),
+                                            ('company_id', '=', company_id)]"
+                                context="{'search_default_group_by_month': 1}"/>
                             <field name="total_hours_requested" widget="float_time"/>
                             <field name="analytic_account_id"/>
                             <field name="is_locked" 

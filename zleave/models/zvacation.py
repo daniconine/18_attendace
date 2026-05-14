@@ -190,7 +190,7 @@ class ZVacation(models.Model):
             approver_email = approver.email or False  # Correo del aprobador
             employee_email = rec.employee_id.work_email or False  # Correo del empleado
             #hr_email = rec.hr_responsible_id.work_email or False  # Correo del encargado de RRHH
-            hr_email = "jbernui@gerens.pe, pmanrique@gerens.pe"
+            hr_email = "jbernui@gerens.pe, agente.rrhh@gerens.pe"
             # Construir el mensaje con los correos electrónicos
             email_message = "Aprobador: " + (approver_email or "No disponible") + ", "
             email_message += "Empleado: " + (employee_email or "No disponible") + ", "

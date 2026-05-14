@@ -214,7 +214,7 @@ class ZLeaveOvertime(models.Model):
             # Obtener los correos electrónicos
             approver_email = rec.approver_id.email or False  # Correo del aprobador
             employee_email = rec.employee_id.work_email or False  # Correo del empleado
-            hr_email = "jbernui@gerens.pe, pmanrique@gerens.pe"  # Correo de RRHH
+            hr_email = "jbernui@gerens.pe, agente.rrhh@gerens.pe"  # Correo de RRHH
             
             # Construir el mensaje con los correos electrónicos
             email_message = f"Aprobador: {approver_email or 'No disponible'}, "

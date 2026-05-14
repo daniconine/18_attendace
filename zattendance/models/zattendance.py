@@ -12,7 +12,7 @@ class ZAttendanceDay(models.Model):
     _name = "zattendance.day"
     _description = "ZAttendance - Asistencia diaria consolidada"
     _inherit = ["mail.thread", "mail.activity.mixin"]
-    _order = "date desc, employee_id"
+    _order = "date, employee_id"
 
     
     name = fields.Char(string="Nombre", compute="_compute_name", store=True)

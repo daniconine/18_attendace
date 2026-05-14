@@ -62,39 +62,9 @@ class EmployeeWeeklySchedule(models.Model):
 class Employee(models.Model):
     _inherit = 'hr.employee'
 
-    signature_image = fields.Binary("Firma Digital", attachment=True)
+    _sql_constraints = [(
+            'unique_work_email_company',
+            'unique(work_email, company_id)',
+            'El correo del empleado ya está registrado en esta compañía.'),]
 
-    @api.model
-    def create(self, vals):
-        # Procesar la firma al crear un nuevo empleado
-        if vals.get('signature_image'):
-            vals['signature_image'] = self._process_signature(vals['signature_image'])
-        return super(Employee, self).create(vals)
-
-    def write(self, vals):
-        # Procesar la firma al actualizar un empleado
-        if vals.get('signature_image'):
-            vals['signature_image'] = self._process_signature(vals['signature_image'])
-        return super(Employee, self).write(vals)
-
-    def _process_signature(self, signature_image):
-        """Valida y procesa la imagen de la firma"""
-        # Decodificar la imagen de base64 a un objeto de imagen
-        image_data = base64.b64decode(signature_image)
-        image = Image.open(io.BytesIO(image_data))
-
-        # Validar formato (PNG recomendado)
-        if image.format != 'PNG':
-            raise UserError("La firma debe estar en formato PNG.")
-
-        # Redimensionar la imagen a un tamaño estándar
-        image = image.resize((300, 150))  # Tamaño estandarizado (300x150 píxeles)
-
-        # Comprimir la imagen (ajustar calidad si es necesario)
-        byte_io = io.BytesIO()
-        image.save(byte_io, format='PNG', quality=85)  # Ajustar calidad si es necesario
-        byte_io.seek(0)
-
-        # Volver a codificar la imagen a base64
-        processed_image = base64.b64encode(byte_io.read())
-        return processed_image
+    

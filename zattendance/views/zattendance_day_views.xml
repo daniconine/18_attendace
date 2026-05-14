@@ -147,5 +147,36 @@
         </field>
     </record>
 
+    <record id="view_zattendance_day_search" model="ir.ui.view">
+        <field name="name">zattendance.day.search</field>
+        <field name="model">zattendance.day</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Día de Asistencia">
+
+                <field name="employee_id"/>
+                <field name="company_id"/>
+                <field name="date"/>
+                <field name="weekday"/>
+                <field name="state"/>
+                <field name="planned_attendance_type"/>
+
+                <separator/>
+
+                <filter name="group_by_month"
+                        string="Agrupar por mes"
+                        context="{'group_by': 'date:month'}"/>
+
+                <filter name="group_by_date"
+                        string="Agrupar por fecha"
+                        context="{'group_by': 'date'}"/>
+
+                <filter name="group_by_employee"
+                        string="Agrupar por empleado"
+                        context="{'group_by': 'employee_id'}"/>
+
+            </search>
+        </field>
+      </record>
+
   </data>
 </odoo>
