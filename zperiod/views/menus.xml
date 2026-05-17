@@ -3,22 +3,33 @@
     <data>
         <!-- Menú raíz -->
         <menuitem id="menu_zperiod_root"
-                name="ZPeriod |"
-                sequence="70"
-                web_icon="zperiod,static/description/icon.png"/>
+                  name="ZPeriod"
+                  sequence="70"
+                  web_icon="zperiod,static/description/icon.png"
+                  groups="base.group_user"/>
 
-
+        <!-- Submenú: Período para Planilla -->
         <menuitem id="menu_zperiod_main"
-                  name="Periodo para Planilla"
+                  name="Período para Planilla"
                   parent="menu_zperiod_root"
                   action="action_zperiod"
-                  sequence="20"/>
+                  sequence="20"
+                  groups="base.group_user"/>
 
+        <!-- Submenú: hoja tiempos -->
+        <menuitem id="menu_zperiod_segment_line"
+                  name="Segmentación de Hoja Tiempos"
+                  parent="menu_zperiod_root"
+                  action="action_zperiod_segment_line"
+                  sequence="40"
+                  groups="base.group_user"/>
+
+        <!-- Submenú: Lotes de Períodos -->
         <menuitem id="menu_zperiod_batch_child"
-                  name="Lotes de Periodos"
+                  name="Lotes de Períodos"
                   parent="menu_zperiod_root"
                   action="action_zperiod_batch"
-                  sequence="30"/>
-
-        </data>
+                  sequence="60"
+                  groups="hr.group_hr_manager"/>
+    </data>
 </odoo>

@@ -17,6 +17,13 @@ class EmployeeFamily(models.Model):
         required=True,
         ondelete='cascade'
     )
+    
+    company_id = fields.Many2one(
+        'res.company',
+        string='Compañía',
+        related='zemployee_extension_id.company_id',
+        store=True,
+        readonly=True)
 
     #DATOS
     relationship = fields.Selection([

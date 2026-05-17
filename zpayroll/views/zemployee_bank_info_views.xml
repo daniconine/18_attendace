@@ -29,6 +29,7 @@
                         <field name="bank_id"/>
                         <field name="account_number"/>
                         <field name="cci"/>
+                        <field name="currency_id"/>
                     </group>
                 </sheet>
             </form>

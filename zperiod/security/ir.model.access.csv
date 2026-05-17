@@ -1,6 +1,8 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_zperiod_batch_admin,zperiod.batch.admin,model_zperiod_batch,base.group_user,1,1,1,1
-access_zperiod_user,zperiod.user,model_zperiod,base.group_user,1,1,1,1
+access_zperiod_user,ZPeriod usuario,model_zperiod,base.group_user,1,1,0,0
+access_zperiod_hr_manager,ZPeriod RRHH,model_zperiod,hr.group_hr_manager,1,1,1,1
+access_zperiod_batch_hr_manager,ZPeriod Batch RRHH,model_zperiod_batch,hr.group_hr_manager,1,1,1,1
+
 access_zperiod_segment_line_user,zperiod.segment.line.user,model_zperiod_segment_line,base.group_user,1,1,1,1
 access_zperiod_class_line_user,zperiod.class.line.user,model_zperiod_class_line,base.group_user,1,1,1,1
 access_z_bonus_user,z.bonus.user,model_z_bonus,base.group_user,1,1,1,1

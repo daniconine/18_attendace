@@ -18,8 +18,11 @@
                 "hr_attendance",'hr_work_entry',"analytic","zleave","hr_payroll_community",],
     "data": [
             "security/ir.model.access.csv",
+            "security/record_rule.xml",
+            
             "views/zperiod_batch_views.xml",
-             "views/zperiod_views.xml",
+            "views/zperiod_views.xml",
+            "views/segment_line_views.xml",
             "views/menus.xml",
             ],
     'assets': {

@@ -61,8 +61,8 @@
                         </page>
 
                         <page string="Cuentas Bancarias">
-                            <field name="cuenta_sueldo">
-                                <list editable="bottom">
+                            <field name="cuentas_bancarias_ids">
+                                <list>
                                     <field name="name"/>
                                     <field name="bank_id"/>
                                     <field name="account_number"/>

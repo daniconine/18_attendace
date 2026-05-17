@@ -16,6 +16,14 @@ class ZEmployeeBankInfo(models.Model):
         string='Ficha del empleado',
         required=True,
         ondelete='cascade')
+    
+    company_id = fields.Many2one(
+    'res.company',
+    string='Compañía',
+    related='employee_extension_id.company_id',
+    store=True,
+    readonly=True,
+    index=True)
 
     account_type = fields.Selection([
         ('salary', 'Cuenta Sueldo'),

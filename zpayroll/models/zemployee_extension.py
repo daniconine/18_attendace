@@ -49,6 +49,10 @@ class ZEmployeeExtension(models.Model):
     
     currency_id = fields.Many2one('res.currency',string='Moneda',
                         default=lambda self: self.env.company.currency_id.id)
+    cuentas_bancarias_ids = fields.One2many('zemployee.bank.info',       # Modelo destino
+                                'employee_extension_id',string='Cuentas Bancarias')
+    
+    
     
     eps_cost = fields.Monetary(string='Costo EPS',currency_field='currency_id')
     judicial_deduction_type = fields.Selection([('fixed', 'Fijo'),('percent', 'Porcentaje'),], string='Tipo de retención judicial')

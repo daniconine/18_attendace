@@ -29,16 +29,13 @@
             <form string="Periodo de Empleado">
                 <header>
                     <button name="action_actualizar" string="Actualizar Asistencias" type="object" 
-                            class="btn-outline-danger" invisible="state == 'cancel'"/>
-                    
-                    <button name="action_approve" string="Aprobar para Nomina" type="object" 
-                            class="oe_highlight" invisible="state != 'sent'" groups="hr.group_hr_manager"/>
-                    <button name="action_draft" string="Volver a Borrador" type="object" 
-                            invisible="state not in ['sent', 'cancel']"/>
+                            class="btn-outline-danger" invisible="state == 'cancel'"/>                  
+                
+            
                     <button name="action_cancel" string="Cancelar" type="object" 
                             invisible="state == 'cancel'"/>
                     
-                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,approved"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,cancel"/>
                 </header>
                 <sheet>
                     <div class="oe_title">

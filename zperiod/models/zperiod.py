@@ -20,8 +20,7 @@ class ZPeriod(models.Model):
     
     state = fields.Selection([
         ("draft", "Borrador"),
-        ("sent", "Enviado.."),
-        ("approved", "Nomina Cerrada"),
+        ("sent", "Enviado Nomina"),
         ("cancel", "Cancelado"),
     ], string="Estado", default="draft", tracking=True)
 
@@ -68,6 +67,17 @@ class ZPeriod(models.Model):
         ('09', 'Septiembre'), ('10', 'Octubre'), ('11', 'Noviembre'), ('12', 'Diciembre')
     ], string="Mes del Periodo", compute="_compute_month", store=True, tracking=True)
 
+    year = fields.Integer(string="Año del Periodo", compute="_compute_year", store=True)
+
+    _sql_constraints = [('unique_employee_month_year',
+                    'unique(employee_id, month, year)',
+                    'Ya existe un período para este empleado en el mismo mes y año.'),]
+    
+    @api.depends('date_start')
+    def _compute_year(self):
+        for rec in self:
+            rec.year = rec.date_start.year if rec.date_start else False
+        
     @api.depends('date_end')
     def _compute_month(self):
         # Usamos 'self' que contiene el conjunto de registros a procesar
@@ -84,20 +94,11 @@ class ZPeriod(models.Model):
         if not vals.get('name'):
             # Buscamos el nombre del empleado para la referencia
             emp = self.env['hr.employee'].browse(vals.get('employee_id'))
-            date_str = vals.get('date_start', '')
+            date_str = vals.get('date_end', '')
             vals['name'] = f"PER/{emp.name}/{date_str}"
         return super(ZPeriod, self).create(vals)
 
-    # --- Acciones de Estado ---
-    def action_submit(self):
-        self.write({'state': 'sent'})
-
-    def action_approve(self):
-        # Aquí luego validaremos que el prorrateo sume 100
-        self.write({'state': 'approved'})
-
-    def action_draft(self):
-        self.write({'state': 'draft'})
+   
 
     def action_cancel(self):
         self.write({'state': 'cancel'})

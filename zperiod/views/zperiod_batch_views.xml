@@ -1,10 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+    <!-- VISTA LISTA DEL LOTE -->
+    <record id="view_zperiod_batch_list" model="ir.ui.view">
+        <field name="name">zperiod.batch.list</field>
+        <field name="model">zperiod.batch</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="company_id"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- VISTA FORMULARIO DEL LOTE -->
     <record id="view_zperiod_batch_form" model="ir.ui.view">
         <field name="name">zperiod.batch.form</field>
         <field name="model">zperiod.batch</field>
         <field name="arch" type="xml">
             <form string="Lote de Períodos">
+                <header>
+                    <!-- Botón Generar Períodos (siempre visible) -->
+                    <button name="action_generate_periods"
+                            string="Generar Períodos"
+                            type="object"
+                            class="btn-primary"/>
+                    
+                    <!-- Statusbar del Lote -->
+                    <field name="state" widget="statusbar" statusbar_visible="draft,generated"/>
+                </header>
                 <sheet>
                     <div class="oe_title">
                         <label for="name"/>
@@ -14,32 +40,35 @@
                         <group string="Fechas">
                             <field name="date_start"/>
                             <field name="date_end"/>
+                            <field name="company_id"/>
                         </group>
                     </group>
+                    <notebook>
+                        <page string="Períodos Generados">
+                            <field name="period_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="employee_id"/>
+                                    <field name="date_start"/>
+                                    <field name="date_end"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
     </record>
 
-    <record id="view_zperiod_batch_tree" model="ir.ui.view">
-        <field name="name">zperiod.batch.list</field>
-        <field name="model">zperiod.batch</field>
-        <field name="arch" type="xml">
-            <list>
-                <field name="name"/>
-                <field name="date_start"/>
-                <field name="date_end"/>
-            </list>
-        </field>
-    </record>
-
+    <!-- ACCIÓN DEL LOTE -->
     <record id="action_zperiod_batch" model="ir.actions.act_window">
-        <field name="name">Lotes de Periodos</field>
+        <field name="name">Lotes de Períodos</field>
         <field name="res_model">zperiod.batch</field>
         <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Crea tu primer lote de periodos aquí.
+                Crea tu primer lote de períodos aquí y genera automáticamente los períodos individuales.
             </p>
         </field>
     </record>

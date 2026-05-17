@@ -1,0 +1,52 @@
+<odoo>
+    <!-- Usuario normal: solo ve su período y compañía -->
+    <record id="zperiod_rule_employee_company_user" model="ir.rule">
+        <field name="name">ZPeriod: Usuario por compañía y propio período</field>
+        <field name="model_id" ref="model_zperiod"/>
+        <field name="domain_force">[('employee_id.user_id','=',user.id), ('company_id','in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <!-- RRHH: ve todos los períodos de las compañías asignadas -->
+    <record id="zperiod_rule_hr_manager_company" model="ir.rule">
+        <field name="name">ZPeriod: RRHH ve registros por compañía</field>
+        <field name="model_id" ref="model_zperiod"/>
+        <field name="domain_force">[('company_id','in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+
+
+    <!-- Batch: solo RRHH puede ver según compañía -->
+    <record id="zperiod_batch_rule_hr_manager_company" model="ir.rule">
+        <field name="name">ZPeriod Batch: RRHH solo por compañía</field>
+        <field name="model_id" ref="model_zperiod_batch"/>
+        <field name="domain_force">[('company_id','in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+
+    <!-- Segment_line: solo RRHH puede ver según compañía -->
+    <record id="zperiod_segment_line_rule_user" model="ir.rule">
+        <field name="name">ZPeriodSegmentLine: Usuario solo sus líneas</field>
+        <field name="model_id" ref="model_zperiod_segment_line"/>
+        <field name="domain_force">[('period_id.company_id','in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+</odoo>
