@@ -7,8 +7,26 @@ from dateutil.relativedelta import relativedelta
 class HrContract(models.Model):
     _inherit = 'hr.contract'
 
-    hours_per_day = fields.Float(
-        string="Horas de trabajo promedio al día",
-        digits=(16, 2),)
+    code = fields.Char(string='Código Contrato', help="Código interno del contrato", tracking=True)
     
-    code = fields.Char(string='Código Contrato', help="Código interno del contrato")
+    hours_per_day = fields.Float(string="Horas de trabajo promedio al día", digits=(16, 2), 
+                                 tracking=True, store =True)
+
+    hours_per_month = fields.Float(string="Horas PLAME reportado al mes",compute="_compute_working_hours",
+                                   store=True,digits=(16, 2),)
+
+    hours_per_week = fields.Float(string="Horas de trabajo a la semana",digits=(16, 2),)
+
+    cost_per_hour_month = fields.Monetary(string="Costo por hora mensual",compute="_compute_working_hours",
+                            store=True,digits=(16, 2),)
+
+    @api.depends('hours_per_day', 'wage')
+    def _compute_working_hours(self):
+        for contract in self:
+            contract.hours_per_month = contract.hours_per_day * 30
+
+            if contract.hours_per_month:
+                contract.cost_per_hour_month = contract.wage / contract.hours_per_month
+            else:
+                contract.cost_per_hour_month = 0.0
+    

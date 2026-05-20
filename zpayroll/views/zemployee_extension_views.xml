@@ -51,28 +51,41 @@
 
                     <notebook>
                         <page string="Familiares">
-                            <field name="family_ids">
-                                <list editable="bottom">
-                                    <field name="name"/>
-                                    <field name="relationship"/>
-                                    <field name="birth_date"/>
-                                </list>
-                            </field>
+                            <group string="Familiares">
+                                <field name="family_ids">
+                                    <list editable="bottom">
+                                        <field name="name"/>
+                                        <field name="relationship"/>
+                                        <field name="birth_date"/>
+                                    </list>
+                                </field>
+                            </group>
                         </page>
 
                         <page string="Cuentas Bancarias">
-                            <field name="cuentas_bancarias_ids">
-                                <list>
-                                    <field name="name"/>
-                                    <field name="bank_id"/>
-                                    <field name="account_number"/>
-                                    <field name="cci"/>
-                                    <field name="currency_id"/>
-                                </list>
-                            </field>
+                            <group string="Cuentas Bancarias">
+                                <field name="cuentas_bancarias_ids">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="bank_id"/>
+                                        <field name="account_number"/>
+                                        <field name="cci"/>
+                                        <field name="currency_id"/>
+                                    </list>
+                                </field>
+                            </group>
                         </page>
                     </notebook>
                 </sheet>
+
+                <!-- CHATTER -->
+                <chatter>
+                    
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    <field name="activity_ids"/>
+                </chatter> 
+
             </form>
         </field>
     </record>

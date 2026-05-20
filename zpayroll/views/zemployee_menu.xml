@@ -12,7 +12,7 @@
     <!-- SUBMENÚS -->
     <menuitem
         id="menu_zemployee_extension"
-        name="Empleados Normativa Peruana"
+        name="Extension Normativa Peruana"
         parent="menu_zemployee_root"
         action="action_zemployee_extension"
         sequence="10"

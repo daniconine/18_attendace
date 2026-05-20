@@ -9,8 +9,9 @@ from odoo.modules.module import get_module_root
 class ZEmployeeBankInfo(models.Model):
     _name = 'zemployee.bank.info'
     _description = 'Información bancaria del empleado'
+    _inherit = ["mail.thread", "mail.activity.mixin"]
 
-    name = fields.Char(string='Referencia', compute='_compute_name', store=True)
+    name = fields.Char(string='Referencia', compute='_compute_name', store=True,)
     employee_extension_id = fields.Many2one(
         'zemployee.extension',
         string='Ficha del empleado',
@@ -32,9 +33,9 @@ class ZEmployeeBankInfo(models.Model):
         ('other', 'Cuenta Otros'),        
     ], string='Tipo de cuenta',)
 
-    bank_id = fields.Many2one('res.bank', string='Banco')
-    account_number = fields.Char(string='Número de cuenta')
-    cci = fields.Char(string='CCI')
+    bank_id = fields.Many2one('res.bank', string='Banco', tracking=True)
+    account_number = fields.Char(string='Número de cuenta', tracking=True)
+    cci = fields.Char(string='CCI', tracking=True)
     currency_id = fields.Many2one(
         'res.currency',
         string='Moneda',

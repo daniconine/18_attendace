@@ -86,3 +86,15 @@ class HrEmployee(models.Model):
                     return True
 
         return False
+    
+    def action_open_zemployee_extension_popup(self):
+        self.ensure_one()
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Extensión Perú',
+            'res_model': 'zemployee.extension',
+            'view_mode': 'form',
+            'res_id': self.zemployee_extension_id.id,
+            'target': 'new',
+        }

@@ -9,6 +9,7 @@ _logger = logging.getLogger(__name__)
 class EmployeeFamily(models.Model):
     _name = 'employee.family'
     _description = 'Familiares'
+    _inherit = ["mail.thread", "mail.activity.mixin"]
     
     name = fields.Char(string='Nombre del Familiar', required=True)
     zemployee_extension_id = fields.Many2one(
