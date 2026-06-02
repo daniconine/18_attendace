@@ -75,7 +75,31 @@
               action="hr_attendance.hr_attendance_action"
               sequence="30"/>
 
-    
+    <!-- Menú Reportes -->
+    <menuitem id="menu_zattendance_reports"
+              name="Reportes"
+              parent="menu_zattendance_root"
+              sequence="40"
+              groups="zattendance.group_hr_manager"/>
+
+    <!-- Submenú Reporte de asistencia sunafil-->
+    <menuitem
+            id="menu_zattendance_report_sunafil"
+            name="Reporte Asistencia SUNAFIL"
+            parent="menu_zattendance_reports"
+            action="action_zattendance_report_wizard"
+            sequence="10"
+            groups="zattendance.group_hr_manager"/>
+
+    <!-- Submenú Reporte General de Horarios -->
+    <menuitem
+        id="menu_zattendance_calendar_report"
+        name="Reporte General de Horarios"
+        parent="menu_zattendance_reports"
+        action="action_zattendance_calendar_report_wizard"
+        sequence="20"
+        groups="zattendance.group_hr_manager"/>
+
 
   </data>
 </odoo>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="partner_xlsx" model="ir.actions.report">
+        <field name="name">Print to Excel</field>
+        <field name="model">res.partner</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">report_xlsx.partner_xlsx</field>
+        <field name="report_file">res_partner</field>
+
+        <!-- Esto es clave para que aparezca en Imprimir -->
+        <field name="binding_model_id" ref="base.model_res_partner"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

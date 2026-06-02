@@ -8,12 +8,14 @@
     "license": "AGPL-3",
     "application": True,          # <- IMPORTANTE para Apps
     "installable": True,
-    "depends": ["base", "mail", "hr", "hr_attendance",'hr_work_entry'],
+    "depends": ["base", "mail", "hr", "hr_attendance",'hr_work_entry',"report_xlsx",],
     "data": [
         "security/groups.xml",
-        "security/record_rules.xml",
-         
+        "security/record_rules.xml",         
         "security/ir.model.access.csv",
+        
+        "report/zattendance_report_wizard_views.xml",
+        "report/zattendance_calendar_report_wizard_views.xml",
         
         "views/zattendance_day_views.xml",
         "views/zattendance_note_views.xml",

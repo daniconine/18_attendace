@@ -7,36 +7,42 @@
             <field name="model">resource.calendar.attendance</field>
             <field name="inherit_id" ref="resource.view_resource_calendar_attendance_tree"/>
             <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="week_type"/>
+                </field>
                 <!-- Después de hour_to -->
                 <field name="hour_to" position="after">
                     <field name="attendance_type"/>
                     <field name="planned_presential" widget="float_time"/>
                     <field name="planned_virtual" widget="float_time"/>
-                    
                 </field>
 
-                 <!-- Ejemplo: también podrías ocultar day_period -->
+                <!-- Ocultar columnas estándar que no usamos tanto -->
                 <xpath expr="//field[@name='work_entry_type_id']" position="attributes">
                     <attribute name="optional">hide</attribute>
                 </xpath>
+
                 <xpath expr="//field[@name='day_period']" position="attributes">
                     <attribute name="optional">hide</attribute>
                 </xpath>
+
                 <xpath expr="//field[@name='duration_days']" position="attributes">
                     <attribute name="optional">hide</attribute>
                 </xpath>
+
                 <xpath expr="//field[@name='name']" position="attributes">
                     <attribute name="optional">hide</attribute>
                 </xpath>
 
                 <!-- Hacer visible siempre date_from -->
                 <field name="date_from" position="attributes">
-                    <attribute name="optional"></attribute>
+                    <attribute name="optional">show</attribute>
                     <attribute name="invisible">0</attribute>
                 </field>
+
                 <!-- Hacer visible siempre date_to -->
                 <field name="date_to" position="attributes">
-                    <attribute name="optional"></attribute>
+                    <attribute name="optional">show</attribute>
                     <attribute name="invisible">0</attribute>
                 </field>
 
