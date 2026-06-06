@@ -9,7 +9,7 @@
       <field name="name">zleave.permission.list</field>
       <field name="model">zleave.permission</field>
       <field name="arch" type="xml">
-        <list string="Ausencias / Permisos" sample="1"
+        <list string="Solicitud de Licencias" sample="1"
             decoration-warning="state == 'submitted'"
             decoration-success="state == 'approved'"
             decoration-danger="state == 'refused'">
@@ -43,7 +43,7 @@
       <field name="name">zleave.permission.form</field>
       <field name="model">zleave.permission</field>
       <field name="arch" type="xml">
-        <form string="Permiso ZLeave">
+        <form string="Licencias">
           <header>
             <field name="state" widget="statusbar"
                    statusbar_visible="draft,submitted,approved,refused,cancelled"/>
@@ -109,9 +109,11 @@
             </group>
             <group string="Detalles de Solicitud">
               <group>          
-                <field name="type_permission"/>
-                <field name="suspension_perfecta" invisible="type_permission != 'lic_sin_goce'"/>
-                <field name="suspension_imperfecta" invisible="type_permission != 'lic_con_goce'"/>
+                <field name="type_permission"/>                
+                <field name="suspension_id"
+                      string="Código de Suspensión Laboral"
+                      domain="[('visible_in_permission','=', True),
+                                ('type_suspension','=', type_permission)]"/>
               </group>   
               <group>
                 <field name="date_from" widget="daterange" options="{'end_date_field': 'date_to'}"/>
@@ -221,7 +223,7 @@
     <!-- ACTION -->
     <!-- ========================================================= -->
     <record id="action_zleave_permission_my" model="ir.actions.act_window">
-      <field name="name">Mis Ausencias / Permisos</field>
+      <field name="name">Mis Licencias</field>
       <field name="res_model">zleave.permission</field>
       <field name="view_mode">list,form</field>
       <field name="domain">[('employee_id.user_id', '=', uid)]</field>
@@ -234,7 +236,7 @@
     </record>
 
     <record id="action_zleave_permission" model="ir.actions.act_window">
-      <field name="name">Gestión de Ausencias del Equipo</field>
+      <field name="name">Gestión de Licencias</field>
       <field name="res_model">zleave.permission</field>
       <field name="view_mode">list,form</field>
       <field name="view_id" ref="view_zleave_permission_list"/>

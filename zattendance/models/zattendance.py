@@ -17,7 +17,7 @@ class ZAttendanceDay(models.Model):
     
     name = fields.Char(string="Nombre", compute="_compute_name", store=True)
     active = fields.Boolean(default=True)
-    company_id = fields.Many2one( "res.company", string="Compañía",
+    company_id = fields.Many2one( "res.company", string="Compañía", readonly=True,
                 default=lambda self: self.env.company, required=True, )
 
     employee_id = fields.Many2one("hr.employee",string="Empleado", readonly=True,

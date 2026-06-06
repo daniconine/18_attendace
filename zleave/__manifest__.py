@@ -12,9 +12,11 @@
                 "hr_attendance",'hr_work_entry',"analytic",],
     "data": [
         "security/groups.xml",# 1. Grupos (Cimientos)
+        'data/zlabor_suspension_code_data.xml',
         
         # 2. Vistas y Acciones (Componentes)
         # Aquí es donde se define 'action_zleave_permission_my'
+        'views/zlabor_suspension_code.xml',
         'views/permission_views.xml',     
         'views/zvacation_views.xml',
         'views/zvacation_year_views.xml',  
@@ -32,6 +34,7 @@
         'views/email_template.xml',
         'views/dashboard_views.xml',
         'views/ir_cron_update_vacation.xml',
+        
         "views/zleave_menus.xml",
     ],
     'assets': {

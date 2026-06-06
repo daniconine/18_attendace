@@ -42,6 +42,7 @@
             <field name="name">Líneas de Segmentación</field>
             <field name="res_model">zperiod.segment.line</field>
             <field name="view_mode">list,form</field>
+            <field name="context">{'group_by': ['year', 'month']}</field>
             <field name="view_id" eval="False"/>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">

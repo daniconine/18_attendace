@@ -92,10 +92,17 @@ class ZPeriod(models.Model):
     @api.model
     def create(self, vals):
         if not vals.get('name'):
-            # Buscamos el nombre del empleado para la referencia
             emp = self.env['hr.employee'].browse(vals.get('employee_id'))
-            date_str = vals.get('date_end', '')
-            vals['name'] = f"PER/{emp.name}/{date_str}"
+
+            date_end = vals.get('date_end')
+            date_str = ''
+
+            if date_end:
+                date_obj = fields.Date.from_string(date_end)
+                date_str = date_obj.strftime('%d-%m-%Y')
+
+            vals['name'] = f"Periodo/{emp.name}/{date_str}"
+
         return super(ZPeriod, self).create(vals)
 
    

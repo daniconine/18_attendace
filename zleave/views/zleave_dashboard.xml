@@ -2,8 +2,8 @@
 <odoo>
     <data noupdate="0">
         <record id="dash_permisos" model="zleave.dashboard">
-            <field name="name">Mis Ausencias y Permisos</field>
-            <field name="description">Solicita permisos con o sin goce de haber.</field>
+            <field name="name">Mis Licencias</field>
+            <field name="description">Solicita licencia con o sin goce de haber.</field>
             <field name="icon">fa-calendar-check-o</field>
             <field name="action_id" ref="zleave.action_zleave_permission_my"/>
         </record>
@@ -23,23 +23,23 @@
         </record>
 
         <record id="dash_mng_permisos" model="zleave.dashboard">
-            <field name="name">Aprobar Ausencias/Permisos</field>
-            <field name="description">Pendientes de aprobación del equipo.</field>
+            <field name="name">Aprobar Solicitud de Licencias</field>
+            <field name="description">Revisa las solicitudes de tu equipo.</field>
             <field name="icon">fa-wheelchair</field>
             <field name="action_id" ref="zleave.action_zleave_permission"/> 
             
         </record>
 
         <record id="dash_mng_vacaciones" model="zleave.dashboard">
-            <field name="name">Aprobar Vacaciones</field>
-            <field name="description">Pendientes de aprobación del equipo.</field>
+            <field name="name">Aprobar Solicitud de Vacaciones</field>
+            <field name="description">Revisa las solicitudes de tu equipo.</field>
             <field name="icon">fa-bed</field>
             <field name="action_id" ref="zleave.action_zvacation"/> 
         </record>
 
         <record id="dash_mng_horas_extras" model="zleave.dashboard">
-            <field name="name">Aprobar Horas Extras</field>
-            <field name="description">Pendientes de aprobación del equipo.</field>
+            <field name="name">Aprobar Solicitud de Horas Extras</field>
+            <field name="description">Revisa las solicitudes de tu equipo.</field>
             <field name="icon">fa-user-plus</field>
             <field name="action_id" ref="zleave.action_zleave_overtime"/> 
         </record>

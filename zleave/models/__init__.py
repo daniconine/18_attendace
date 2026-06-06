@@ -1,3 +1,4 @@
+from .import zlabor_suspension_code
 from . import permission
 from . import zattendance
 from . import zvacation

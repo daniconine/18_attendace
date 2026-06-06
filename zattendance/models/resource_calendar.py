@@ -328,6 +328,7 @@ class ResourceCalendar(models.Model):
                     "planned_presential": planned_presential,
                     "planned_virtual": planned_virtual,
                     "planned_attendance_type": planned_attendance_type,
+                    "company_id": employee.company_id.id,
                 }
 
                 existing = ZAttendance.search(

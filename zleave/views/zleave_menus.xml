@@ -4,7 +4,7 @@
 
     <!-- Menú raíz -->
     <menuitem id="menu_zleave_root"
-              name="ZLeave |"
+              name="Solicitudes |"
               sequence="60"
               web_icon="zleave,static/description/icon.png"/>
 
@@ -18,7 +18,7 @@
 
     <!-- Permisos -->
     <menuitem id="menu_zleave_permission"
-              name="Ausencias/Permisos"
+              name="Licencias"
               parent="menu_zleave_root"
               action="action_zleave_permission_my"
               sequence="20"
@@ -80,7 +80,16 @@
               groups="zleave.group_hr_manager"/>
 
 
-    
+    <!-- submenu de codigos de suspension PLAME -->
+    <menuitem id="menu_zlabor_codes"
+              name="Códigos de Suspensión LAboral PLAME" 
+              parent="menu_zleave_settings_vacation"
+              action="action_zlabor_suspension_code"
+              sequence="50"
+              groups="zleave.group_hr_manager"/>
+
+
+  
 
   </data>
 </odoo>

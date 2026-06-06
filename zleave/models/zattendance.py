@@ -36,6 +36,7 @@ class ZAttendanceDay(models.Model):
                 ZAttendance.create({
                     'employee_id': employee.id,
                     'date': current,
+                    'company_id': employee.company_id.id,  # asignar la compañía del empleado_BUG
                 })
                 created += 1
 

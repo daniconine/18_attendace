@@ -3,7 +3,7 @@
     <data>
         <!-- Menú raíz -->
         <menuitem id="menu_zperiod_root"
-                  name="ZPeriod"
+                  name="Resumen Periodo |"
                   sequence="70"
                   web_icon="zperiod,static/description/icon.png"
                   groups="base.group_user"/>

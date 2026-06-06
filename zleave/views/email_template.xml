@@ -6,27 +6,28 @@
          <!-- Correo del usuario actual -->
         <field name="email_from">${'odoo18@gerens.pe'}</field>
         <field name="reply_to">${'object.employee_id.work_email'}</field> <!-- No se permiten respuestas -->
-        <field name="subject">Solicitud de Ausencia/Permiso N° {{ object.name }} enviada por {{ object.create_uid.name }}</field> <!-- Nombre del creador -->
+        <field name="subject">Solicitud de Licencia N° {{ object.name }} enviada por {{ object.create_uid.name }}</field> <!-- Nombre del creador -->
         <field name="body_html">
             <![CDATA[
                 <p>Estimado/a <t t-out="object.employee_id.parent_id.display_name"/> ,</p>
-                <p>Se ha generado una solicitud de permiso para el trabajador <t t-out="object.employee_id.name"/>.</p>
-                <p>Detalles de la Solicitud de Ausencia:</p>
+                <p>Se ha generado una solicitud de licencia para el trabajador <t t-out="object.employee_id.name"/>.</p>
+                <p>Detalles de la Solicitud de Licencia:</p>
                 <ul>
                     <li><strong>N°:</strong> <t t-out="object.name"/></li>
                     <li><strong>Referencia:</strong> <t t-out="object.display_name"/></li>
                     <li><strong>Fecha de solicitud:</strong> <t t-out="object.create_date"/></li>
                     <li><strong>Total de Días:</strong> <t t-out="object.duration_days"/></li>
-                    <li><strong>Estado:</strong> <t t-out="object.state"/></li>
+                    <li><strong>Descripción:</strong> <t t-out="object.description"/></li>
                 </ul>
-                <p>Puede revisar y aprobar la solicitud de permiso haciendo clic en el siguiente enlace:</p>
+                <p>Puede revisar y aprobar la solicitud de licencia haciendo clic en el siguiente enlace:</p>
                 
                 <p>
                     <a t-att-href="object.action_url" style="background-color: #4CAF50; color: white; padding: 12px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; border-radius: 5px; cursor: pointer;">
-                        Revisar y aprobar la solicitud de permiso
+                        Revisar y aprobar la solicitud de licencia
                     </a>
                 </p>
 
+                <br/>
 
                 <p>Saludos</p>
                 <p style="color: red; font-weight: bold;">Por favor, no responda a este correo ya que es una notificación automática del sistema.</p>
@@ -58,16 +59,17 @@
                     <li><strong>Fecha de solicitud:</strong> <t t-out="object.create_date"/></li>
                     <li><strong>Rango:</strong> <t t-out="object.date_from"/> → <t t-out="object.date_to"/></li>
                     <li><strong>Total de días:</strong> <t t-out="object.duration_days"/></li>
-                    <li><strong>Estado:</strong> <t t-out="object.state"/></li>
+                    <li><strong>Descripcion:</strong> <t t-out="object.description"/></li>
                 </ul>
 
                 <p>Puede revisar y aprobar la solicitud ingresando al sistema.</p>
 
                 <p>
-                    <a t-att-href="object.action_url" style="background-color: #b99347; color: white; padding: 12px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; border-radius: 5px; cursor: pointer;">
+                    <a t-att-href="object.action_url" style="background-color: #4763b9; color: white; padding: 12px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; border-radius: 5px; cursor: pointer;">
                         Revisar y aprobar la solicitud de Vacaciones
                     </a>
                 </p>
+                <br/>
 
                 <p>Saludos</p>
                 <p style="color: red; font-weight: bold;">
@@ -88,7 +90,7 @@
         <field name="body_html">
             <![CDATA[
                 <p>Estimado/a <t t-out="object.approver_id.name"/>,</p>
-                <p>Se ha generado una solicitud de horas extras para el empleado <t t-out="object.employee_id.name"/>.</p>
+                <p>Se ha generado una solicitud de horas extras para el trabajador <t t-out="object.employee_id.name"/>.</p>
                 <p>Detalles de la solicitud:</p>
                 <ul>
                     <li><strong>N°:</strong> <t t-out="object.name"/></li>
@@ -99,17 +101,19 @@
                     <li><strong>Cuenta Analítica CCA:</strong> <t t-out="object.analytic_account_id.name"/></li>               
                     <li><strong>Fecha de solicitud:</strong> <t t-out="object.create_date"/></li>
 
-                    <li><strong>Estado:</strong> <t t-out="object.state"/></li>
+                    <li><strong>Descripcion:</strong> <t t-out="object.description"/></li>
                 </ul>
 
                 <p>Tenga en cuenta la fecha solicitada de la hora extra si es descanso o feriado</p>
                 <p>Puede revisar y aprobar la solicitud de horas extras haciendo clic en el siguiente enlace:</p>
                 
                 <p>
-                    <a t-att-href="object.action_url" style="background-color: #4c82af; color: white; padding: 12px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; border-radius: 5px; cursor: pointer;">
+                    <a t-att-href="object.action_url" style="background-color: #776185; color: white; padding: 12px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; border-radius: 5px; cursor: pointer;">
                         Revisar y aprobar la solicitud de Horas Extras
                     </a>
                 </p>
+
+                <br/>
 
                 <p>Saludos</p>
                 <p style="color: red; font-weight: bold;">Por favor, no responda a este correo ya que es una notificación automática del sistema.</p>

@@ -8,7 +8,7 @@ _logger = logging.getLogger(__name__)
 
 class ZleavePermission(models.Model):
     _name = "zleave.permission"
-    _description = "ZleavePermission - Permiso o Ausencia"
+    _description = "ZleavePermission - Solicitud Licencia"
     _inherit = ["mail.thread", "mail.activity.mixin", "hr.lock.mixin"]
     _order = "create_date desc"
     _rec_name = "name" 
@@ -33,7 +33,7 @@ class ZleavePermission(models.Model):
 
     approver_id = fields.Many2one("res.users", string="Aprobador(a)", tracking=True, readonly=True,
         domain="[('share','=',False), ('company_ids','in', company_id)]",
-        help="Por defecto: employee.leave_manager_id (Aprobador de Ausencias) y fallback a jefe directo.",
+        help="Por defecto: employee.leave_manager_id (Aprobador de Solicitud de Licencia) y fallback a jefe directo.",
     )
    
     hr_responsible_id = fields.Many2one('hr.employee', string="Encargado de RRHH")  # Asumiendo que tienes un campo para RRHH
@@ -44,43 +44,14 @@ class ZleavePermission(models.Model):
     duration_days = fields.Float(string="Solicitado (días)", compute="_compute_duration_days", store=True)
 
     type_permission = fields.Selection(
-        [   ('lic_sin_goce', 'Licencia Sin Goce (S.P.)/Ausencia'),
-            ('lic_con_goce', 'Licencia Con Goce (S.I)/Permiso'),            
+        [   ('perfecta', 'Licencia Sin Goce (S.P.)/Ausencia'),
+            ('imperfecta', 'Licencia Con Goce (S.I)/Permiso'),            
         ],
-        string="Ausencia/Permiso", required=True, tracking=True, )
+        string="Tipo de Licencia", required=True, tracking=True, )
     
-    suspension_perfecta = fields.Selection([
-        ('1', '1 - S.P. SANCIÓN DISCIPLINARIA'),
-        ('2', '2 - S.P. EJERCICIO DERECHO HUELGA'),
-        ('3', '3 - S.P. DETENCIÓN DEL TRABAJADOR'),
-        ('4', '4 - S.P. INHABILITACIÓN ADMINISTRATIVA O JUDICIAL'),
-        ('5', '5 - S.P. PERMISO O LICENCIA SIN GOCE DE HABER'),
-        ('6', '6 - S.P. CASO FORTUITO O FUERZA MAYOR'),
-        ('7', '7 - S.P. FALTA NO JUSTIFICADA'),
-        ('8', '8 - S.P. POR TEMPORADA O INTERMITENTE'),
-        ('12', '12 - S.P. ENFERM PADRE CONYUGE O CONVIVIENTE'),
-        ],
-        string="Tipo Suspención Perfecta PLAME (Ausencia)", tracking=True, )
-    
-    suspension_imperfecta = fields.Selection([
-        ('20', '20 - S.I. ENFERM/ACCIDENTE (20 PRIMEROS DÍAS)'),
-        ('21', '21 - S.I. INCAP TEMPORAL (SUBSIDIADO)'),
-        ('22', '22 - S.I. MATERNIDAD - PRE Y POST NATAL'),
-        ('23', '23 - S.I. DESCANSO VACACIONAL'),
-        ('24', '24 - S.I. LIC DESEMP CARGO CÍVICO Y PARA SMO'),
-        ('25', '25 - S.I. LIC DESEMPEÑO CARGOS SINDICALES'),
-        ('26', '26 - S.I. LICENCIA CON GOCE DE HABER'),
-        ('27', '27 - S.I. DÍAS COMPENS POR HORAS DE SOBRETIEMPO'),
-        ('28', '28 - S.I. DÍAS LICENCIA POR PATERNIDAD'),
-        ('29', '29 - S.I. DIAS LICENCIA POR ADOPCIÓN'),
-        ('30', '30 - S.I. IMPOSICIÓN MEDIDA CAUTELAR'),
-        ('31', '31 - S.I. CITA JUDICIAL MILITAR POLICIAL'),
-        ('32', '32 - S.I. FALLEC CÓNYUGE PADRES HIJOS Y HERMANOS'),
-        ('33', '33 - S.I. REPRESENT DEL ESTADO EN EVENTOS'),
-        ('34', '34 - S.I. DESC VACAC LIC POR ASISTE MÉDICA O TERAP'),
-        ('35', '35 - S.I. ENFERMEDAD GRAVE O TERMINAL O ACCIDENTE GRAVE'),
-    ], string="Tipo de Suspensión Imperfecta PLAME (Permiso)", tracking=True, )
-    
+    suspension_id = fields.Many2one('zlabor.suspension.code',string="Código de Suspensión Laboral",
+                        required=True,tracking=True,)
+        
     state = fields.Selection(
         [   ('draft', 'Borrador'),
             ('submitted', 'Enviado'),
@@ -166,8 +137,8 @@ class ZleavePermission(models.Model):
             seq = self.env["ir.sequence"].sudo().create({
                 "name": "Secuencia Permisos ZLeave",
                 "code": code,
-                "prefix": "Permiso-",
-                "padding": 4,            # Permiso-0001
+                "prefix": "Licencia-",
+                "padding": 4,            # Licencia-0001
                 "number_next": 1,
                 "number_increment": 1,
                 "company_id": False,     # global
@@ -207,7 +178,7 @@ class ZleavePermission(models.Model):
             ])
             
             if not attachments:  # Si no hay archivos adjuntos
-                raise UserError("Debe adjuntar al menos un archivo antes de guardar la solicitud.")
+                raise UserError("Debe adjuntar al menos un archivo antes de guardar la solicitudde licencia.")
 
 
             # Buscamos el jefe directo o responsable de RRHH
@@ -221,7 +192,7 @@ class ZleavePermission(models.Model):
             rec.state = "submitted"  # Cambiamos el estado a "Enviado"
             
             # Publicamos un mensaje indicando que se ha enviado para aprobación
-            rec.message_post(body=_("Permiso esta siendo enviado . . . . . "))
+            rec.message_post(body=_("Solicitud de licencia esta siendo enviado . . . . . "))
             
             # Obtener los correos electrónicos
             approver_email = approver.email or False  # Correo del aprobador
@@ -245,7 +216,7 @@ class ZleavePermission(models.Model):
                 # Enviar el correo
                 template.send_mail(rec.id, force_send=True)
             
-            rec.message_post(body=_("Permiso ha sido enviado a los correos: " + email_message))
+            rec.message_post(body=_("Solicitud de Licencia ha sido enviado a los correos: " + email_message))
                
         return True
 
@@ -254,16 +225,16 @@ class ZleavePermission(models.Model):
     def _check_is_approver(self):
         for rec in self:
             if rec.approver_id and rec.approver_id != self.env.user:
-                raise UserError(_("Solo el aprobador asignado puede aprobar o rechazar este permiso."))
+                raise UserError(_("Solo el aprobador asignado puede aprobar o rechazar esta licencia."))
 
     def action_approve(self):
         for rec in self:
             if rec.state != "submitted":
-                raise UserError(_("Solo puedes aprobar permisos en estado Enviado."))
+                raise UserError(_("Solo puedes aprobar licencias en estado Enviado."))
             
             rec._check_is_approver()
             rec.state = "approved"
-            rec.message_post(body=_("Permiso aprobado."))
+            rec.message_post(body=_("Solicitud de licencia aprobado."))
             
              # 1) Asegurar que existan días de asistencia en el rango
             created, _updated = self.env['zattendance.day'].ensure_days(
@@ -297,10 +268,10 @@ class ZleavePermission(models.Model):
     def action_refuse(self):
         for rec in self:
             if rec.state != "submitted":
-                raise UserError(_("Solo puedes rechazar permisos en estado Enviado."))
+                raise UserError(_("Solo puedes rechazar solicitudes en estado Enviado."))
             rec._check_is_approver()
             rec.state = "refused"
-            rec.message_post(body=_("Permiso rechazado."))
+            rec.message_post(body=_("Solicitud de licencia rechazado."))
             
             try:
                 rec.activity_feedback(["mail.mail_activity_data_todo"])
@@ -311,22 +282,25 @@ class ZleavePermission(models.Model):
     def action_cancel(self):
         for rec in self:
             if rec.state in ("approved", "refused", "cancelled"):
-                raise UserError(_("No puedes anular un permiso ya finalizado."))
+                raise UserError(_("No puedes anular una solicitud ya finalizado."))
             rec.state = "cancelled"
-            rec.message_post(body=_("Permiso anulado."))
+            rec.message_post(body=_("Solicitud de licencia anulado."))
         return True
 
     ###########################################################
     ### Suspencion Perfecta e imperfecta de acuerdo al tipo seleccionado
-    @api.depends("employee_id", "type_permission", "suspension_perfecta", "suspension_imperfecta", "date_from", "date_to")
+    @api.depends("employee_id", "type_permission", "suspension_id", "date_from", "date_to")
     def _compute_display_name(self):
         for rec in self:
             emp = rec.employee_id.name or ""
             rango = ""
             if rec.date_from and rec.date_to:
                 rango = f"{rec.date_from} → {rec.date_to}"
-            tipo = dict(self._fields["type_permission"].selection).get(rec.type_permission, "")
-            codigo = rec.suspension_perfecta or rec.suspension_imperfecta or ""
+            tipo = dict(self._fields["type_permission"].selection).get(rec.type_permission, "")          
+            codigo = ""
+            if rec.suspension_id:
+                codigo = f"{rec.suspension_id.code} - {rec.suspension_id.name}"
+
             rec.display_name = f"{emp} - {tipo} {codigo} ({rango})"
 
     @api.depends("date_from", "date_to")
@@ -359,6 +333,7 @@ class ZleavePermission(models.Model):
                 if rec.suspension_perfecta:
                     raise ValidationError(_("Para Licencia Con Goce / Permiso no debes seleccionar Suspensión Perfecta."))
     
+  
     #######################
     # Le decimos que ahora depende del estado para marcarse solo
     is_locked = fields.Boolean(string="Bloqueado",
