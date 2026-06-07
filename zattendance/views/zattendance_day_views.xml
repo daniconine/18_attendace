@@ -20,6 +20,7 @@
             <field name="state" widget="badge"
                                 decoration-danger="state == 'conflicto'"
                                 decoration-success="state == 'permiso'"/>
+                                
         </list>
       </field>
     </record>
@@ -54,6 +55,7 @@
                 <field name="employee_id"/>
                 <field name="date"/>
                 <field name="weekday"/>
+                <field name="active" invisible="1"/>
               </group>
               <group>                
                 <field name="diff_attendance" widget="float_time"/>                

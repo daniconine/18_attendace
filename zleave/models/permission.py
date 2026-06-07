@@ -37,7 +37,10 @@ class ZleavePermission(models.Model):
     )
    
     hr_responsible_id = fields.Many2one('hr.employee', string="Encargado de RRHH")  # Asumiendo que tienes un campo para RRHH
-
+    approved_by_id = fields.Many2one("res.users", string="Aprobado por", readonly=True)
+    approved_date = fields.Datetime(string="Fecha de aprobación", readonly=True)
+    
+    
     date_from = fields.Date(string="Desde", required=True, tracking=True)
     date_to = fields.Date(string="Hasta", required=True, tracking=True)
     
@@ -221,11 +224,18 @@ class ZleavePermission(models.Model):
         return True
 
     ##############
-   
+    #grupo de admisnitradores de Zleave pueden aprobar(logica de aprobador universal9)
     def _check_is_approver(self):
         for rec in self:
-            if rec.approver_id and rec.approver_id != self.env.user:
-                raise UserError(_("Solo el aprobador asignado puede aprobar o rechazar esta licencia."))
+            user = self.env.user
+
+            is_assigned_approver = rec.approver_id == user
+            is_hr_manager = user.has_group('zleave.group_hr_manager')
+
+            if not is_assigned_approver and not is_hr_manager:
+                raise UserError(_(
+                    "Solo el aprobador asignado o un administrador de licencias puede aprobar/rechazar esta licencia."
+                ))
 
     def action_approve(self):
         for rec in self:
@@ -233,8 +243,11 @@ class ZleavePermission(models.Model):
                 raise UserError(_("Solo puedes aprobar licencias en estado Enviado."))
             
             rec._check_is_approver()
+            rec.approved_by_id = self.env.user.id
+            rec.approved_date = fields.Datetime.now()
             rec.state = "approved"
             rec.message_post(body=_("Solicitud de licencia aprobado."))
+            
             
              # 1) Asegurar que existan días de asistencia en el rango
             created, _updated = self.env['zattendance.day'].ensure_days(
@@ -353,3 +366,17 @@ class ZleavePermission(models.Model):
     def _check_lock_permission(self):
         res = super(ZleavePermission, self)._check_lock_permission()
         return res or self.env.user.has_group('zleave.group_hr_manager')   
+    
+    #################
+    #aprobador
+    approved_by_is_assigned = fields.Boolean( string="Aprobó el asignado",
+                                compute="_compute_approved_by_is_assigned",)
+    
+    @api.depends("approver_id", "approved_by_id")
+    def _compute_approved_by_is_assigned(self):
+        for rec in self:
+            rec.approved_by_is_assigned = bool(
+                rec.approver_id
+                and rec.approved_by_id
+                and rec.approver_id == rec.approved_by_id
+            )

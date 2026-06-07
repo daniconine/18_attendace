@@ -168,8 +168,15 @@ class ZVacation(models.Model):
     # Verificación del aprobador
     def _check_is_approver(self):
         for rec in self:
-            if rec.approver_id and rec.approver_id != self.env.user:
-                raise UserError(_("Solo el aprobador asignado puede aprobar o rechazar esta solicitud."))
+            user = self.env.user
+
+            is_assigned_approver = rec.approver_id == user
+            is_hr_manager = user.has_group('zleave.group_hr_manager')
+
+            if not is_assigned_approver and not is_hr_manager:
+                raise UserError(_(
+                    "Solo el aprobador asignado o un administrador de licencias puede aprobar/rechazar esta licencia."
+                ))
 
     def action_send_for_approval(self):
         """Enviar para aprobación"""
@@ -263,6 +270,8 @@ class ZVacation(models.Model):
             for att in attendance_days:
                 att.vacaciones(rec.id)
             
+            rec.approved_by_id = self.env.user.id
+            rec.approved_date = fields.Datetime.now()
             rec.state = "approved"
             rec.message_post(body=_("Vacaciones aprobadas."))
 
@@ -384,4 +393,21 @@ class ZVacation(models.Model):
     # El permiso de RRHH para abrir el candado manualmente
     def _check_lock_permission(self):
         res = super(ZVacation, self)._check_lock_permission()
-        return res or self.env.user.has_group('zleave.group_hr_manager') 
+        return res or self.env.user.has_group('zleave.group_hr_manager')
+    
+    ###logica aprobador de rrhh
+    approved_by_id = fields.Many2one("res.users", string="Aprobado por", readonly=True)
+    approved_date = fields.Datetime(string="Fecha de aprobación", readonly=True)
+    
+    #aprobador
+    approved_by_is_assigned = fields.Boolean( string="Aprobó el asignado",
+                                compute="_compute_approved_by_is_assigned",)
+    
+    @api.depends("approver_id", "approved_by_id")
+    def _compute_approved_by_is_assigned(self):
+        for rec in self:
+            rec.approved_by_is_assigned = bool(
+                rec.approver_id
+                and rec.approved_by_id
+                and rec.approver_id == rec.approved_by_id
+            )

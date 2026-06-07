@@ -93,12 +93,17 @@
             <hr/>
             <group>
               <group>
-                <field name="company_id" readonly="1"/>
+                <field name="company_id" readonly="1"/>                
                 <field name="employee_id" options="{'no_create': True}" domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]"
                                       invisible="state != 'draft'"/> 
                 <field name="employee_id" options="{'no_create': True}" readonly="1" domain="[('company_id', '=', company_id)]"
                                       invisible="state == 'draft'"/>
                 <field name="employee_job" options="{'no_create': True}" readonly="1"/>
+                <field name="approved_by_id" invisible="1"/>
+
+                <field name="approved_date" invisible="1"/>
+                <field name="approved_by_is_assigned" invisible="1"/>
+                
               </group>
               <group>
                 <field name="approver_id" readonly="1"/>
@@ -132,7 +137,7 @@
             
             <div class="oe_clear"/>
 
-            <group string="Firma" invisible="state != 'approved'">
+            <group string="Firma" invisible="state != 'approved' or not approved_by_is_assigned">
               <div class="row">
 
                 <!-- Columna izquierda vacía -->
@@ -199,6 +204,19 @@
                 <div class="col-lg-3 d-none d-lg-block"></div>
 
               </div>
+            </group>
+
+            <group string="Validación"
+                  invisible="state != 'approved' or approved_by_is_assigned">
+                <div class="alert alert-info" role="alert">
+                    Esta solicitud fue Aprobado por RRHH en reemplazo del jefe inmediato.
+                    <br/>
+                    <strong>Aprobado por:</strong>
+                    <field name="approved_by_id" nolabel="1" readonly="1"/>
+                    <br/>
+                    <strong>Fecha:</strong>
+                    <field name="approved_date" nolabel="1" readonly="1"/>
+                </div>
             </group>
 
             <separator colspan="4"/>

@@ -86,6 +86,8 @@
 
                                     <field name="employee_job"/>
                                     <!--field name="fech_ingreso"/-->
+                                    <field name="approved_date" invisible="1"/>
+                                    <field name="approved_by_is_assigned" invisible="1"/>
                                 </group>
                                 <br/><br/>
 
@@ -186,7 +188,7 @@
                                 </field>
 
                                 <hr/>
-                                <group string="Firma">
+                                <group string="Firma" invisible="not approved_by_is_assigned">
                                     <div class="col-12 col-lg-6">
                                         <div style="border:1px solid #e5e5e5; border-radius:8px; padding:12px;">
 
@@ -243,6 +245,23 @@
                                         </div>
                                     </div>
                                 </group>
+
+                                <group string="Validación" invisible="approved_by_is_assigned">
+                                    <div class="alert alert-info" role="alert">
+                                        <div>Esta solicitud fue Aprobado por RRHH en reemplazo del jefe inmediato.</div>
+                                            <br/>
+                                        <div>
+                                            <strong>Aprobado por:</strong>
+                                            <field name="approved_by_id" nolabel="1" readonly="1"/>
+                                        </div>
+                                            <br/>
+                                        <div>
+                                            <strong>Fecha:</strong>
+                                            <field name="approved_date" nolabel="1" readonly="1"/>
+                                        </div>
+                                    </div>
+                                </group>
+
                             </div>
 
 

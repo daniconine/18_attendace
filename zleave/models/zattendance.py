@@ -70,9 +70,9 @@ class ZAttendanceDay(models.Model):
             permiso = self.env['zleave.permission'].browse(permiso_id)
             
             # Asignar el tipo de asistencia correspondiente según el tipo de permiso
-            if permiso.type_permission == 'lic_sin_goce':
+            if permiso.type_permission == 'perfecta':
                 tipo_asistencia = 'lic_sin_goce'  # Tipo de asistencia 'Licencia Sin Goce'
-            elif permiso.type_permission == 'lic_con_goce':
+            elif permiso.type_permission == 'imperfecta':
                 tipo_asistencia = 'lic_con_goce'  # Tipo de asistencia 'Licencia Con Goce'
             else:
                 tipo_asistencia = 'inasistencia'  # Valor por defecto, si no hay tipo definido
