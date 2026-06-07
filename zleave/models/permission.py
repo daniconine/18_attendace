@@ -360,7 +360,7 @@ class ZleavePermission(models.Model):
     def _compute_is_locked(self):
         for rec in self:
             # Lógica: Si es borrador está abierto, cualquier otro estado bloquea
-            rec.is_locked = rec.state != 'draft'
+            rec.is_locked = rec.state in ('approved', 'refused', 'cancelled')
 
     # El permiso de RRHH para abrir el candado manualmente
     def _check_lock_permission(self):

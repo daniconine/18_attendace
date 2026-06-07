@@ -215,7 +215,7 @@
                         </div>
                     </group>
 
-                    <group string="Validación" invisible="approved_by_is_assigned">
+                    <group string="Validación" invisible="state != 'approved' or approved_by_is_assigned">
                         <div class="alert alert-info" role="alert">
                             <div>Esta solicitud fue Aprobado por RRHH en reemplazo del jefe inmediato..</div>
                                 <br/>
