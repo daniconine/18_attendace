@@ -1,7 +1,11 @@
 from odoo import fields, models
+from datetime import datetime, time
+import pytz
 
 
-#reportte personalziado de asistencia
+
+
+# Reporte personalizado de asistencia
 class ReportZAttendanceXlsx(models.AbstractModel):
     _name = "report.zattendance.report_zattendance_xlsx"
     _inherit = "report.report_xlsx.abstract"
@@ -92,6 +96,34 @@ class ReportZAttendanceXlsx(models.AbstractModel):
             "Tardanza min.",
         ]
 
+        def get_local_datetime(value):
+            """
+            Convierte datetime UTC de Odoo a la zona horaria del usuario.
+            Luego elimina tzinfo porque xlsxwriter necesita datetime naive.
+            """
+            if not value:
+                return False
+
+            if isinstance(value, str):
+                value = fields.Datetime.from_string(value)
+
+            #reemplazo de la hora UTC a UTC del usaurio que consulta
+            local_dt = fields.Datetime.context_timestamp(self, value)
+            return local_dt.replace(tzinfo=None)
+
+        def write_date(row_index, col_index, value):
+            if value:
+                sheet.write(row_index, col_index, value, date_format)
+            else:
+                sheet.write(row_index, col_index, "", text_format)
+
+        def write_datetime(row_index, col_index, value):
+            local_dt = get_local_datetime(value)
+            if local_dt:
+                sheet.write_datetime(row_index, col_index, local_dt, datetime_format)
+            else:
+                sheet.write(row_index, col_index, "", text_format)
+
         row = 0
 
         for col, header in enumerate(headers):
@@ -118,7 +150,9 @@ class ReportZAttendanceXlsx(models.AbstractModel):
         for rec in records:
             sheet.write(row, 0, rec.employee_id.name or "", text_format)
             sheet.write(row, 1, rec.employee_id.identification_id or "", text_format)
-            sheet.write(row, 2, rec.date or "", date_format)
+
+            write_date(row, 2, rec.date)
+
             sheet.write(row, 3, weekday_labels.get(rec.weekday, ""), text_format)
 
             sheet.write(
@@ -128,15 +162,15 @@ class ReportZAttendanceXlsx(models.AbstractModel):
                 text_format,
             )
 
-            sheet.write(row, 5, rec.planned_start or "", datetime_format)
-            sheet.write(row, 6, rec.planned_end or "", datetime_format)
+            write_datetime(row, 5, rec.planned_start)
+            write_datetime(row, 6, rec.planned_end)
 
             sheet.write(row, 7, rec.planned_presential or 0.0, number_format)
             sheet.write(row, 8, rec.planned_virtual or 0.0, number_format)
             sheet.write(row, 9, rec.planned_total or 0.0, number_format)
 
-            sheet.write(row, 10, rec.actual_first_check_in or "", datetime_format)
-            sheet.write(row, 11, rec.actual_last_check_out or "", datetime_format)
+            write_datetime(row, 10, rec.actual_first_check_in)
+            write_datetime(row, 11, rec.actual_last_check_out)
 
             sheet.write(row, 12, rec.actual_presential or 0.0, number_format)
             sheet.write(row, 13, rec.actual_virtual or 0.0, number_format)
@@ -157,16 +191,18 @@ class ReportZAttendanceXlsx(models.AbstractModel):
 
         sheet.set_row(0, 30)
 
-        sheet.set_column(0, 0, 28)   # Empleado
-        sheet.set_column(1, 1, 18)   # Nro. Identificación
-        sheet.set_column(2, 3, 14)   # Fecha, Día
-        sheet.set_column(4, 4, 24)   # Tipo asignado
-        sheet.set_column(5, 6, 20)   # Entrada/Salida horario
-        sheet.set_column(7, 9, 22)   # Horas planificadas
-        sheet.set_column(10, 11, 20) # Entrada/Salida real
-        sheet.set_column(12, 15, 22) # Horas reales y diferencia
-        sheet.set_column(16, 17, 18) # Tipo calculado, Estado
-        sheet.set_column(18, 18, 14) # Tardanza
+        sheet.set_column(0, 0, 28)    # Empleado
+        sheet.set_column(1, 1, 18)    # Nro. Identificación
+        sheet.set_column(2, 3, 14)    # Fecha, Día
+        sheet.set_column(4, 4, 24)    # Tipo asignado
+        sheet.set_column(5, 6, 20)    # Entrada/Salida horario
+        sheet.set_column(7, 9, 22)    # Horas planificadas
+        sheet.set_column(10, 11, 20)  # Entrada/Salida real
+        sheet.set_column(12, 15, 22)  # Horas reales y diferencia
+        sheet.set_column(16, 17, 18)  # Tipo calculado, Estado
+        sheet.set_column(18, 18, 14)  # Tardanza
 
         sheet.freeze_panes(1, 0)
-        sheet.autofilter(0, 0, row - 1, len(headers) - 1)
+
+        if row > 1:
+            sheet.autofilter(0, 0, row - 1, len(headers) - 1)

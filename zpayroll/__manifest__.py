@@ -40,7 +40,8 @@
             'data/hr_afp_data.xml',
             'data/hr_afp_rate_data.xml',
             'data/hr_labor_regime_data.xml',
-            
+            'data/hr_salary_rule_category_pe.xml',
+            'data/hr_salary_rule_pe.xml',
             
             
             'views/zemployee_menu.xml',

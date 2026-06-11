@@ -112,10 +112,7 @@ class HrPayslip(models.Model):
             
     
     ##############TEST
-    renta_5ta_retencion = fields.Float(
-    string='Retención 5ta',
-    compute='_compute_renta_5ta_retencion',
-    store=True)
+    renta_5ta_retencion = fields.Float( string='Retención 5ta',compute='_compute_renta_5ta_retencion', store=True)
     
     ##############################################
     ### Metodos para el CAlculo de Renta de 5ta

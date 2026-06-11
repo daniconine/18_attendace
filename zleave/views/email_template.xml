@@ -4,7 +4,8 @@
     <record id="zleave.email_template_zleave_permission" model="mail.template">
         <field name="name">Notificación de Solicitud de Ausencia</field>
          <!-- Correo del usuario actual -->
-        <field name="email_from">${'odoo18@gerens.pe'}</field>
+        <field name="email_from">"Notificaciones Sistema ERP" &lt;odoo18@gerens.pe&gt;</field>
+        
         <field name="reply_to">${'object.employee_id.work_email'}</field> <!-- No se permiten respuestas -->
         <field name="subject">Solicitud de Licencia N° {{ object.name }} enviada por {{ object.create_uid.name }}</field> <!-- Nombre del creador -->
         <field name="body_html">
