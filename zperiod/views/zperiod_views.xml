@@ -5,7 +5,10 @@
         <field name="name">zperiod.list</field>
         <field name="model">zperiod</field>
         <field name="arch" type="xml">
-            <list decoration-info="state == 'draft'" decoration-success="state == 'approved'">
+            <list decoration-info="state == 'open'"
+                    decoration-success="state == 'closed'"
+                    decoration-danger="state == 'cancel'">
+
                 <field name="name"/>
                 <field name="employee_id"/>
                 <field name="date_start"/>
@@ -17,7 +20,10 @@
                 <field name="diff_attendance_total" widget="float_time"/>
                 <field name="late_min_total"/>
                 <field name="hrs_total" widget="float_time"/>
-                <field name="state" widget="badge"/>
+                <field name="state" widget="badge"
+                        decoration-info="state == 'open'"
+                        decoration-success="state == 'closed'"
+                        decoration-danger="state == 'cancel'"/>
             </list>
         </field>
     </record>
@@ -29,13 +35,13 @@
             <form string="Periodo de Empleado">
                 <header>
                     <button name="action_actualizar" string="Actualizar Asistencias" type="object" 
-                            class="btn-outline-danger" invisible="state == 'cancel'"/>                  
+                            class="btn-outline-danger" invisible="state in ['closed', 'cancel']"/>               
                 
             
                     <button name="action_cancel" string="Cancelar" type="object" 
-                            invisible="state == 'cancel'"/>
+                            invisible="state in ['closed', 'cancel']"/>
                     
-                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,cancel"/>
+                    <field name="state" widget="statusbar" statusbar_visible="open,closed,cancel"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -63,6 +69,7 @@
                                 <field name="days_vacations"/>
                                 <field name="days_permissions"/>
                                 <field name="days_leave_permissions"/>
+                                <field name="is_locked" groups="hr.group_hr_manager" widget="boolean_toggle"/>
                             </group>
                             
                             <group>

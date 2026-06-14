@@ -56,7 +56,7 @@ class ZPeriodBatch(models.Model):
                     'date_start': self.date_start,
                     'date_end': self.date_end,
                     'company_id': self.company_id.id,
-                    'state': 'draft',
+                    'state': 'open',
                 })
                 created_count += 1
 

@@ -17,6 +17,12 @@ class ZPeriod(models.Model):
         }
 
         for period in self:
+            
+            if period.state != "open":
+                raise UserError(_(
+                    "El periodo del empleado %s no está abierto. No se puede generar nomina desde este periodo"
+                ) % period.employee_id.name)
+                
             employee_name = period.employee_id.name or ''
             month_number = str(period.month or '').zfill(2)
             year = fields.Date.from_string(period.date_end).year
@@ -202,11 +208,10 @@ class ZPeriod(models.Model):
 
             period.message_post(
                 body="Payslip creado con éxito para el empleado %s en el periodo %s - %s" % (
-                    period.employee_id.name, period.date_start, period.date_end
-                ),
-                message_type='notification'
-            )
+                    period.employee_id.name, period.date_start, period.date_end),
+                message_type='notification')
 
+            period.write({"state": "closed",})
             payslips_created.append(payslip)
 
         return payslips_created

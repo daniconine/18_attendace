@@ -1,33 +1,29 @@
 from odoo import api, fields, models, _
 from datetime import datetime
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError, ValidationError, AccessError
 from babel import dates
 
 
 class ZPeriod(models.Model):
     _name = "zperiod"
     _description = "Periodo para la Generación de Planilla"
-    _inherit = ["mail.thread", "mail.activity.mixin"]
+    _inherit = ["mail.thread", "mail.activity.mixin", "hr.lock.mixin"]
     _order = "date_start desc, employee_id"
 
     name = fields.Char(string="Referencia", readonly=True, copy=False)
     batch_id = fields.Many2one("zperiod.batch", string="Lote de Origen", ondelete="cascade")
     employee_id = fields.Many2one("hr.employee", string="Empleado", required=True, tracking=True)
-    
+    company_id = fields.Many2one("res.company",string="Compañía",default=lambda self: self.env.company)
     # Heredamos las fechas del lote o se ponen manualmente
     date_start = fields.Date(string="Fecha Inicio", required=True, tracking=True)
     date_end = fields.Date(string="Fecha Fin", required=True, tracking=True)
     
-    state = fields.Selection([
-        ("draft", "Borrador"),
-        ("sent", "Enviado Nomina"),
-        ("cancel", "Cancelado"),
-    ], string="Estado", default="draft", tracking=True)
+    state = fields.Selection([("open", "Abierto"),
+                            ("closed", "Cerrado"),
+                            ("cancel", "Cancelado"),], string="Estado", default="draft", tracking=True)
 
-    company_id = fields.Many2one("res.company",string="Compañía",default=lambda self: self.env.company)
-    
+        
     #CAmpos de Modulos Z
-    
     days_attended = fields.Float(string='Días Asistidos (Conforme)')
     days_unattended = fields.Float(string='Días Inasistencias (Conflicto)')
     diff_attendance_total = fields.Float(string="Exceso/Defecto (Hrs)")
@@ -215,3 +211,28 @@ class ZPeriod(models.Model):
             })
         
         return True   
+
+    
+    ######Bloqueador
+    is_locked = fields.Boolean(
+        string="Bloqueado",
+        compute="_compute_is_locked",
+        store=True,
+        readonly=False,
+        tracking=True
+    )
+
+    @api.depends("state")
+    def _compute_is_locked(self):
+        for rec in self:
+            rec.is_locked = rec.state in ("closed", "cancel")   
+            
+    #eacritura
+    def write(self, vals):
+        for rec in self:
+            if rec.is_locked:
+                raise UserError(_(
+                    "Este periodo está bloqueado. No se puede modificar porque está cerrado o cancelado."
+                ))
+
+        return super(ZPeriod, self).write(vals)

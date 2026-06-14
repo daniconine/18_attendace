@@ -15,14 +15,22 @@
                   action="action_zperiod"
                   sequence="20"
                   groups="base.group_user"/>
+        
 
-        <!-- Submenú: hoja tiempos -->
+        <!-- Menú Padre: Insumos de Nómina -->
+        <menuitem id="menu_zperiod_payroll_inputs"
+                name="Insumos de Nómina"
+                parent="menu_zperiod_root"
+                sequence="40"
+                groups="hr.group_hr_manager"/>
+
+        <!-- Submenú: Segmentación de Hoja de Tiempos -->
         <menuitem id="menu_zperiod_segment_line"
-                  name="Segmentación de Hoja Tiempos"
-                  parent="menu_zperiod_root"
-                  action="action_zperiod_segment_line"
-                  sequence="40"
-                  groups="base.group_user"/>
+                name="Segmentación de Hoja Tiempos"
+                parent="menu_zperiod_payroll_inputs"
+                action="action_zperiod_segment_line"
+                sequence="10"
+                groups="hr.group_hr_manager"/>
 
         <!-- Submenú: Lotes de Períodos -->
         <menuitem id="menu_zperiod_batch_child"

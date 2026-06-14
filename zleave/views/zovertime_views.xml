@@ -5,14 +5,20 @@
         <field name="name">zleave.overtime.list</field>
         <field name="model">zleave.overtime</field>
         <field name="arch" type="xml">
-            <list string="Solicitud de Horas Extras Pagadas">
+            <list string="Solicitud de Horas Extras Pagadas" sample="1"
+                        decoration-warning="state == 'submitted'"
+                        decoration-success="state == 'approved'"
+                        decoration-danger="state == 'refused'">
                 <field name="name"/>
                 <field name="employee_id"/>
                 <field name="zattendance_date"/>
                 <field name="zattendance_diff"/>
                 <field name="total_hours_requested"/>
                 <field name="approver_id"/>
-                <field name="state"/>
+                <field name="state" widget="badge"
+                            decoration-warning="state == 'submitted'"
+                            decoration-success="state == 'approved'"
+                            decoration-danger="state == 'refused'"/>
                 
             </list>
         </field>
