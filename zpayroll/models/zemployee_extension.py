@@ -17,6 +17,8 @@ class ZEmployeeExtension(models.Model):
                     string='Compañía',related='employee_id.company_id',
                     store=True, readonly=True,index=True)
 
+    entry_date = fields.Date(string='Fecha de Ingreso',tracking=True)
+    termination_date = fields.Date(string='Fecha de Cese',tracking=True,)
     cuspp = fields.Char(string='CUSPP (PE)')    
     is_disabled_person = fields.Boolean(string="Tiene alguna discapacidad")
     is_family_mother = fields.Selection(string="Madre con responsabilidad familiar",

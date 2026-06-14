@@ -62,6 +62,7 @@
                                 <field name="late_min_total"/>
                                 <field name="days_vacations"/>
                                 <field name="days_permissions"/>
+                                <field name="days_leave_permissions"/>
                             </group>
                             
                             <group>

@@ -24,67 +24,109 @@
         <field name="arch" type="xml">
             <form string="Extensión del Empleado">
                 <sheet>
+
+                    <!-- Encabezado -->
                     <group>
-                        <group>
+                        <group string="Datos del Trabajador">
                             <field name="employee_id"/>
                             <field name="company_id" readonly="1"/>
-                            <field name="cuspp"/>
-                            <field name="is_disabled_person"/>
-                            <field name="is_family_mother"/>
-                            <field name="study_school_type"/>
-                            <field name="pensioner_type"/>
                         </group>
-                        <group>
-                            <field name="pe_labor_regime_id"/>
-                            <field name="pe_pension_scheme"/>
-                            <field name="afp_id"/>
-                            <field name="afp_commission_type"/>
-                            <field name="pe_health_scheme"/>
-                            <field name="sctr_table"/>
-                        </group>
-                    </group>
 
-                    <group string="Descuento Judicial">
-                        <field name="judicial_deduction_type"/>
-                        <field name="judicial_deduction_amount"/>
+                        <group string="Fechas Laborales">
+                            <field name="entry_date"/>
+                            <field name="termination_date"/>
+                        </group>
                     </group>
+                   
+                    <separator/>
+                    <separator string="Datos Laborales de la Normativa Peruana"/>
 
                     <notebook>
-                        <page string="Familiares">
-                            <group string="Familiares">
-                                <field name="family_ids">
-                                    <list editable="bottom">
-                                        <field name="name"/>
-                                        <field name="relationship"/>
-                                        <field name="birth_date"/>
-                                    </list>
-                                </field>
+
+                        <!-- Información laboral -->
+                        <page string="Información Laboral">
+                            <group>
+                                <group string="Régimen Laboral">
+                                    <field name="pe_labor_regime_id"/>
+                                    <field name="study_school_type"/>
+                                </group>
+
+                                <group string="Condiciones del Trabajador">
+                                    <field name="is_disabled_person"/>
+                                    <field name="is_family_mother"/>
+                                </group>
                             </group>
                         </page>
 
-                        <page string="Cuentas Bancarias">
-                            <group string="Cuentas Bancarias">
-                                <field name="cuentas_bancarias_ids">
-                                    <list>
-                                        <field name="name"/>
-                                        <field name="bank_id"/>
-                                        <field name="account_number"/>
-                                        <field name="cci"/>
-                                        <field name="currency_id"/>
-                                    </list>
-                                </field>
+                        <!-- Seguridad social / pensión -->
+                        <page string="Pensión y Salud">
+                            <group>
+                                <group string="Sistema de Pensiones">
+                                    <field name="pe_pension_scheme"/>
+
+                                    <field name="afp_id" invisible="pe_pension_scheme != 'spp'"
+                                                        required="pe_pension_scheme == 'spp'"/>
+
+                                    <field name="afp_commission_type" invisible="pe_pension_scheme != 'spp'"
+                                                                    required="pe_pension_scheme == 'spp'"/>
+
+                                    <field name="cuspp" invisible="pe_pension_scheme != 'spp'"
+                                                        required="pe_pension_scheme == 'spp'"/>
+
+                                    <field name="pensioner_type"/>
+                                </group>
+
+                                <group string="Salud y Riesgo">
+                                    <field name="pe_health_scheme"/>
+                                    <field name="sctr_table"/>
+                                </group>
                             </group>
                         </page>
+
+                        <!-- Descuento judicial -->
+                        <page string="Descuento Judicial">
+                            <group>
+                                <group string="Configuración del Descuento">
+                                    <field name="judicial_deduction_type"/>
+                                    <field name="judicial_deduction_amount"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- Familiares -->
+                        <page string="Familiares">
+                            <field name="family_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="relationship"/>
+                                    <field name="birth_date"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Cuentas bancarias -->
+                        <page string="Cuentas Bancarias">
+                            <field name="cuentas_bancarias_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="bank_id"/>
+                                    <field name="account_number"/>
+                                    <field name="cci"/>
+                                    <field name="currency_id"/>
+                                </list>
+                            </field>
+                        </page>
+
                     </notebook>
+
                 </sheet>
 
                 <!-- CHATTER -->
                 <chatter>
-                    
                     <field name="message_follower_ids"/>
                     <field name="message_ids"/>
                     <field name="activity_ids"/>
-                </chatter> 
+                </chatter>
 
             </form>
         </field>

@@ -35,7 +35,8 @@ class ZPeriod(models.Model):
     permiso_late_total = fields.Integer(string="N° Permisos de Tardanza")
     
     days_vacations = fields.Float(string='Vacaciones Aprobadas (días)')
-    days_permissions = fields.Float(string='Permisos/Ausencias Aprobadas (días)')
+    days_permissions = fields.Float(string='Licencia con Goce Aprobadas (días)')
+    days_leave_permissions = fields.Float(string='Licencia Sin Goce Aprobadas (días)')
     hrs_25 = fields.Float(string='Horas 25 %')
     hrs_35 = fields.Float(string='Horas 35 %')
     hrs_100 = fields.Float(string='Horas 100 %')
@@ -154,16 +155,28 @@ class ZPeriod(models.Model):
             ])
             dias_vacaciones = sum(vacations_approved.mapped('duration_days'))
             
-            # 6. Permisos Aprobadas (Sumamos las vacaciones aprobadas en el periodo)
+            # 6. Permisos con goce aprobados
             permissions_approved = self.env['zleave.permission'].search([
                 ('employee_id', '=', period.employee_id.id),
                 ('state', '=', 'approved'),
+                ('type_permission', '=', 'imperfecta'),
                 ('date_from', '>=', period.date_start),
                 ('date_to', '<=', period.date_end),
             ])
             dias_permisos = sum(permissions_approved.mapped('duration_days'))
+
+
+            # 7. Licencias sin goce / ausencias aprobadas
+            permissions_leave_approved = self.env['zleave.permission'].search([
+                ('employee_id', '=', period.employee_id.id),
+                ('state', '=', 'approved'),
+                ('type_permission', '=', 'perfecta'),
+                ('date_from', '>=', period.date_start),
+                ('date_to', '<=', period.date_end),
+            ])
+            dias_leave_permissions = sum(permissions_leave_approved.mapped('duration_days'))
             
-            # 7 Buscamos los registros de horas extras solicitadas para el empleado en el período de fechas
+            # 8 Buscamos los registros de horas extras solicitadas para el empleado en el período de fechas
             overtime_records = self.env['zleave.overtime'].search([
                 ('employee_id', '=', period.employee_id.id),
                 ('zattendance_date', '>=', period.date_start),
@@ -194,6 +207,7 @@ class ZPeriod(models.Model):
                 'diff_attendance_total': diferencia_horas,
                 'days_vacations': dias_vacaciones,
                 'days_permissions': dias_permisos,
+                'days_leave_permissions': dias_leave_permissions,
                 'hrs_25': total_hrs_25,
                 'hrs_35': total_hrs_35,
                 'hrs_100': total_hrs_100,

@@ -13,7 +13,7 @@
 
                 <button name="action_open_zemployee_extension_popup"
                         type="object"
-                        string="Abrir Extensión Perú"
+                        string="Abrir (Extensión Normativa Peruana)"
                         class="btn-link"
                         invisible="not zemployee_extension_id"/>
             </xpath>

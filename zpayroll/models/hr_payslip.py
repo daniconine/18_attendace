@@ -32,7 +32,7 @@ class HrPayslip(models.Model):
                             ('12', 'DICIEMBRE'), ], string='Mes', compute='_compute_payroll_period', store=True)
     
 
-    payroll_year = fields.Integer(string='Año',compute='_compute_payroll_period',store=True)
+    payroll_year = fields.Char(string='Año',compute='_compute_payroll_period',store=True)
     payroll_month_number = fields.Integer(string='Nro. Mes',compute='_compute_payroll_period',store=True)
     payroll_period_code = fields.Char(string='Periodo',compute='_compute_payroll_period',store=True)
     
@@ -43,7 +43,7 @@ class HrPayslip(models.Model):
             if slip.date_to:
                 slip.payroll_month = str(slip.date_to.month).zfill(2)
                 slip.payroll_month_number = slip.date_to.month
-                slip.payroll_year = slip.date_to.year
+                slip.payroll_year = str(slip.date_to.year)
                 slip.payroll_period_code = f"{slip.date_to.year}-{str(slip.date_to.month).zfill(2)}"
             else:
                 slip.payroll_month = False

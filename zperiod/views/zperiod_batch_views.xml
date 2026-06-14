@@ -28,6 +28,11 @@
                             type="object"
                             class="btn-primary"/>
                     
+                    <button name="action_actualizar_periodos"
+                            type="object"
+                            string="Actualizar Períodos"
+                            class="btn-secondary"/>
+
                     <!-- Statusbar del Lote -->
                     <field name="state" widget="statusbar" statusbar_visible="draft,generated"/>
                 </header>

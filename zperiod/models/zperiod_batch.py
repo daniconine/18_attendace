@@ -72,3 +72,36 @@ class ZPeriodBatch(models.Model):
                 'type': 'success',
             }
         }
+    
+    
+    ### ACtualziacion masiva de asistnecia en los epridodos generados
+    def action_actualizar_periodos(self):
+        self.ensure_one()
+
+        periods = self.period_ids.filtered(lambda p: p.state != 'cancel')
+
+        if not periods:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Sin períodos',
+                    'message': 'No hay períodos generados para actualizar.',
+                    'type': 'warning',
+                }
+            }
+
+        periods.with_context(
+            tracking_disable=True,
+            mail_notrack=True,
+        ).action_actualizar()
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Actualización Completa',
+                'message': f'Se actualizaron {len(periods)} períodos correctamente.',
+                'type': 'success',
+            }
+        }

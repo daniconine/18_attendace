@@ -65,14 +65,25 @@ class ZPeriod(models.Model):
                 'number_of_hours': 0.0,
                 'contract_id': contract.id,})
             
-            #####Regla Ausencias/PErmiso
+            #####Regla Licencia Con Goce / Permiso
             self.env['hr.payslip.worked.days'].create({
                 'payslip_id': payslip.id,
-                'name': 'Ausencias/Permisos',
+                'name': 'Licencia Con Goce / Permiso',
                 'code': 'PERMISO',
                 'number_of_days': period.days_permissions or 0.0,
                 'number_of_hours': 0.0,
-                'contract_id': contract.id,})
+                'contract_id': contract.id,
+            })
+
+            #####Regla Licencia Sin Goce / Ausencia
+            self.env['hr.payslip.worked.days'].create({
+                'payslip_id': payslip.id,
+                'name': 'Licencia Sin Goce / Ausencia',
+                'code': 'AUSENCIA',
+                'number_of_days': period.days_leave_permissions or 0.0,
+                'number_of_hours': 0.0,
+                'contract_id': contract.id,
+            })
             
             #####Regla Vacaciones
             self.env['hr.payslip.worked.days'].create({
