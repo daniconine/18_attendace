@@ -1,0 +1,169 @@
+.boleta-page {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #000000;
+}
+
+.boleta-header {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+.boleta-header td {
+    border: none;
+    padding: 0;
+    vertical-align: top;
+}
+
+.company-name {
+    font-size: 17px;
+    font-weight: bold;
+    font-style: italic;
+    margin-bottom: 4px;
+}
+
+.company-ruc {
+    font-size: 16px;
+    font-weight: bold;
+    font-style: italic;
+}
+
+.logo-box {
+    text-align: right;
+    font-size: 28px;
+    font-weight: bold;
+    color: #1599d3;
+    letter-spacing: 2px;
+}
+
+.logo-subtitle {
+    font-size: 11px;
+    color: #1599d3;
+    letter-spacing: 7px;
+    font-weight: normal;
+}
+
+.boleta-title {
+    text-align: center;
+    font-size: 23px;
+    font-weight: bold;
+    font-style: italic;
+    margin: 18px 0 28px 0;
+    letter-spacing: 1px;
+}
+
+.boleta-page table {
+    page-break-inside: avoid;
+}
+
+.info-table,
+.main-table,
+.footer-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.info-table th,
+.info-table td,
+.main-table th,
+.main-table td,
+.footer-table th,
+.footer-table td {
+    border: 1px solid #000000;
+    padding: 3px 4px;
+    vertical-align: middle;
+}
+
+.info-table th,
+.main-table th,
+.footer-table th {
+    font-weight: bold;
+    text-align: center;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.section-title {
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+    padding: 5px;
+}
+
+.concept-row {
+    height: 300px;
+}
+
+.concept-cell {
+    vertical-align: top !important;
+    padding-top: 8px !important;
+}
+
+.concept-line {
+    min-height: 18px;
+    line-height: 18px;
+}
+
+.muted {
+    color: #eeeeee;
+}
+
+.total-row th,
+.total-row td {
+    font-weight: bold;
+}
+
+.neto-box {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.month-box {
+    margin-top: 18px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.month-value {
+    margin-left: 25px;
+    font-size: 10px;
+}
+
+.signature-table {
+    width: 100%;
+    margin-top: 45px;
+    border-collapse: collapse;
+}
+
+.signature-table td {
+    width: 50%;
+    text-align: center;
+    border: none;
+    padding: 0 16px;
+}
+
+.signature-space {
+    height: 42px;
+}
+
+.signature-line {
+    border-top: 2px solid #000000;
+    width: 100%;
+    margin-bottom: 18px;
+}
+
+.signature-label {
+    font-size: 12px;
+    font-weight: bold;
+}

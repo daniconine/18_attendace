@@ -22,7 +22,7 @@ result = contract.wage * (30 - dias_vacaciones - dias_permisos) / 30
 ]]></field>
             <field name="is_remunerative" eval="True"/>
             <field name="is_taxable_r5" eval="True"/>
-            <field name="is_r5_projection_base" eval="True"/>
+            <field name="is_r5_projection_base" eval="False"/>
             <field name="is_asegurable" eval="True"/>
             <field name="is_computable" eval="True"/>
             <field name="is_variable" eval="False"/>
@@ -412,34 +412,26 @@ result = sum(payslip.input_line_ids.filtered(lambda i: i.code == 'CLASES').mappe
             <field name="category_id" ref="zpayroll.pe_cat_alw"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
+
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
 result = payslip.payroll_month_number == 7
-]]></field>
+    ]]></field>
+
             <field name="amount_select">code</field>
             <field name="amount_python_compute"><![CDATA[
-# GRATI_JUL - Gratificación Legal Julio
-#
-# Lógica:
-# 1. Toma como base la remuneración computable de junio.
-# 2. Cuenta cuántas nóminas mensuales cerradas tiene el trabajador
-#    entre enero y junio del mismo año de la nómina actual.
-# 3. Calcula:
-#    Gratificación Julio = Remuneración computable junio * meses / 6
-
 result = 0.0
 
-year = payslip.payroll_year or 0
+year = payslip.payroll_year or False
 
 if year and employee:
 
-    # 1. Buscar nómina base de junio
-    june_slip = employee.env['hr.payslip'].search([
+    june_slip = payslip.env['hr.payslip'].search([
         ('employee_id', '=', employee.id),
         ('payroll_year', '=', year),
         ('payroll_month_number', '=', 6),
         ('payroll_type', '=', 'nomina'),
-        ('state', 'in', ['done', 'paid']),
+        ('state', '!=', 'cancel'),
     ], order='id desc', limit=1)
 
     base_remuneracion = 0.0
@@ -447,14 +439,13 @@ if year and employee:
     if june_slip:
         base_remuneracion = june_slip.remuneracion_computable or 0.0
 
-    # 2. Contar nóminas cerradas de enero a junio
-    semester_slips = employee.env['hr.payslip'].search([
+    semester_slips = payslip.env['hr.payslip'].search([
         ('employee_id', '=', employee.id),
         ('payroll_year', '=', year),
         ('payroll_month_number', '>=', 1),
         ('payroll_month_number', '<=', 6),
         ('payroll_type', '=', 'nomina'),
-        ('state', 'in', ['done', 'paid']),
+        ('state', '!=', 'cancel'),
     ])
 
     meses_tomados = set()
@@ -468,17 +459,18 @@ if year and employee:
     if meses > 6:
         meses = 6
 
-    # 3. Calcular gratificación proporcional
     result = base_remuneracion * meses / 6.0
-]]></field>
+    ]]></field>
+
             <field name="is_remunerative" eval="False"/>
-            <field name="is_taxable_r5" eval="False"/>
+            <field name="is_taxable_r5" eval="True"/>
             <field name="is_r5_projection_base" eval="False"/>
             <field name="is_asegurable" eval="False"/>
             <field name="is_computable" eval="False"/>
             <field name="is_variable" eval="False"/>
             <field name="is_non_taxable" eval="False"/>
         </record>
+
 
         <!-- BONIF_JULIO - Bonificación Grati Julio -->
         <record id="salary_rule_bonif_julio" model="hr.salary.rule">
@@ -488,22 +480,133 @@ if year and employee:
             <field name="category_id" ref="zpayroll.pe_cat_alw"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
+
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
 result = payslip.payroll_month_number == 7
-]]></field>
+    ]]></field>
+
             <field name="amount_select">code</field>
             <field name="amount_python_compute"><![CDATA[
-result = GRATI_JULIO*0.09
-]]></field>
+result = 0.0
+
+try:
+    result = GRATI_JULIO * 0.09
+except Exception:
+    result = 0.0
+    ]]></field>
+
             <field name="is_remunerative" eval="False"/>
-            <field name="is_taxable_r5" eval="False"/>
+            <field name="is_taxable_r5" eval="True"/>
             <field name="is_r5_projection_base" eval="False"/>
             <field name="is_asegurable" eval="False"/>
             <field name="is_computable" eval="False"/>
             <field name="is_variable" eval="False"/>
             <field name="is_non_taxable" eval="False"/>
         </record>
+
+        <!-- GRATI_DICIEMBRE - Gratificación Legal Diciembre -->
+        <record id="salary_rule_grati_diciembre" model="hr.salary.rule">
+            <field name="name">Gratificación Legal Diciembre</field>
+            <field name="code">GRATI_DICIEMBRE</field>
+            <field name="sequence">21</field>
+            <field name="category_id" ref="zpayroll.pe_cat_alw"/>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = payslip.payroll_month_number == 12
+    ]]></field>
+
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = 0.0
+
+year = payslip.payroll_year or False
+
+if year and employee:
+
+    november_slip = payslip.env['hr.payslip'].search([
+        ('employee_id', '=', employee.id),
+        ('payroll_year', '=', year),
+        ('payroll_month_number', '=', 11),
+        ('payroll_type', '=', 'nomina'),
+        ('state', '!=', 'cancel'),
+    ], order='id desc', limit=1)
+
+    base_remuneracion = 0.0
+
+    if november_slip:
+        base_remuneracion = november_slip.remuneracion_computable or 0.0
+
+    semester_slips = payslip.env['hr.payslip'].search([
+        ('employee_id', '=', employee.id),
+        ('payroll_year', '=', year),
+        ('payroll_month_number', '>=', 7),
+        ('payroll_month_number', '<=', 12),
+        ('payroll_type', '=', 'nomina'),
+        ('state', '!=', 'cancel'),
+    ])
+
+    meses_tomados = set()
+
+    for slip in semester_slips:
+        if slip.payroll_month_number:
+            meses_tomados.add(slip.payroll_month_number)
+
+    meses = len(meses_tomados)
+
+    if meses > 6:
+        meses = 6
+
+    result = base_remuneracion * meses / 6.0
+    ]]></field>
+
+            <field name="is_remunerative" eval="False"/>
+            <field name="is_taxable_r5" eval="True"/>
+            <field name="is_r5_projection_base" eval="False"/>
+            <field name="is_asegurable" eval="False"/>
+            <field name="is_computable" eval="False"/>
+            <field name="is_variable" eval="False"/>
+            <field name="is_non_taxable" eval="False"/>
+        </record>
+
+
+        <!-- BONIF_DICIEMBRE - Bonificación Grati Diciembre -->
+        <record id="salary_rule_bonif_diciembre" model="hr.salary.rule">
+            <field name="name">Bonificación Grati Diciembre</field>
+            <field name="code">BONIF_DICIEMBRE</field>
+            <field name="sequence">22</field>
+            <field name="category_id" ref="zpayroll.pe_cat_alw"/>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = payslip.payroll_month_number == 12
+    ]]></field>
+
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = 0.0
+
+try:
+    result = GRATI_DICIEMBRE * 0.09
+except Exception:
+    result = 0.0
+    ]]></field>
+
+            <field name="is_remunerative" eval="False"/>
+            <field name="is_taxable_r5" eval="True"/>
+            <field name="is_r5_projection_base" eval="False"/>
+            <field name="is_asegurable" eval="False"/>
+            <field name="is_computable" eval="False"/>
+            <field name="is_variable" eval="False"/>
+            <field name="is_non_taxable" eval="False"/>
+        </record>
+
+
 
         <!-- GROSS - Salario BRUTO -->
         <record id="salary_rule_gross" model="hr.salary.rule">
@@ -642,6 +745,35 @@ if ext and ext.pe_pension_scheme == 'spp' and ext.afp_id:
             <field name="is_non_taxable" eval="False"/>
         </record>
 
+        
+        <!-- R5_BASE - Base afecta Renta 5ta actual >
+        <record id="salary_rule_r5_base" model="hr.salary.rule">
+            <field name="name">Base Renta 5ta Actual</field>
+            <field name="code">R5_BASE</field>
+            <field name="sequence">100</field>
+            <field name="category_id" ref="zpayroll.pe_cat_technical"/>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="False"/>
+
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = payslip.payroll_type == 'nomina'
+    ]]></field>
+
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = payslip._calculate_current_r5_taxable_base_from_rules(rules)
+    ]]></field>
+
+            <field name="is_remunerative" eval="False"/>
+            <field name="is_taxable_r5" eval="False"/>
+            <field name="is_r5_projection_base" eval="False"/>
+            <field name="is_asegurable" eval="False"/>
+            <field name="is_computable" eval="False"/>
+            <field name="is_variable" eval="False"/>
+            <field name="is_non_taxable" eval="False"/>
+        </record-->
+
         <!-- R5_RET - Renta 5ta Categoria -->
         <record id="salary_rule_r5_ret" model="hr.salary.rule">
             <field name="name">Renta 5ta Categoria</field>
@@ -650,14 +782,111 @@ if ext and ext.pe_pension_scheme == 'spp' and ext.afp_id:
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
+
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
 result = payslip.payroll_type == 'nomina'
-]]></field>
+    ]]></field>
+
             <field name="amount_select">code</field>
+            
             <field name="amount_python_compute"><![CDATA[
-result = -(payslip.renta_5ta_retencion or 0.0)
+if payslip.payroll_month_number != 12:
+    result = -(payslip.renta_5ta_retencion or 0.0)
+else:
+    previous_real_income = 0.0
+
+    previous_payslips = payslip.env['hr.payslip'].search([
+        ('employee_id', '=', employee.id),
+        ('payroll_year', '=', payslip.payroll_year),
+        ('payroll_month_number', '<', payslip.payroll_month_number),
+        ('payroll_type', 'in', ['nomina', 'gratificacion']),
+        ('state', '!=', 'cancel'),
+        ('id', '!=', payslip.id),
+    ])
+
+    for slip in previous_payslips:
+        for line in slip.line_ids:
+            rule = line.salary_rule_id
+
+            if rule and rule.is_taxable_r5:
+                previous_real_income += line.total or 0.0
+
+    current_r5_base = BASIC + COMISION + GRATI_DICIEMBRE + BONIF_DICIEMBRE
+
+    renta_bruta_anual_real = previous_real_income + current_r5_base
+
+    uit = payslip.uit or 0.0
+    renta_neta_imponible = renta_bruta_anual_real - (7 * uit)
+
+    impuesto_anual = 0.0
+
+    if uit > 0 and renta_neta_imponible > 0:
+        remaining = renta_neta_imponible
+
+        if remaining > 0:
+            if remaining > (5 * uit):
+                taxable_part = 5 * uit
+            else:
+                taxable_part = remaining
+
+            impuesto_anual += taxable_part * 0.08
+            remaining -= taxable_part
+
+        if remaining > 0:
+            if remaining > (15 * uit):
+                taxable_part = 15 * uit
+            else:
+                taxable_part = remaining
+
+            impuesto_anual += taxable_part * 0.14
+            remaining -= taxable_part
+
+        if remaining > 0:
+            if remaining > (15 * uit):
+                taxable_part = 15 * uit
+            else:
+                taxable_part = remaining
+
+            impuesto_anual += taxable_part * 0.17
+            remaining -= taxable_part
+
+        if remaining > 0:
+            if remaining > (10 * uit):
+                taxable_part = 10 * uit
+            else:
+                taxable_part = remaining
+
+            impuesto_anual += taxable_part * 0.20
+            remaining -= taxable_part
+
+        if remaining > 0:
+            impuesto_anual += remaining * 0.30
+
+    previous_withholding = 0.0
+
+    previous_retention_slips = payslip.env['hr.payslip'].search([
+        ('employee_id', '=', employee.id),
+        ('payroll_year', '=', payslip.payroll_year),
+        ('payroll_month_number', '<', payslip.payroll_month_number),
+        ('payroll_type', '=', 'nomina'),
+        ('state', '!=', 'cancel'),
+        ('id', '!=', payslip.id),
+    ])
+
+    for slip in previous_retention_slips:
+        for line in slip.line_ids:
+            if line.code == 'R5_RET':
+                previous_withholding += abs(line.total or 0.0)
+
+    retencion_mes = impuesto_anual - previous_withholding
+
+    if retencion_mes < 0:
+        retencion_mes = 0.0
+
+    result = -round(retencion_mes, 2)
 ]]></field>
+
             <field name="is_remunerative" eval="False"/>
             <field name="is_taxable_r5" eval="False"/>
             <field name="is_r5_projection_base" eval="False"/>
@@ -758,7 +987,7 @@ result = categories.PE_BASIC + categories.PE_ALW + categories.PE_REM_COMP + cate
             <field name="condition_select">none</field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute"><![CDATA[
-result = payslip.essalud_rate*NET/100 or 0.0
+result = payslip.essalud_rate*GROSS/100 or 0.0
 ]]></field>
             <field name="is_remunerative" eval="False"/>
             <field name="is_taxable_r5" eval="False"/>

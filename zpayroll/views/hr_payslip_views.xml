@@ -27,6 +27,16 @@
                         <field name="payroll_type"/>
                         <field name="remuneracion_computable"/>
                         <field name="renta_5ta_retencion"/>
+                        <field name="r5_impuesto_anual"/>
+                        <field name="r5_retenciones_anteriores"/>
+                        <field name="renta_5ta_retencion"/>
+                    
+                        <field name="r5_debug_real_income_dec"/>
+                        <field name="r5_debug_tax_dec"/>
+                        <field name="r5_debug_previous_withholding_dec"/>
+                        <field name="r5_debug_retention_dec"/>
+                        <field name="r5_debug_error_dec"/>
+                     
                     </group>
 
                     <group string="Parámetros de cálculo">

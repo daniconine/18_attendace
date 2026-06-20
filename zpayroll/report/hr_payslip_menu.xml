@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Acción para abrir boletas de pago -->
+    <record id="action_hr_payslip_boleta_pago" model="ir.actions.act_window">
+        <field name="name">Boletas de Pago</field>
+        <field name="res_model">hr.payslip</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Selecciona una boleta de pago para imprimir el PDF.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menú Reports dentro de Payroll -->
+    <menuitem id="menu_hr_payroll_community_reports"
+              name="Reports"
+              parent="hr_payroll_community.menu_hr_payroll_community_root"
+              sequence="90"
+              groups="hr_payroll_community.group_hr_payroll_community_manager"/>
+
+    <!-- Submenú Boletas de Pago -->
+    <menuitem id="menu_hr_payslip_boleta_pago"
+              name="Boletas de Pago"
+              parent="menu_hr_payroll_community_reports"
+              action="action_hr_payslip_boleta_pago"
+              sequence="10"
+              groups="hr_payroll_community.group_hr_payroll_community_manager"/>
+
+</odoo>

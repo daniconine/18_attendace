@@ -21,10 +21,11 @@
             "security/ir.model.access.csv",
             'security/record_rules.xml',
             
+            
             #"views/zperiod_batch_views.xml",
             "views/zperiod_views.xml",
             #"views/menus.xml",
-             'views/zemployee_extension_views.xml',
+            'views/zemployee_extension_views.xml',
             'views/hr_labor_regime_pe_views.xml',
             'views/hr_afp_views.xml',
             'views/hr_afp_rate_views.xml',
@@ -42,12 +43,16 @@
             'data/hr_labor_regime_data.xml',
             'data/hr_salary_rule_category_pe.xml',
             'data/hr_salary_rule_pe.xml',
+            'data/paperformat.xml',
             
+            'report/report_boleta_pago.xml',
+            'report/hr_payslip_menu.xml',
             
             'views/zemployee_menu.xml',
             ],
     'assets': {
         'web.assets_backend': [
+            "zpayroll/static/src/css/boleta_pago.css",
         ],
     },
     

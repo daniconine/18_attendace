@@ -1,7 +1,8 @@
 from dateutil.relativedelta import relativedelta
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from odoo.exceptions import UserError
-
+import base64
+from datetime import date
 
 class HrPayslip(models.Model):
     _inherit = 'hr.payslip'
@@ -112,149 +113,591 @@ class HrPayslip(models.Model):
             
     
     ##############TEST
-    renta_5ta_retencion = fields.Float( string='Retención 5ta',compute='_compute_renta_5ta_retencion', store=True)
+    r5_renta_bruta_anual = fields.Float(
+    string='Renta Bruta Anual 5ta',
+    compute='_compute_renta_5ta_retencion',
+    store=True
+    )
+
+    r5_impuesto_anual = fields.Float(
+        string='Impuesto Anual 5ta',
+        compute='_compute_renta_5ta_retencion',
+        store=True
+    )
+
+    r5_retenciones_anteriores = fields.Float(
+        string='Retenciones 5ta Anteriores',
+        compute='_compute_renta_5ta_retencion',
+        store=True
+    )
+
+    renta_5ta_retencion = fields.Float(
+        string='Retención 5ta',
+        compute='_compute_renta_5ta_retencion',
+        store=True
+    )
     
     ##############################################
-    ### Metodos para el CAlculo de Renta de 5ta
-    def _get_r5_taxable_amount(self, slip, exclude_projection_base=False):
-        lines = slip.line_ids.filtered(
-            lambda l: l.salary_rule_id.is_taxable_r5
+    ##############################################
+    ### Metodos para el Calculo de Renta de 5ta
+    @api.depends(
+        'employee_id',
+        'contract_id',
+        'date_from',
+        'date_to',
+        'line_ids.total',
+        'line_ids.salary_rule_id',
+        'line_ids.salary_rule_id.is_taxable_r5',
+        'line_ids.salary_rule_id.is_r5_projection_base',
+    )
+    def _compute_renta_5ta_retencion(self):
+        for slip in self:
+            slip.r5_renta_bruta_anual = 0.0
+            slip.r5_impuesto_anual = 0.0
+            slip.r5_retenciones_anteriores = 0.0
+            slip.renta_5ta_retencion = 0.0
+
+            if not slip.employee_id or not slip.contract_id or not slip.payroll_month_number:
+                continue
+
+            month = slip.payroll_month_number
+
+            previous_withholding = slip._get_previous_r5_withholding_amount(
+                r5_rule_code='R5_RET'
+            )
+
+            # DICIEMBRE: se usa renta real anual
+            if month == 12:
+                renta_bruta_anual = slip._calculate_real_r5_annual_income()
+                impuesto_anual = slip._calculate_r5_annual_tax(renta_bruta_anual)
+
+                retencion_mes = impuesto_anual - previous_withholding
+                retencion_mes = max(retencion_mes, 0.0)
+
+            # ENERO A NOVIEMBRE: se usa renta proyectada
+            else:
+                renta_bruta_anual = slip._calculate_r5_projected_gross_annual_income()
+                impuesto_anual = slip._calculate_r5_annual_tax(renta_bruta_anual)
+
+                saldo_impuesto = impuesto_anual - previous_withholding
+
+                if saldo_impuesto <= 0:
+                    retencion_mes = 0.0
+                else:
+                    divisor = 13 - month
+                    retencion_mes = saldo_impuesto / divisor
+
+                retencion_mes = max(retencion_mes, 0.0)
+
+            slip.r5_renta_bruta_anual = round(renta_bruta_anual, 2)
+            slip.r5_impuesto_anual = round(impuesto_anual, 2)
+            slip.r5_retenciones_anteriores = round(previous_withholding, 2)
+            slip.renta_5ta_retencion = round(retencion_mes, 2)
+    
+    
+    def _calculate_real_r5_annual_income(self):
+        """
+        Calcula la renta bruta anual real afecta a renta de quinta.
+
+        Suma:
+        1. Las boletas anteriores del mismo año con reglas afectas a quinta.
+        2. La boleta actual, leyendo self.line_ids.
+
+        Esta versión sirve para la prueba de doble cálculo en diciembre.
+        """
+
+        self.ensure_one()
+
+        if not self.employee_id or not self.payroll_year or not self.payroll_month_number:
+            return 0.0
+
+        previous_payslips = self.env['hr.payslip'].search([
+            ('employee_id', '=', self.employee_id.id),
+            ('payroll_year', '=', self.payroll_year),
+            ('payroll_month_number', '<', self.payroll_month_number),
+            ('payroll_type', '=', 'nomina'),
+            ('id', '!=', self.id),
+        ])
+
+        amount = 0.0
+
+        # 1. Boletas anteriores del año
+        for slip in previous_payslips:
+            for line in slip.line_ids:
+                rule = line.salary_rule_id
+
+                if not rule:
+                    continue
+
+                if rule.is_taxable_r5:
+                    amount += line.total or 0.0
+
+        # 2. Boleta actual
+        for line in self.line_ids:
+            rule = line.salary_rule_id
+
+            if not rule:
+                continue
+
+            if rule.is_taxable_r5:
+                amount += line.total or 0.0
+
+        return round(amount, 2)
+
+
+    def _get_r5_projection_rules_amount(self):
+        """
+        Suma todos los montos de las reglas salariales que tienen habilitado
+        is_r5_projection_base = True, dentro de las boletas del año del empleado.
+
+        Se usa para complementar la renta bruta anual proyectada.
+        """
+
+        self.ensure_one()
+
+        if not self.employee_id or not self.date_from or not self.date_to:
+            return 0.0
+
+        year_start = date(self.date_from.year, 1, 1)
+
+        payslips = self.env['hr.payslip'].search([
+            ('employee_id', '=', self.employee_id.id),
+            ('date_from', '>=', year_start),
+            ('date_to', '<=', self.date_to),
+            ('id', '!=', self.id),
+        ])
+
+        amount = 0.0
+
+        # 1. Boletas del año, en cualquier estado
+        for slip in payslips:
+            for line in slip.line_ids:
+                rule = line.salary_rule_id
+
+                if not rule:
+                    continue
+
+                if rule.is_r5_projection_base:
+                    amount += line.total or 0.0
+
+        # 2. Boleta actual
+        for line in self.line_ids:
+            rule = line.salary_rule_id
+
+            if not rule:
+                continue
+
+            if rule.is_r5_projection_base:
+                amount += line.total or 0.0
+
+        return round(amount, 2)
+
+
+    def _calculate_r5_projected_gross_annual_income(self):
+        """
+        Calcula la renta bruta anual proyectada de quinta categoria.
+
+        Formula:
+            wage x 14
+        + wage x 0.09 x 2
+        + reglas salariales marcadas como is_r5_projection_base
+            en las boletas del año
+        """
+
+        self.ensure_one()
+
+        contract = self.contract_id
+
+        if not contract:
+            return 0.0
+
+        wage = contract.wage or 0.0
+
+        if wage <= 0:
+            return 0.0
+
+        extraordinary_bonus_rate = 0.09
+
+        annual_wage = wage * 14
+        annual_extraordinary_bonus = wage * extraordinary_bonus_rate * 2
+        r5_projection_rules_amount = self._get_r5_projection_rules_amount()
+
+        renta_bruta_anual = (
+            annual_wage
+            + annual_extraordinary_bonus
+            + r5_projection_rules_amount
         )
 
-        if exclude_projection_base:
-            lines = lines.filtered(
-                lambda l: not l.salary_rule_id.is_r5_projection_base
-            )
-
-        return sum(lines.mapped('total'))
+        return round(renta_bruta_anual, 2)
 
 
-    def _get_previous_r5_extra_income(self):
-        self.ensure_one()
+    def _calculate_r5_annual_tax(self, renta_bruta_anual):
+        """
+        Calcula el impuesto anual de quinta categoria
+        a partir de la renta_bruta_anual.
 
-        previous_slips = self.env['hr.payslip'].search([
-            ('employee_id', '=', self.employee_id.id),
-            ('payroll_year', '=', self.payroll_year),
-            ('payroll_month_number', '<', self.payroll_month_number),
-            ('payroll_type', '=', 'nomina'),
-            ('state', 'in', ['done', 'paid']),
-        ])
+        Primero deduce 7 UIT y luego aplica los tramos progresivos.
+        """
 
-        total = 0.0
-
-        for slip in previous_slips:
-            total += self._get_r5_taxable_amount(
-                slip,
-                exclude_projection_base=True
-            )
-
-        return total
-
-    ##Obtiene la retencion previa en anteriores boleta de nomina
-    def _get_previous_r5_withholding(self):
-        self.ensure_one()
-
-        previous_slips = self.env['hr.payslip'].search([
-            ('employee_id', '=', self.employee_id.id),
-            ('payroll_year', '=', self.payroll_year),
-            ('payroll_month_number', '<', self.payroll_month_number),
-            ('payroll_type', '=', 'nomina'),
-            ('state', 'in', ['done', 'paid']),
-        ])
-
-        total = 0.0
-
-        for slip in previous_slips:
-            lines = slip.line_ids.filtered(lambda l: l.code == 'R5_RET')
-            total += abs(sum(lines.mapped('total')))
-
-        return total
-
-    #Calculo del porctentaje de acuedo al monto que esta afecto a retencion
-    def _calculate_r5_annual_tax(self, annual_income):
         self.ensure_one()
 
         uit = self.uit or 0.0
-        deduction = 7 * uit
+        renta_bruta_anual = renta_bruta_anual or 0.0
 
-        net_income = annual_income - deduction
+        if not uit or renta_bruta_anual <= 0:
+            return 0.0
 
-        if net_income <= 0:
+        # SUNAT: Renta Bruta Anual - 7 UIT
+        renta_neta_imponible = renta_bruta_anual - (7 * uit)
+
+        if renta_neta_imponible <= 0:
             return 0.0
 
         tax = 0.0
-        remaining = net_income
+        remaining = renta_neta_imponible
 
-        #Tramos dodne cae la renta neta imponilbe
         brackets = [
             (5 * uit, 0.08),
-            (20 * uit, 0.14),
-            (35 * uit, 0.17),
-            (45 * uit, 0.20),
+            (15 * uit, 0.14),
+            (15 * uit, 0.17),
+            (10 * uit, 0.20),
             (float('inf'), 0.30),
         ]
 
-        for limit, rate in brackets:
-            taxable_part = min(remaining, limit)
-
-            if taxable_part <= 0:
+        for bracket_amount, rate in brackets:
+            if remaining <= 0:
                 break
 
+            taxable_part = min(remaining, bracket_amount)
             tax += taxable_part * rate
             remaining -= taxable_part
 
-        return tax
+        return round(tax, 2)
 
-    @api.depends('line_ids.total','contract_id.wage','payroll_month_number','payroll_year','employee_id')
-    def _compute_renta_5ta_retencion(self):
+
+    def _get_previous_r5_withholding_amount(self, r5_rule_code='R5_RET'):
+        """
+        Suma las retenciones anteriores de quinta categoria del mismo año.
+
+        Usa:
+        - payroll_year
+        - payroll_month_number
+
+        No depende de date_from ni date_to.
+        """
+
+        self.ensure_one()
+
+        if not self.employee_id or not self.payroll_year or not self.payroll_month_number:
+            return 0.0
+
+        previous_payslips = self.env['hr.payslip'].search([
+            ('employee_id', '=', self.employee_id.id),
+            ('payroll_year', '=', self.payroll_year),
+            ('payroll_month_number', '<', self.payroll_month_number),
+            ('payroll_type', '=', 'nomina'),
+            ('id', '!=', self.id),
+        ])
+
+        amount = 0.0
+
+        for slip in previous_payslips:
+            for line in slip.line_ids:
+                if line.code == r5_rule_code:
+                    amount += abs(line.total or 0.0)
+
+        return round(amount, 2)
+        
+
+
+    def _calculate_r5_monthly_withholding(self, r5_rule_code='R5_RET'):
+        """
+        Calcula la retención mensual de renta de quinta.
+
+        Enero a noviembre:
+            renta proyectada anual
+            - retenciones anteriores
+            / divisor
+
+        Diciembre:
+            renta real anual
+            - retenciones anteriores
+            = regularización
+        """
+
+        self.ensure_one()
+
+        if not self.payroll_month_number:
+            return 0.0
+
+        month = self.payroll_month_number
+
+        previous_withholding = self._get_previous_r5_withholding_amount(
+            r5_rule_code=r5_rule_code
+        )
+
+        # DICIEMBRE: se usa renta real anual
+        if month == 12:
+            renta_bruta_anual = self._calculate_real_r5_annual_income()
+            impuesto_anual = self._calculate_r5_annual_tax(renta_bruta_anual)
+
+            retencion_mes = impuesto_anual - previous_withholding
+            retencion_mes = max(retencion_mes, 0.0)
+
+            return round(retencion_mes, 2)
+
+        # ENERO A NOVIEMBRE: se usa renta proyectada anual
+        renta_bruta_anual = self._calculate_r5_projected_gross_annual_income()
+        impuesto_anual = self._calculate_r5_annual_tax(renta_bruta_anual)
+
+        saldo_impuesto = impuesto_anual - previous_withholding
+
+        if saldo_impuesto <= 0:
+            return 0.0
+
+        divisor = 13 - month
+        retencion_mes = saldo_impuesto / divisor
+
+        return round(max(retencion_mes, 0.0), 2)
+    
+    
+    def calculate_r5_retention_for_salary_rule(self):
+        """
+        Metodo publico para ser llamado desde la regla salarial R5_RET.
+
+        La regla salarial no debe pasar parametros ni armar la logica.
+        Solo llama este metodo y recibe la retencion mensual.
+        """
+
+        self.ensure_one()
+
+        return self._calculate_r5_monthly_withholding(r5_rule_code='R5_RET')
+    
+    #########################
+    #calculo de dicembre renta d e5ta
+    r5_debug_real_income_dec = fields.Float(
+    string='DEBUG 5ta - Renta Real Dic',
+    compute='_compute_r5_december_debug',
+    store=False
+    )
+
+    r5_debug_tax_dec = fields.Float(
+        string='DEBUG 5ta - Impuesto Anual Dic',
+        compute='_compute_r5_december_debug',
+        store=False
+    )
+
+    r5_debug_previous_withholding_dec = fields.Float(
+        string='DEBUG 5ta - Retenciones Anteriores Dic',
+        compute='_compute_r5_december_debug',
+        store=False
+    )
+
+    r5_debug_retention_dec = fields.Float(
+        string='DEBUG 5ta - Retención Dic',
+        compute='_compute_r5_december_debug',
+        store=True
+    )
+
+    r5_debug_error_dec = fields.Text(
+        string='DEBUG 5ta - Error Dic',
+        compute='_compute_r5_december_debug',
+        store=False
+    )        
+    
+    @api.depends(
+    'employee_id',
+    'contract_id',
+    'payroll_year',
+    'payroll_month_number',
+    'payroll_type',
+    'line_ids.total',
+    'line_ids.code',
+    'line_ids.salary_rule_id',
+    'line_ids.salary_rule_id.is_taxable_r5',
+    )
+    def _compute_r5_december_debug(self):
         for slip in self:
+            slip.r5_debug_real_income_dec = 0.0
+            slip.r5_debug_tax_dec = 0.0
+            slip.r5_debug_previous_withholding_dec = 0.0
+            slip.r5_debug_retention_dec = 0.0
+            slip.r5_debug_error_dec = False
 
-            if not slip.employee_id or not slip.payroll_year or not slip.payroll_month_number:
-                slip.renta_5ta_retencion = 0.0
-                continue
-
-            previous_withholding = slip._get_previous_r5_withholding()
-
-            # DICIEMBRE
-            if slip.payroll_month_number == 12:
-
-                slips_year = slip.env['hr.payslip'].search([
-                    ('employee_id', '=', slip.employee_id.id),
-                    ('payroll_year', '=', slip.payroll_year),
-                    ('payroll_type', '=', 'nomina'),
-                    ('state', 'in', ['done', 'paid']),
-                ])
-
-                annual_real_income = 0.0
-
-                for s in slips_year:
-                    annual_real_income += slip._get_r5_taxable_amount(s)
-
-                annual_tax = slip._calculate_r5_annual_tax(annual_real_income)
-
-                result = annual_tax - previous_withholding
-
-                slip.renta_5ta_retencion = result if result > 0 else 0.0
-
-            else:
-                monthly_salary = slip.contract_id.wage or 0.0
-
-                projected_base_income = monthly_salary * 14
-
-                extra_income = slip._get_previous_r5_extra_income()
-
-                projected_annual_income = projected_base_income + extra_income
-
-                annual_tax = slip._calculate_r5_annual_tax(projected_annual_income)
-
-                previous_withholding = slip._get_previous_r5_withholding()
-
-                pending_tax = annual_tax - previous_withholding
-
-                if pending_tax <= 0:
-                    slip.renta_5ta_retencion = 0.0
+            try:
+                if not slip.employee_id:
+                    slip.r5_debug_error_dec = 'No hay empleado.'
                     continue
 
-                months_to_divide = 12 - slip.payroll_month_number + 1
+                if not slip.payroll_year:
+                    slip.r5_debug_error_dec = 'No hay payroll_year.'
+                    continue
 
-                slip.renta_5ta_retencion = pending_tax / months_to_divide
+                if not slip.payroll_month_number:
+                    slip.r5_debug_error_dec = 'No hay payroll_month_number.'
+                    continue
+
+                if slip.payroll_type != 'nomina':
+                    slip.r5_debug_error_dec = 'La boleta no es de tipo nomina.'
+                    continue
+
+                if slip.payroll_month_number != 12:
+                    slip.r5_debug_error_dec = 'No es diciembre. Debug aplica solo para mes 12.'
+                    continue
+
+                renta_bruta_anual = slip._calculate_real_r5_annual_income()
+
+                impuesto_anual = slip._calculate_r5_annual_tax(
+                    renta_bruta_anual
+                )
+
+                previous_withholding = slip._get_previous_r5_withholding_amount(
+                    r5_rule_code='R5_RET'
+                )
+
+                retencion_diciembre = impuesto_anual - previous_withholding
+                retencion_diciembre = max(retencion_diciembre, 0.0)
+
+                slip.r5_debug_real_income_dec = round(renta_bruta_anual, 2)
+                slip.r5_debug_tax_dec = round(impuesto_anual, 2)
+                slip.r5_debug_previous_withholding_dec = round(previous_withholding, 2)
+                slip.r5_debug_retention_dec = round(retencion_diciembre, 2)
+
+            except Exception as e:
+                slip.r5_debug_error_dec = str(e)
+                
+                
+    def calculate_r5_december_retention_from_current_base(self, current_r5_base):
+        self.ensure_one()
+
+        previous_real_income = self._get_previous_real_r5_taxable_amount()
+
+        renta_bruta_anual = previous_real_income + (current_r5_base or 0.0)
+
+        impuesto_anual = self._calculate_r5_annual_tax(renta_bruta_anual)
+
+        previous_withholding = self._get_previous_r5_withholding_amount('R5_RET')
+
+        retencion_mes = impuesto_anual - previous_withholding
+
+        return round(max(retencion_mes, 0.0), 2)        
+                
+                
+    def _get_previous_real_r5_taxable_amount(self):
+        """
+        Suma la renta real afecta a quinta de boletas anteriores del mismo año.
+        No incluye la boleta actual.
+        """
+
+        self.ensure_one()
+
+        if not self.employee_id or not self.payroll_year or not self.payroll_month_number:
+            return 0.0
+
+        previous_payslips = self.env['hr.payslip'].search([
+            ('employee_id', '=', self.employee_id.id),
+            ('payroll_year', '=', self.payroll_year),
+            ('payroll_month_number', '<', self.payroll_month_number),
+            ('payroll_type', 'in', ['nomina', 'gratificacion']),
+            ('id', '!=', self.id),
+            ('state', '!=', 'cancel'),
+        ])
+
+        amount = 0.0
+
+        for slip in previous_payslips:
+            for line in slip.line_ids:
+                rule = line.salary_rule_id
+
+                if not rule:
+                    continue
+
+                if rule.is_taxable_r5:
+                    amount += line.total or 0.0
+
+        return round(amount, 2)         
+                
+    ##############################################################################
+    ##############################
+    #envio de correos
+    def action_send_boleta_pago_email_static(self):
+        recipients = [
+            "rayala@gerens.pe",            
+        ]
+
+        email_to = ",".join(recipients)
+
+        email_from = (
+            self.env.user.partner_id.email_formatted
+            or self.env.company.partner_id.email_formatted
+        )
+
+        if not email_from:
+            raise UserError(
+                _("Configura un correo en el usuario actual o en la compañía.")
+            )
+
+        report_action = self.env.ref(
+            "zpayroll.action_report_boleta_pago",
+            raise_if_not_found=False,
+        )
+
+        if not report_action:
+            raise UserError(
+                _("No se encontró el reporte zpayroll.action_report_boleta_pago.")
+            )
+
+        sent_count = 0
+
+        for slip in self:
+            pdf_content, content_type = report_action.sudo()._render_qweb_pdf(
+                report_action.report_name,
+                res_ids=slip.ids,
+            )
+
+            employee_name = slip.employee_id.name or "Empleado"
+
+            filename = "Boleta de Pago - %s.pdf" % employee_name
+
+            attachment = self.env["ir.attachment"].sudo().create({
+                "name": filename,
+                "type": "binary",
+                "datas": base64.b64encode(pdf_content),
+                "res_model": slip._name,
+                "res_id": slip.id,
+                "mimetype": "application/pdf",
+            })
+
+            subject = "Boleta de Junio"
+
+            body_html = """
+                <p>Estimado(a),</p>
+                <p>Adjunto la boleta de pago correspondiente.</p>
+                <p>Saludos.</p>
+            """
+
+            mail = self.env["mail.mail"].sudo().create({
+                "subject": subject,
+                "email_from": email_from,
+                "email_to": email_to,
+                "body_html": body_html,
+                "attachment_ids": [(6, 0, [attachment.id])],
+                "auto_delete": False,
+            })
+
+            mail.send(raise_exception=False)
+            sent_count += 1
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Boleta enviada"),
+                "message": _("Se envió %s boleta(s) a: %s") % (
+                    sent_count,
+                    email_to,
+                ),
+                "type": "success",
+                "sticky": False,
+            },
+        }
