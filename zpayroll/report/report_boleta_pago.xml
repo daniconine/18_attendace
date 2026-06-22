@@ -29,65 +29,23 @@ action = records.action_send_boleta_pago_email_static()
     <template id="report_boleta_pago_document">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
+
+                <t t-set="data" t-value="report_data_by_id.get(o.id)"/>
+                <t t-set="emp_data" t-value="data['employee']"/>
+                <t t-set="period_data" t-value="data['period']"/>
+
                 <t t-call="web.external_layout">
-                    <t t-set="emp" t-value="o.employee_id"/>
-                    <t t-set="contract" t-value="o.contract_id"/>
                     <t t-set="company" t-value="o.company_id"/>
                     <t t-set="currency" t-value="company.currency_id"/>
 
-                    <t t-set="emp_ext"
-                        t-value="o.env['zemployee.extension'].sudo().search([('employee_id', '=', emp.id)], limit=1)"/>
-                    <t t-set="payroll_month_name"
-                        t-value="dict(o._fields['payroll_month'].selection).get(o.payroll_month, '')"/>
-
-
-                    <div class="page" style="font-size: 11px;">
+                    <div class="page boleta-page">
 
                         <style>
                             .boleta-page {
                                 font-family: Arial, Helvetica, sans-serif;
                                 font-size: 11px;
                                 color: #000000;
-                            }
-
-                            .boleta-header {
-                                width: 100%;
-                                border-collapse: collapse;
-                                margin-bottom: 10px;
-                            }
-
-                            .boleta-header td {
-                                border: none;
-                                padding: 0;
-                                vertical-align: top;
-                            }
-
-                            .company-name {
-                                font-size: 17px;
-                                font-weight: bold;
-                                font-style: italic;
-                                margin-bottom: 4px;
-                            }
-
-                            .company-ruc {
-                                font-size: 16px;
-                                font-weight: bold;
-                                font-style: italic;
-                            }
-
-                            .logo-box {
-                                text-align: right;
-                                font-size: 28px;
-                                font-weight: bold;
-                                color: #1599d3;
-                                letter-spacing: 2px;
-                            }
-
-                            .logo-subtitle {
-                                font-size: 11px;
-                                color: #1599d3;
-                                letter-spacing: 7px;
-                                font-weight: normal;
+                                padding-top: 60mm;
                             }
 
                             .boleta-title {
@@ -95,7 +53,7 @@ action = records.action_send_boleta_pago_email_static()
                                 font-size: 23px;
                                 font-weight: bold;
                                 font-style: italic;
-                                margin: 18px 0 28px 0;
+                                margin: 0 0 20px 0;
                                 letter-spacing: 1px;
                             }
 
@@ -215,28 +173,13 @@ action = records.action_send_boleta_pago_email_static()
                             }
                         </style>
 
-                        <!-- CABECERA -->
-                        <table class="boleta-header">
-                            <tr>
-                                <td style="width: 65%;">
-                                    <div class="company-name">Escuela de Postgrado Gerens S.A.</div>
-                                    <div class="company-ruc">RUC&#160;&#160;:&#160;&#160;&#160;20552324316</div>
-                                </td>
-                                <td style="width: 35%;">
-                                    <div class="logo-box">
-                                        GERENS
-                                        <div class="logo-subtitle">ESCUELA DE</div>
-                                        <div class="logo-subtitle">POSTGRADO</div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
+                        
 
                         <div class="boleta-title">BOLETA&#160;&#160;DE&#160;&#160;PRUEBA</div>
 
                         <!-- DATOS DEL TRABAJADOR -->
                         <table class="info-table">
-                            <tr>
+                             <tr>
                                 <th style="width: 10%;">CODIGO CONTRATO</th>
                                 <th style="width: 37%;">APELLIDOS Y NOMBRES</th>
                                 <th style="width: 7%;">SEXO</th>
@@ -244,13 +187,14 @@ action = records.action_send_boleta_pago_email_static()
                                 <th style="width: 17%;">F. INGRESO</th>
                                 <th style="width: 13%;">F. CESE</th>
                             </tr>
+
                             <tr class="text-center">
-                                <td><span t-esc="contract.code"/></td>
-                                <td><span t-esc="emp.name or ''"/></td>
-                                <td><span t-esc="emp.gender or ''"/></td>
-                                <td><span t-field="emp.birthday"/></td>
-                                <td><span t-field="emp_ext.entry_date"/></td>
-                                <td><span t-field="emp_ext.termination_date"/></td>
+                                <td><span t-esc="emp_data['contract_code']"/></td>
+                                <td><span t-esc="emp_data['name']"/></td>
+                                <td><span t-esc="emp_data['gender']"/></td>
+                                <td><span t-esc="emp_data['birthday']"/></td>
+                                <td><span t-esc="emp_data['entry_date']"/></td>
+                                <td><span t-esc="emp_data['termination_date']"/></td>
                             </tr>
 
                             <tr>
@@ -261,11 +205,11 @@ action = records.action_send_boleta_pago_email_static()
                                 <th>C.COSTOS</th>
                             </tr>
                             <tr class="text-center">
-                                <td><span t-esc="emp.job_id.name or ''"/></td>
-                                <td><span t-field="contract.wage"
-                                    t-options="{'widget': 'monetary', 'display_currency': currency}"/></td>
-                                <td colspan="2"><span t-esc="contract.contract_type_id.name or ''"/></td>
-                                <td>Ninguna</td>
+                                <td><span t-esc="emp_data['job']"/></td>
+                                <td><span t-esc="emp_data['wage']"
+                                        t-options="{'widget': 'monetary', 'display_currency': currency}"/></td>
+                                <td colspan="2"><span t-esc="emp_data['contract_type']"/></td>
+                                <td><span t-esc="emp_data['special_situation']"/></td>
                                 <td></td>
                             </tr>
 
@@ -277,11 +221,11 @@ action = records.action_send_boleta_pago_email_static()
                                 <th>NACIONALIDAD</th>
                             </tr>
                             <tr class="text-center">
-                                <td>9111231CRHCD008</td>
-                                <td><span t-esc="emp_ext.cuspp or ''"/></td>
-                                <td colspan="2"><span t-esc="emp_ext.afp_id.name or ''"/></td>
-                                <td><span t-esc="emp.identification_id or ''"/></td>
-                                <td><span t-esc="emp.country_id or ''"/></td>
+                                <td><span t-esc="emp_data['essalud_autogenerated']"/></td>
+                                <td><span t-esc="emp_data['cuspp']"/></td>
+                                <td colspan="2"><span t-esc="emp_data['afp']"/></td>
+                                <td><span t-esc="emp_data['identification_id']"/></td>
+                                <td><span t-esc="emp_data['nationality']"/></td>
                             </tr>
 
                             <tr>
@@ -293,35 +237,20 @@ action = records.action_send_boleta_pago_email_static()
                             </tr>
 
                             <tr class="text-center">
-                                <td style="height: 42px;">
-                                    <span t-esc="'%s - %s' % (payroll_month_name or '', o.payroll_year or '')"/>
+                                <td style="height: 42px;"><span t-esc="period_data['period_name']"/></td>
+                                <td class="text-center"><span t-esc="emp_data['address']"/>
+                                    <t t-if="emp_data['address2']">
+                                        <br/><span t-esc="emp_data['address2']"/>
+                                    </t>
                                 </td>
-
-                                <td class="text-center">
-                                    <span t-esc="emp.private_street or ''"/>
-                                </td>
-
-                                <td colspan="2">
-                                    &#160;
-                                </td>
-
-                                <td>
-                                    &#160;
-                                </td>
-
-                                <td>
-                                    &#160;
-                                </td>
+                                <td colspan="2"><span t-esc="emp_data['leave_type']"/></td>
+                                <td><span t-esc="emp_data['leave_start_date']"/></td>
+                                <td><span t-esc="emp_data['leave_end_date']"/></td>
                             </tr>
                         </table>
-
                         <br/>
 
-                        <t t-set="line_basic" t-value="o.line_ids.filtered(lambda l: l.code == 'BASIC')[:1]"/>
-                        <t t-set="line_asig" t-value="o.line_ids.filtered(lambda l: l.code == 'ASIG_FAMILIAR')[:1]"/>
-
-
-
+                       
                         <!-- GANANCIAS Y DESCUENTOS -->
                         <table class="main-table">
                             <tr>
@@ -335,141 +264,52 @@ action = records.action_send_boleta_pago_email_static()
                                 <th style="width: 28%;">DESCRIPCION</th>
                                 <th style="width: 18%;">IMPORTE</th>
                             </tr>
-
+                            <!-- DESCRIPCIÓN GANANCIAS -->
                             <tr class="concept-row">
                                 <td class="concept-cell">
-                                    <div class="concept-line">Sueldo Básico</div>
-                                    <div class="concept-line"><t t-if="line_asig and abs(line_asig.total) > 0">
-                                                            Asignación Familiar</t><t t-else="">&#160;</t></div>
-                                    <div class="concept-line muted">Horas Extras</div>
-                                    <div class="concept-line muted">Clases</div>
-                                    <div class="concept-line muted">Comisión Ventas</div>
-                                    <div class="concept-line muted">Bonificación</div>
-                                    <br/>
-                                    <div class="concept-line muted">Vacaciones</div>
-                                    <div class="concept-line muted">Vacaciones Truncas</div>
-                                    <div class="concept-line muted">Gratificación Trunca</div>
-                                    <div class="concept-line muted">Compensación Vacacional</div>
-                                    <div class="concept-line muted">Gratificación Fiestas Patrias</div>
-                                    <div class="concept-line muted">Bonif. Extraod. Ley 30334</div>
-                                    <div class="concept-line muted">CTS</div>
+                                    <t t-foreach="data['earnings']" t-as="concept">
+                                        <div class="concept-line"><span t-esc="concept['name']"/></div>
+                                    </t>
                                 </td>
-
+                                <!-- DÍAS / HORAS -->
                                 <td class="concept-cell text-center">
-                                    <div class="concept-line">11/81</div>
+                                    <t t-foreach="data['earnings']" t-as="concept">
+                                        <div class="concept-line"><span t-esc="concept['qty_label']"/></div>
+                                    </t>
                                 </td>
-
+                                <!-- IMPORTE GANANCIAS -->
                                 <td class="concept-cell text-right">
-                                    <div class="concept-line">
-                                        <t t-if="line_basic and abs(line_basic.total) > 0">
-                                            <span t-esc="line_basic.total"
-                                                t-options="{'widget': 'monetary', 'display_currency': currency}"/>
-                                        </t><t t-else="">&#160;</t></div>
-                                    <div class="concept-line">
-                                        <t t-if="line_asig and abs(line_asig.total) > 0">
-                                            <span t-esc="line_asig.total"
-                                                t-options="{'widget': 'monetary', 'display_currency': currency}"/>
-                                        </t>
-                                        <t t-else="">
-                                            &#160;
-                                        </t>
-                                    </div>
-                                    <div class="concept-line muted">&#160;</div>
-                                    <div class="concept-line muted">&#160;</div>
-                                    <div class="concept-line muted">&#160;</div>
-                                    <div class="concept-line muted">&#160;</div>
-                                    <br/>
-                                    <div class="concept-line muted">&#160;</div>
-                                    <div class="concept-line muted">&#160;</div>
-                                    <div class="concept-line muted">&#160;</div>
-                                    <div class="concept-line muted">&#160;</div>
-                                    <div class="concept-line muted">&#160;</div>
-                                    <div class="concept-line muted">0</div>
+                                    <t t-foreach="data['earnings']" t-as="concept">
+                                        <div class="concept-line"><span t-esc="concept['amount']"
+                                                t-options="{'widget': 'monetary', 'display_currency': currency}"/></div>
+                                    </t>
                                 </td>
-
-
-
-<!-- LINEAS DE DESCUENTOS PARA PRUEBA -->
-<t t-set="line_afp_fondo" t-value="o.line_ids.filtered(lambda l: l.code == 'AFP-FONDO')[:1]"/>
-<t t-set="line_afp_seguro" t-value="o.line_ids.filtered(lambda l: l.code == 'AFP-SEGURO')[:1]"/>
-<t t-set="line_afp_comision" t-value="o.line_ids.filtered(lambda l: l.code == 'AFP-COMISION')[:1]"/>
-<t t-set="line_renta5" t-value="o.line_ids.filtered(lambda l: l.code == 'R5_RET')[:1]"/>
-
+                                <!-- LINEAS DE DESCUENTOS PARA PRUEBA -->
+                                <!-- DESCRIPCIÓN DESCUENTOS -->
                                 <td class="concept-cell">
-                                    <div class="concept-line muted">SNP</div>
-                                    <div class="concept-line">Fondo de Pensiones AFP</div>
-                                    <div class="concept-line">Seguro Inv. AFP</div>
-                                    <div class="concept-line">Comis. Porc. AFP</div>
-                                    <div class="concept-line muted">Adelanto</div>
-                                    <div class="concept-line muted">E.P.S.</div>
-                                    <div class="concept-line muted">Prestamos al Personal</div>
-                                    <div class="concept-line muted">Tardanzas</div>
-                                    <div class="concept-line muted">Renta 5ta Categoría</div>
-                                    <div class="concept-line muted">Gratificación</div>
-                                    <div class="concept-line muted">Préstamo CERTIKREDIT</div>
-                                    <div class="concept-line muted">Pago Utilidades 2014</div>
-                                    <div class="concept-line muted">Otros Descuentos</div>
+                                    <t t-foreach="data['deductions']" t-as="concept">
+                                        <div class="concept-line"><span t-esc="concept['name']"/></div>
+                                    </t>
                                 </td>
-
+                                <!-- IMPORTE DESCUENTOS -->
                                 <td class="concept-cell text-right">
-
-                                    <!-- Fondo de Pensiones AFP -->
-                                    <div class="concept-line">
-                                        <t t-if="line_afp_fondo and abs(line_afp_fondo.total) > 0">
-                                            <span t-esc="abs(line_afp_fondo.total)"
-                                                t-options="{'widget': 'monetary', 'display_currency': currency}"/>
-                                        </t>
-                                        <t t-else="">&#160;</t>
-                                    </div>
-
-                                    <!-- Seguro Inv. AFP -->
-                                    <div class="concept-line">
-                                        <t t-if="line_afp_seguro and abs(line_afp_seguro.total) > 0">
-                                            <span t-esc="abs(line_afp_seguro.total)"
-                                                t-options="{'widget': 'monetary', 'display_currency': currency}"/>
-                                        </t>
-                                        <t t-else="">&#160;</t>
-                                    </div>
-
-                                    <!-- Comisión AFP -->
-                                    <div class="concept-line">
-                                        <t t-if="line_afp_comision and abs(line_afp_comision.total) > 0">
-                                            <span t-esc="abs(line_afp_comision.total)"
-                                                t-options="{'widget': 'monetary', 'display_currency': currency}"/>
-                                        </t>
-                                        <t t-else="">&#160;</t>
-                                    </div>
-
-                                    <!-- Adelanto -->
-                                    <div class="concept-line muted">&#160;</div>
-
-                                    <!-- E.P.S. -->
-                                    <div class="concept-line muted">&#160;</div>
-
-                                    <!-- Prestamos al Personal -->
-                                    <div class="concept-line muted">&#160;</div>
-
-                                    <!-- Tardanzas -->
-                                    <div class="concept-line muted">&#160;</div>
-
-                                    <!-- Renta 5ta Categoría -->
-                                    <div class="concept-line">
-                                        <t t-if="line_renta5 and abs(line_renta5.total) > 0">
-                                            <span t-esc="abs(line_renta5.total)"
-                                                t-options="{'widget': 'monetary', 'display_currency': currency}"/>
-                                        </t>
-                                        <t t-else="">&#160;</t>
-                                    </div>
-
-
+                                    <t t-foreach="data['deductions']" t-as="concept">
+                                        <div class="concept-line"><span t-esc="concept['amount']"
+                                                t-options="{'widget': 'monetary', 'display_currency': currency}"/></div>
+                                    </t>
                                 </td>
                             </tr>
 
                             <tr class="total-row">
                                 <th colspan="2" class="text-left">TOTAL GANANCIAS</th>
-                                <td class="text-right">660</td>
+                                <td class="text-right"><span t-esc="data['totals']['total_earnings']"
+                                        t-options="{'widget': 'monetary', 'display_currency': currency}"/>
+                                </td>
+
                                 <th class="text-left">TOTAL DESCUENTOS</th>
-                                <td class="text-right">77.48</td>
+                                <td class="text-right"><span t-esc="data['totals']['total_deductions']"
+                                        t-options="{'widget': 'monetary', 'display_currency': currency}"/>
+                                </td>
                             </tr>
                         </table>
 
@@ -478,10 +318,13 @@ action = records.action_send_boleta_pago_email_static()
                             <tr>
                                 <th colspan="4" style="width: 54%;">APORTACIONES PATRONALES</th>
                                 <th class="neto-box" style="width: 28%;">NETO A PAGAR</th>
+
                                 <td class="text-right neto-box" style="width: 18%;">
-                                    S/.&#160;&#160;&#160;582.52
+                                    <span t-esc="data['totals']['net_amount']"
+                                        t-options="{'widget': 'monetary', 'display_currency': currency}"/>
                                 </td>
                             </tr>
+
                             <tr>
                                 <th>S.C.T.R.</th>
                                 <th>ESSALUD</th>
@@ -489,18 +332,25 @@ action = records.action_send_boleta_pago_email_static()
                                 <th>E.P.S.</th>
                                 <td colspan="2" rowspan="2"></td>
                             </tr>
+
                             <tr class="text-right">
-                                <td></td>
-                                <td>83.70</td>
-                                <td>0.00</td>
-                                <td></td>
+                                <td><span t-esc="data['employer_contributions']['sctr']"
+                                        t-options="{'widget': 'monetary', 'display_currency': currency}"/></td>
+                                <td><span t-esc="data['employer_contributions']['essalud']"
+                                        t-options="{'widget': 'monetary', 'display_currency': currency}"/></td>
+                                <td><span t-esc="data['employer_contributions']['senati']"
+                                        t-options="{'widget': 'monetary', 'display_currency': currency}"/></td>
+                                <td><span t-esc="data['employer_contributions']['eps']"
+                                        t-options="{'widget': 'monetary', 'display_currency': currency}"/></td>
                             </tr>
                         </table>
 
                         <!-- MES -->
                         <div class="month-box">
                             MES :
-                            <span class="month-value">Junio -2026</span>
+                            <span class="month-value">
+                                <span t-esc="period_data['period_name']"/>
+                            </span>
                         </div>
 
                         <!-- FIRMAS -->
