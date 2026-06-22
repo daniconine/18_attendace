@@ -44,7 +44,7 @@ result = employee.has_family_allowance()
             <field name="amount_select">code</field>
             <!-- Nota: en el Excel figura como Fixed Amount, pero se conserva como Python Code para pruebas porque no hay columna amount_fix. -->
             <field name="amount_python_compute"><![CDATA[
-result = env['employee.family'].search_count([])
+result = 113
 ]]></field>
             <field name="is_remunerative" eval="True"/>
             <field name="is_taxable_r5" eval="True"/>

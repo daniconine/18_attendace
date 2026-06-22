@@ -247,30 +247,32 @@ class HrPayslip(models.Model):
 
     def _get_r5_projection_rules_amount(self):
         """
-        Suma todos los montos de las reglas salariales que tienen habilitado
-        is_r5_projection_base = True, dentro de las boletas del año del empleado.
+        Suma los conceptos usados en proyectado 5ta de boletas anteriores
+        del mismo año de planilla, más la boleta actual.
 
-        Se usa para complementar la renta bruta anual proyectada.
+        Se usa payroll_year y payroll_month_number para evitar errores
+        con periodos que empiezan en el mes anterior, por ejemplo:
+        25/12/2025 - 24/01/2026.
         """
 
         self.ensure_one()
 
-        if not self.employee_id or not self.date_from or not self.date_to:
+        if not self.employee_id or not self.payroll_year or not self.payroll_month_number:
             return 0.0
 
-        year_start = date(self.date_from.year, 1, 1)
-
-        payslips = self.env['hr.payslip'].search([
+        previous_payslips = self.env['hr.payslip'].search([
             ('employee_id', '=', self.employee_id.id),
-            ('date_from', '>=', year_start),
-            ('date_to', '<=', self.date_to),
+            ('payroll_year', '=', self.payroll_year),
+            ('payroll_month_number', '<', self.payroll_month_number),
+            ('payroll_type', '=', 'nomina'),
+            ('state', '!=', 'cancel'),
             ('id', '!=', self.id),
         ])
 
         amount = 0.0
 
-        # 1. Boletas del año, en cualquier estado
-        for slip in payslips:
+        # 1. Boletas anteriores del año de planilla
+        for slip in previous_payslips:
             for line in slip.line_ids:
                 rule = line.salary_rule_id
 
