@@ -622,12 +622,13 @@ class HrPayslip(models.Model):
     ##############################################################################
     ##############################
     #envio de correos
-    def action_send_boleta_pago_email_static(self):
-        recipients = [
-            "rayala@gerens.pe",            
-        ]
+    def action_send_boleta_pago_email_employee(self):
+        # Seguridad: solo usuarios autorizados pueden enviar boletas
+        if not self.env.user.has_group("hr_payroll_community.group_hr_payroll_community_user"):
+            raise UserError(_("No tienes permisos para enviar boletas de pago."))
 
-        email_to = ",".join(recipients)
+        # Correo en copia
+        email_cc = "jbernui@gerens.pe"  # Cambia aquí el correo en copia
 
         email_from = (
             self.env.user.partner_id.email_formatted
@@ -650,14 +651,23 @@ class HrPayslip(models.Model):
             )
 
         sent_count = 0
+        skipped_employees = []
 
         for slip in self:
+            employee = slip.employee_id
+            employee_name = employee.name or "Empleado"
+
+            # Correo del empleado
+            email_to = employee.work_email
+
+            if not email_to:
+                skipped_employees.append(employee_name)
+                continue
+
             pdf_content, content_type = report_action.sudo()._render_qweb_pdf(
                 report_action.report_name,
                 res_ids=slip.ids,
             )
-
-            employee_name = slip.employee_id.name or "Empleado"
 
             filename = "Boleta de Pago - %s.pdf" % employee_name
 
@@ -670,18 +680,19 @@ class HrPayslip(models.Model):
                 "mimetype": "application/pdf",
             })
 
-            subject = "Boleta de Junio"
+            subject = "Boleta de Pago - %s" % (slip.name or employee_name)
 
             body_html = """
-                <p>Estimado(a),</p>
-                <p>Adjunto la boleta de pago correspondiente.</p>
+                <p>Estimado(a) %s,</p>
+                <p>Adjunto encontrará su boleta de pago correspondiente.</p>
                 <p>Saludos.</p>
-            """
+            """ % employee_name
 
             mail = self.env["mail.mail"].sudo().create({
                 "subject": subject,
                 "email_from": email_from,
                 "email_to": email_to,
+                "email_cc": email_cc,
                 "body_html": body_html,
                 "attachment_ids": [(6, 0, [attachment.id])],
                 "auto_delete": False,
@@ -690,16 +701,20 @@ class HrPayslip(models.Model):
             mail.send(raise_exception=False)
             sent_count += 1
 
+        message = _("Se envió %s boleta(s).") % sent_count
+
+        if skipped_employees:
+            message += _(" No se enviaron boletas a empleados sin correo: %s") % (
+                ", ".join(skipped_employees)
+            )
+
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
             "params": {
-                "title": _("Boleta enviada"),
-                "message": _("Se envió %s boleta(s) a: %s") % (
-                    sent_count,
-                    email_to,
-                ),
-                "type": "success",
-                "sticky": False,
+                "title": _("Envío de boletas"),
+                "message": message,
+                "type": "success" if sent_count else "warning",
+                "sticky": True if skipped_employees else False,
             },
         }

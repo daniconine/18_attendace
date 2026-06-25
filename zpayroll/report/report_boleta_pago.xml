@@ -22,7 +22,7 @@
         <field name="state">code</field>
         <field name="groups_id" eval="[(4, ref('hr_payroll_community.group_hr_payroll_community_manager'))]"/>
         <field name="code"><![CDATA[
-action = records.action_send_boleta_pago_email_static()
+action = records.action_send_boleta_pago_email_employee()
         ]]></field>
     </record>
 
