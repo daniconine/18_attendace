@@ -682,7 +682,7 @@ result = bool(ext and ext.pe_pension_scheme == 'spp')
 result = 0.0
 ext = employee.zemployee_extension_id
 
-if ext and ext.pe_pension_scheme == 'spp' and ext.afp_id:
+if ext and ext.pe_pension_scheme == 'spp' and ext.afp_id and ext.afp_commission_type == 'flujo':
     
     date = payslip.date_to or payslip.date_from    
     afp_rate = ext.afp_id.get_rate_values(date)

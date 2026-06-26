@@ -1,8 +1,8 @@
 from dateutil.relativedelta import relativedelta
-from odoo import api, fields, models, _
+from odoo import api, models, fields, _
 from odoo.exceptions import UserError
 import base64
-from datetime import date
+from datetime import datetime, time
 
 class HrPayslip(models.Model):
     _inherit = 'hr.payslip'
@@ -36,6 +36,8 @@ class HrPayslip(models.Model):
     payroll_year = fields.Char(string='Año',compute='_compute_payroll_period',store=True)
     payroll_month_number = fields.Integer(string='Nro. Mes',compute='_compute_payroll_period',store=True)
     payroll_period_code = fields.Char(string='Periodo',compute='_compute_payroll_period',store=True)
+    payslip_nickname = fields.Char(string='Nombre personalizado de boleta',
+                                   compute='_compute_payslip_nickname',store=True)
     
     #metodo para el calculo de los campos que identifican a al nomina    
     @api.depends('date_to')
@@ -49,12 +51,33 @@ class HrPayslip(models.Model):
             else:
                 slip.payroll_month = False
                 slip.payroll_month_number = 0
-                slip.payroll_year = 0
+                slip.payroll_year = False
                 slip.payroll_period_code = False
-                
+     
+    ### cambia el nombre de la nomina            
+    @api.depends('employee_id','payroll_type','payroll_month','payroll_year',)
+    def _compute_payslip_nickname(self):
+        for slip in self:
+            if not slip.employee_id or not slip.payroll_month or not slip.payroll_year:
+                slip.payslip_nickname = False
+                continue
+
+            month_labels = dict(slip._fields['payroll_month'].selection)
+            payroll_type_labels = dict(slip._fields['payroll_type'].selection)
+
+            month_name = month_labels.get(slip.payroll_month, slip.payroll_month)
+            payroll_type_name = payroll_type_labels.get(
+                slip.payroll_type or 'nomina',
+                slip.payroll_type or 'nomina')
+
+            slip.payslip_nickname = '%s de %s - %s %s' % (
+                payroll_type_name,
+                slip.employee_id.name,
+                month_name,
+                slip.payroll_year)
     
     #########################################
-        #CAlculo de Remuneracion_computable
+    #CAlculo de Remuneracion_computable
     remuneracion_computable = fields.Float(string='Remuneración Computable Base',
                             compute='_compute_remuneracion_computable',store=True)
     
@@ -669,7 +692,8 @@ class HrPayslip(models.Model):
                 res_ids=slip.ids,
             )
 
-            filename = "Boleta de Pago - %s.pdf" % employee_name
+            boleta_name = slip.payslip_nickname or slip.name or employee_name
+            filename = "%s.pdf" % boleta_name
 
             attachment = self.env["ir.attachment"].sudo().create({
                 "name": filename,
@@ -680,7 +704,7 @@ class HrPayslip(models.Model):
                 "mimetype": "application/pdf",
             })
 
-            subject = "Boleta de Pago - %s" % (slip.name or employee_name)
+            subject = "Boleta de Pago - %s" % boleta_name
 
             body_html = """
                 <p>Estimado(a) %s,</p>

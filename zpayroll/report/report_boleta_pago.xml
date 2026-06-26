@@ -11,7 +11,7 @@
         <field name="binding_model_id" ref="hr_payroll_community.model_hr_payslip"/>
         <field name="binding_type">report</field>
         <field name="binding_view_types">list,form</field>
-        <field name="print_report_name">'Boleta de Pago - %s' % (object.name or '')</field>
+        <field name="print_report_name">('Boleta de Pago - %s' % (object.payslip_nickname or object.name or '')).replace('/', '-')</field>
     </record>
 
     <record id="action_server_send_boleta_pago_email" model="ir.actions.server">
