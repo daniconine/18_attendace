@@ -235,7 +235,7 @@ class ZLeaveOvertime(models.Model):
             
             # Mensaje final indicando que la solicitud fue enviada
             rec.message_post(body=_("La solicitud de horas extras ha sido enviada a los correos: " + email_message))
-
+            
         return True
     
     ###Aprobacion
@@ -282,7 +282,8 @@ class ZLeaveOvertime(models.Model):
             
             # Publicar un mensaje indicando que la solicitud ha sido aprobada
             rec.message_post(body=_("Solicitud de Hora Extra aprobada."))
-
+            rec._send_status_notification("approved") #notificaion correo
+            
             # 3) Cerrar actividades pendientes (si las hubiera)
             try:
                 rec.activity_feedback(["mail.mail_activity_data_todo"])
@@ -304,7 +305,8 @@ class ZLeaveOvertime(models.Model):
             rec.state = "refused"
             
             # Publicamos un mensaje indicando que la solicitud ha sido rechazada
-            rec.message_post(body=_("Solicitud de horas extras rechazada por el aprobador."))
+            rec.message_post(body=_("Solicitud de horas extras rechazada..."))
+            rec._send_status_notification("refused") #notificacion correo
             
             # Cerrar actividades pendientes (si las hubiera)
             try:
@@ -324,10 +326,75 @@ class ZLeaveOvertime(models.Model):
             rec.state = "cancelled"
             
             # Publicamos un mensaje indicando que la solicitud ha sido anulada
-            rec.message_post(body=_("Solicitud de horas extras anulada por el usuario."))
+            rec.message_post(body=_("Solicitud de horas extras anulada...."))
+            rec._send_status_notification("cancelled") #notifiacion correo
         
         return True
     
+        
+    ## Metodo para enviar correo de notfiacion de stado 
+    def _send_status_notification(self, status):
+        for rec in self:
+            status_labels = {
+                "approved": "aprobada",
+                "refused": "rechazada",
+                "cancelled": "anulada",
+            }
+
+            status_label = status_labels.get(status, "actualizada")
+
+            template = self.env.ref(
+                "zleave.email_template_zleave_overtime_status",
+                raise_if_not_found=False
+            )
+
+            if not template:
+                rec.message_post(
+                    body=_("No se encontró la plantilla de correo de cambio de estado de horas extras.")
+                )
+                continue
+
+            employee_email = rec.employee_id.work_email or False
+            approver_email = rec.approver_id.email if rec.approver_id else False
+
+            hr_emails = [
+                "jbernui@gerens.pe",
+                "pmanrique@gerens.pe",
+            ]
+
+            cc_emails = hr_emails.copy()
+
+            # En anulación, también podemos avisar al aprobador asignado
+            if status == "cancelled" and approver_email:
+                cc_emails.append(approver_email)
+
+            if employee_email:
+                email_to = employee_email
+                email_cc = ",".join(cc_emails)
+            else:
+                email_to = ",".join(cc_emails)
+                email_cc = ""
+
+            template.with_context(
+                status_label=status_label,
+                action_user_name=self.env.user.name,
+                action_date=fields.Datetime.now(),
+            ).send_mail(
+                rec.id,
+                force_send=True,
+                email_values={
+                    "email_to": email_to,
+                    "email_cc": email_cc,
+                }
+            )
+
+            rec.message_post(
+                body=_("Se envió correo de horas extras %s a: %s / CC: %s") % (
+                    status_label,
+                    email_to or "No disponible",
+                    email_cc or "No disponible"
+                )
+            )
     ###############################       
     # Campo computado para almacenar el ID de la acción
     # Campo para almacenar el ID de la acción

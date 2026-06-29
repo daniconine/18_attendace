@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+
+    <record id="ir_cron_zperiod_actualizar_periodos_abiertos" model="ir.cron">
+      <field name="name">ZPeriod: Actualizar períodos abiertos diario</field>
+
+      <field name="model_id" ref="model_zperiod"/>
+      <field name="state">code</field>
+      <field name="code">model.cron_actualizar_periodos_abiertos()</field>
+
+      <field name="interval_number">1</field>
+      <field name="interval_type">days</field>
+      <field name="active" eval="True"/>
+
+      <!-- 05:30 Perú UTC-5 = 10:30 UTC -->
+      <field name="nextcall">2026-01-15 10:30:00</field>
+    </record>
+
+  </data>
+</odoo>

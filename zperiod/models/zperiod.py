@@ -3,7 +3,6 @@ from datetime import datetime
 from odoo.exceptions import UserError, ValidationError, AccessError
 from babel import dates
 
-
 class ZPeriod(models.Model):
     _name = "zperiod"
     _description = "Periodo para la Generación de Planilla"
@@ -20,7 +19,7 @@ class ZPeriod(models.Model):
     
     state = fields.Selection([("open", "Abierto"),
                             ("closed", "Cerrado"),
-                            ("cancel", "Cancelado"),], string="Estado", default="draft", tracking=True)
+                            ("cancel", "Cancelado"),], string="Estado", default="open", tracking=True)
 
         
     #CAmpos de Modulos Z
@@ -212,7 +211,7 @@ class ZPeriod(models.Model):
         
         return True   
 
-    
+   
     ######Bloqueador
     is_locked = fields.Boolean(
         string="Bloqueado",
@@ -236,3 +235,19 @@ class ZPeriod(models.Model):
                 ))
 
         return super(ZPeriod, self).write(vals)
+    
+    
+    ####### CRon
+    @api.model
+    def cron_actualizar_periodos_abiertos(self):
+        periods = self.sudo().search([
+            ("state", "=", "open"),
+        ])
+
+        if periods:
+            periods.with_context(
+                tracking_disable=True,
+                mail_notrack=True,
+            ).action_actualizar()
+
+        return True 

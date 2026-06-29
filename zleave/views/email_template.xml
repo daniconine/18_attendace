@@ -38,7 +38,77 @@
         <field name="model_id" ref="zleave.model_zleave_permission"/>
     </record>
 
+    
+    <!-- Plantilla universal para aprobación, rechazo o anulación de licencia -->
+    <record id="email_template_zleave_permission_status" model="mail.template">
+        <field name="name">Notificación de Cambio de Estado de Licencia</field>
 
+        <field name="model_id" ref="zleave.model_zleave_permission"/>
+
+        <field name="email_from">"Notificaciones Sistema ERP" &lt;odoo18@gerens.pe&gt;</field>
+
+        <!-- No permitir respuestas al trabajador ni al aprobador -->
+        <field name="reply_to">"Notificaciones Sistema ERP" &lt;odoo18@gerens.pe&gt;</field>
+
+        <field name="subject">
+            Solicitud de Licencia N° {{ object.name }} {{ ctx.get('status_label') or 'actualizada' }}
+        </field>
+
+        <field name="body_html">
+            <![CDATA[
+                <p>Estimado/a,</p>
+
+                <p><t t-set="status_label" t-value="ctx.get('status_label') or 'actualizada'"/></p>
+
+                    <p>
+                        La solicitud <strong><t t-out="object.name"/></strong>
+                        del trabajador <strong><t t-out="object.employee_id.name"/></strong>
+                        ha sido
+
+                        <t t-if="status_label == 'aprobada'">
+                            <strong style="color: green; font-weight: bold;">
+                                <t t-out="status_label"/>
+                            </strong>
+                        </t>
+
+                        <t t-elif="status_label == 'rechazada'">
+                            <strong style="color: red; font-weight: bold;">
+                                <t t-out="status_label"/>
+                            </strong>
+                        </t>
+
+                        <t t-else="">
+                            <span>
+                                <t t-out="status_label"/>
+                            </span>
+                        </t>.
+                    </p>
+                
+
+                    <li>
+                        <strong>Empresa:</strong>
+                        <t t-out="object.employee_id.company_id.name"/>
+                    </li>
+
+                <p>
+                    <strong>Acción realizada por:</strong>
+                    <t t-out="ctx.get('action_user_name') or object.write_uid.name"/>
+                </p>
+
+                <p>
+                    <strong>Fecha de acción:</strong>
+                    <t t-out="ctx.get('action_date') or object.write_date"/>
+                </p>
+                              
+                <p>Saludos,</p>
+
+            ]]>
+        </field>
+    </record>
+
+
+     <!-- ########################################################################## -->
+    <!-- Definición de la plantilla de correo para la solicitud de pvaaccionessss -->
     <record id="zleave.email_template_zleave_vacation" model="mail.template">
         <field name="name">Notificación de Solicitud de Vacaciones</field>
         <field name="email_from">${'odoo18@gerens.pe'}</field>
@@ -81,6 +151,72 @@
         <field name="model_id" ref="zleave.model_zleave_zvacation"/>
     </record>
 
+    <!-- Plantilla universal para aprobación, rechazo o anulación de vacaciones -->
+    <record id="email_template_zleave_vacation_status" model="mail.template">
+        <field name="name">Notificación de Cambio de Estado de Vacaciones</field>
+        <field name="model_id" ref="zleave.model_zleave_zvacation"/>
+
+        <field name="email_from">"Notificaciones Sistema ERP" &lt;odoo18@gerens.pe&gt;</field>
+        <field name="reply_to">"Notificaciones Sistema ERP" &lt;odoo18@gerens.pe&gt;</field>
+
+        <field name="subject">
+            Solicitud de Vacaciones N° {{ object.name }} {{ ctx.get('status_label') or 'actualizada' }}
+        </field>
+
+        <field name="body_html">
+            <![CDATA[
+                <t t-set="status_label" t-value="ctx.get('status_label') or 'actualizada'"/>
+
+                <p>Estimado/a,</p>
+
+                <p>
+                    La solicitud de vacaciones <strong><t t-out="object.name"/></strong>
+                    del trabajador <strong><t t-out="object.employee_id.name"/></strong>
+                    ha sido
+
+                    <t t-if="status_label == 'aprobada'">
+                        <strong style="color: green; font-weight: bold;">
+                            <t t-out="status_label"/>
+                        </strong>
+                    </t>
+
+                    <t t-elif="status_label == 'rechazada'">
+                        <strong style="color: red; font-weight: bold;">
+                            <t t-out="status_label"/>
+                        </strong>
+                    </t>
+
+                    <t t-else="">
+                        <strong>
+                            <t t-out="status_label"/>
+                        </strong>
+                    </t>.
+                </p>
+                
+                <p>
+                    <strong>Empresa:</strong>
+                    <t t-out="object.employee_id.company_id.name"/>
+                </p>                   
+                
+
+                <p>
+                    <strong>Acción realizada por:</strong>
+                    <t t-out="ctx.get('action_user_name') or object.write_uid.name"/>
+                </p>
+
+                <p>
+                    <strong>Fecha de acción:</strong>
+                    <t t-out="ctx.get('action_date') or object.write_date"/>
+                </p>
+
+                <p>Saludos,</p>
+                
+            ]]>
+        </field>
+    </record>
+
+
+    <!-- ########################################################################## -->
     <!-- Definición de la plantilla de correo para la solicitud de horas extras -->
     <record id="zleave.email_template_zleave_overtime" model="mail.template">
         <field name="name">Notificación de Solicitud de Horas Extras</field>
@@ -123,5 +259,67 @@
         <field name="model_id" ref="zleave.model_zleave_overtime"/>
     </record>
 
+    <!-- Plantilla universal para aprobación, rechazo o anulación de horas extras -->
+    <record id="email_template_zleave_overtime_status" model="mail.template">
+        <field name="name">Notificación de Cambio de Estado de Horas Extras</field>
+        <field name="model_id" ref="zleave.model_zleave_overtime"/>
+
+        <field name="email_from">"Notificaciones Sistema ERP" &lt;odoo18@gerens.pe&gt;</field>
+        <field name="reply_to">"Notificaciones Sistema ERP" &lt;odoo18@gerens.pe&gt;</field>
+
+        <field name="subject">
+            Solicitud de Horas Extras N° {{ object.name }} {{ ctx.get('status_label') or 'actualizada' }}
+        </field>
+
+        <field name="body_html">
+            <![CDATA[
+                <t t-set="status_label" t-value="ctx.get('status_label') or 'actualizada'"/>
+
+                <p>Estimado/a,</p>
+
+                <p>
+                    La solicitud de horas extras <strong><t t-out="object.name"/></strong>
+                    del trabajador <strong><t t-out="object.employee_id.name"/></strong>
+                    ha sido
+
+                    <t t-if="status_label == 'aprobada'">
+                        <strong style="color: green; font-weight: bold;">
+                            <t t-out="status_label"/>
+                        </strong>
+                    </t>
+
+                    <t t-elif="status_label == 'rechazada'">
+                        <strong style="color: red; font-weight: bold;">
+                            <t t-out="status_label"/>
+                        </strong>
+                    </t>
+
+                    <t t-else="">
+                        <strong>
+                            <t t-out="status_label"/>
+                        </strong>
+                    </t>.
+                </p>
+
+                <p>
+                    <strong>Empresa:</strong>
+                    <t t-out="object.employee_id.company_id.name"/>
+                </p>
+
+                <p>
+                    <strong>Acción realizada por:</strong>
+                    <t t-out="ctx.get('action_user_name') or object.write_uid.name"/>
+                </p>
+
+                <p>
+                    <strong>Fecha de acción:</strong>
+                    <t t-out="ctx.get('action_date') or object.write_date"/>
+                </p>
+
+                <p>Saludos,</p>
+                
+            ]]>
+        </field>
+    </record>
 
 </odoo>

@@ -23,6 +23,8 @@
             "views/zperiod_batch_views.xml",
             "views/zperiod_views.xml",
             "views/segment_line_views.xml",
+            
+            "views/cron_zperiod_actualizar.xml",
             "views/menus.xml",
             ],
     'assets': {

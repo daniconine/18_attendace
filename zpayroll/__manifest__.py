@@ -45,8 +45,10 @@
             'data/hr_salary_rule_pe.xml',
             'data/paperformat.xml',
             
+            'wizard/zpayroll_report_nomina_views.xml',
             'report/report_boleta_pago.xml',
             'report/hr_payslip_menu.xml',
+            
             
             'views/zemployee_menu.xml',
             ],

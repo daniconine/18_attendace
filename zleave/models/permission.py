@@ -275,7 +275,10 @@ class ZleavePermission(models.Model):
                 rec.activity_feedback(["mail.mail_activity_data_todo"])
             except Exception:
                 pass
-
+            
+            # 4) Enviar correo de aprobación
+            rec._send_status_notification("approved")
+            
         return True
 
     def action_refuse(self):
@@ -290,6 +293,10 @@ class ZleavePermission(models.Model):
                 rec.activity_feedback(["mail.mail_activity_data_todo"])
             except Exception:
                 pass
+            
+            # Enviar correo de rechazo
+            rec._send_status_notification("refused")
+            
         return True
 
     def action_cancel(self):
@@ -298,6 +305,66 @@ class ZleavePermission(models.Model):
                 raise UserError(_("No puedes anular una solicitud ya finalizado."))
             rec.state = "cancelled"
             rec.message_post(body=_("Solicitud de licencia anulado."))
+            
+            # Enviar correo de anulación
+            rec._send_status_notification("cancelled")
+            
+        return True
+
+    ## Metodo pra notifiacion por correo
+    def _send_status_notification(self, status):
+        self.ensure_one()
+
+        status_labels = {"approved": "aprobada","refused": "rechazada","cancelled": "anulada",}
+
+        status_label = status_labels.get(status, "actualizada")
+
+        template = self.env.ref("zleave.email_template_zleave_permission_status",raise_if_not_found=False)
+
+        if not template:
+            self.message_post(
+                body=_("No se encontró la plantilla de correo de cambio de estado de licencia.")
+            )
+            return False
+
+        employee_email = self.employee_id.work_email or False
+        approver_email = self.approver_id.email if self.approver_id else False
+
+        hr_emails = ["jbernui@gerens.pe","pmanrique@gerens.pe",]
+        cc_emails = hr_emails.copy()
+
+        # En anulación puede ser útil avisar también al aprobador asignado
+        if status == "cancelled" and approver_email:
+            cc_emails.append(approver_email)
+
+        if employee_email:
+            email_to = employee_email
+            email_cc = ",".join(cc_emails)
+        else:
+            email_to = ",".join(cc_emails)
+            email_cc = ""
+
+        template.with_context(
+            status_label=status_label,
+            action_user_name=self.env.user.name,
+            action_date=fields.Datetime.now(),
+        ).send_mail(
+            self.id,
+            force_send=True,
+            email_values={
+                "email_to": email_to,
+                "email_cc": email_cc,
+            }
+        )
+
+        self.message_post(
+            body=_("Se envió correo de licencia %s a: %s / CC: %s") % (
+                status_label,
+                email_to or "No disponible",
+                email_cc or "No disponible"
+            )
+        )
+
         return True
 
     ###########################################################

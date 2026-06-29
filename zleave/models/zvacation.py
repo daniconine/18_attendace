@@ -274,14 +274,14 @@ class ZVacation(models.Model):
             rec.approved_date = fields.Datetime.now()
             rec.state = "approved"
             rec.message_post(body=_("Vacaciones aprobadas."))
-
+            rec._send_status_notification("approved") #correo
+                        
             # 4) Cerrar actividades pendientes
             try:
                 rec.activity_feedback(["mail.mail_activity_data_todo"])
             except Exception:
                 pass
-                
-
+                                    
         return True   
         
         
@@ -294,6 +294,7 @@ class ZVacation(models.Model):
             rec._check_is_approver()
             rec.state = "refused"
             rec.message_post(body=_("Vacaciones rechazadas."))
+            rec._send_status_notification("refused") #correo
 
         return True
 
@@ -305,6 +306,7 @@ class ZVacation(models.Model):
                 raise UserError(_("No puedes anular una solicitud ya finalizada."))
             rec.state = "cancelled"
             rec.message_post(body=_("Vacaciones anuladas."))
+            rec._send_status_notification("cancelled") #correo
 
         return True
 
@@ -373,7 +375,61 @@ class ZVacation(models.Model):
                 record.action_url = f"https://erp.gerens.pe/odoo/action-{action.id}/{record.id}"
             else:
                 record.action_url = "Acción no encontrada"
-                
+     
+    
+    # Mteodo que envia correo sde notifacion de estado d ela solicitud           
+    def _send_status_notification(self, status):
+        for rec in self:
+            status_labels = {"approved": "aprobada", "refused": "rechazada","cancelled": "anulada",}
+
+            status_label = status_labels.get(status, "actualizada")
+
+            template = self.env.ref("zleave.email_template_zleave_vacation_status",raise_if_not_found=False)
+
+            if not template:
+                rec.message_post(
+                    body=_("No se encontró la plantilla de correo de cambio de estado de vacaciones.")
+                )
+                continue
+
+            employee_email = rec.employee_id.work_email or False
+            approver_email = rec.approver_id.email if rec.approver_id else False
+
+            hr_emails = ["jbernui@gerens.pe","pmanrique@gerens.pe",]
+
+            cc_emails = hr_emails.copy()
+
+            # En anulación conviene avisar también al aprobador asignado
+            if status == "cancelled" and approver_email:
+                cc_emails.append(approver_email)
+
+            if employee_email:
+                email_to = employee_email
+                email_cc = ",".join(cc_emails)
+            else:
+                email_to = ",".join(cc_emails)
+                email_cc = ""
+
+            template.with_context(
+                status_label=status_label,
+                action_user_name=self.env.user.name,
+                action_date=fields.Datetime.now(),
+            ).send_mail(
+                rec.id,
+                force_send=True,
+                email_values={
+                    "email_to": email_to,
+                    "email_cc": email_cc,
+                }
+            )
+
+            rec.message_post(
+                body=_("Se envió correo de vacaciones %s a: %s / CC: %s") % (
+                    status_label,
+                    email_to or "No disponible",
+                    email_cc or "No disponible"
+                )
+            )
     
     #######################
     # Le decimos que ahora depende del estado para marcarse solo
