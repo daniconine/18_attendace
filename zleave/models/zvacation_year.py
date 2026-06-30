@@ -20,7 +20,11 @@ class ZVacationYear(models.Model):
                                  default=lambda self: self.env.company, required=True, readonly=True)
     
     employee_id = fields.Many2one('hr.employee', string='Empleado', required=True)
-    
+    employee_email = fields.Char(string="Correo del Empleado",related="employee_id.work_email",store=True, readonly=True)
+
+    manager_id = fields.Many2one("hr.employee",string="Jefe del Empleado",related="employee_id.parent_id",store=True,readonly=True)
+    manager_email = fields.Char(string="Correo del Jefe",related="employee_id.parent_id.work_email",store=True,readonly=True)
+        
     year = fields.Char(string='Año Periodo',store=True,compute='_compute_period_data',readonly=True)
     start_date = fields.Date(string='Fecha inicial Acumulación', default=fields.Date.today)
     end_date = fields.Date(string='Fecha final Acumulación' )
@@ -179,7 +183,11 @@ class ZVacationYear(models.Model):
             
             # El cálculo llega hasta hoy, pero con tope en la fecha fin del aniversario
             today = fields.Date.today()
-            end = min(today, rec.end_date)
+            
+            # Límite real del cálculo:
+            # se suma +1 porque (end - start).days no cuenta el día final.
+            end_limit = rec.end_date + relativedelta(days=1)
+            end = min(today, end_limit)
             
             # Guardamos la fecha final del cálculo para el puntero
             rec.end_date_call = end
@@ -200,11 +208,16 @@ class ZVacationYear(models.Model):
 
             # Cálculo y suma incremental
             added_days = round(effective_days * RATE, 4)
-            rec.accumulated_days += added_days
+            
+            #insercion de correccion para que acumulacion no pase de 30
+            new_accumulated = (rec.accumulated_days or 0.0) + added_days
+            # Tope máximo legal/funcional del ciclo anual
+            rec.accumulated_days = min(new_accumulated, 30.0)
+            #rec.accumulated_days += added_days
 
             # El puntero se mueve al final del tramo actual
-            rec.start_date_call = end
-            not_worked = rec.days_not_work
+            rec.start_date_call = end            
+            not_worked = rec.days_not_work            
             rec.days_not_work = 0 #permite no descontar siempre en cada actualziaicon
             # Nota: rec.days_not_work NO se resetea por tu requerimiento. 
             # El usuario debe manejarlo antes del próximo clic.
@@ -218,6 +231,7 @@ class ZVacationYear(models.Model):
                         f"Días naturales: {days_total}...."
                         f"Días no trabajados: {not_worked}...."
                         f"Días añadidos: {added_days}"
+                        f"Días acumulados actuales: {rec.accumulated_days}"
                     )
                 )
     
@@ -243,23 +257,54 @@ class ZVacationYear(models.Model):
 
     ### CRON
     @api.model
-    def _cron_vacation_auto_cycle(self):
-        # Gestionar cierres y relevos (estos sí pueden dejar un mensaje de "Cierre")
-        today = fields.Date.today()
-        expired_records = self.search([('state', '=', 'accrual'), ('end_date', '<=', today)])
-        
+    def cron_vacation_auto_cycle(self):
+        today = fields.Date.context_today(self.with_context(tz='America/Lima'))
+        yesterday = today - relativedelta(days=1)
+
+        # 1. Actualizar silenciosamente todos los registros acumulando
+        active_records = self.search([
+            ('state', '=', 'accrual')
+        ])
+
+        if active_records:
+            active_records._compute_accrual(with_message=False)
+
+        # 2. Buscar registros vencidos
+        expired_records = self.search([
+            ('state', '=', 'accrual'),
+            ('end_date', '<=', yesterday),
+        ])
+
         for old_rec in expired_records:
-            old_rec.action_close_accrual() # El cierre sí es importante que se vea
-            
-            # Crear relevo
+            # Primero envía el correo con el resumen
+            old_rec.action_send_vacation_year_completed_email()
+
+            # Luego cierra el período
+            old_rec.action_close_accrual()
+
+            # Luego crea el siguiente período
             new_start = old_rec.end_date + relativedelta(days=1)
+
             self.create({
                 'employee_id': old_rec.employee_id.id,
+                'company_id': old_rec.company_id.id,
                 'start_date': new_start,
                 'state': 'accrual',
             })
 
-        # ACTUALIZACIÓN SILENCIOSA DIARIA
-        active_records = self.search([('state', '=', 'accrual')])
-        # Usamos with_context para indicarle al método que no escriba en el chatter
-        active_records.with_context(skip_chatter_log=True).action_update_accrual()
+        return True
+
+    ## Envio de correo al cumplir un año
+    def action_send_vacation_year_completed_email(self):
+        template = self.env.ref(
+            "zleave.email_template_vacation_year_completed",
+            raise_if_not_found=False
+        )
+
+        if not template:
+            return True
+
+        for rec in self:
+            template.send_mail(rec.id, force_send=True)
+
+        return True

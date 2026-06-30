@@ -13,6 +13,7 @@
     "data": [
         "security/groups.xml",# 1. Grupos (Cimientos)
         'data/zlabor_suspension_code_data.xml',
+        'data/mail_template_vacation_year.xml',
         
         # 2. Vistas y Acciones (Componentes)
         # Aquí es donde se define 'action_zleave_permission_my'
