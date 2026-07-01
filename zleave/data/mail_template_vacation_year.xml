@@ -5,26 +5,13 @@
         <record id="email_template_vacation_year_completed" model="mail.template">
             <field name="name">Vacaciones: Periodo anual completado</field>
             <field name="model_id" ref="model_zleave_zvacation_year"/>
-
-            <field name="subject">🎀🎗️🎗️🥈 Felicitaciones por un año más con nosotros - Periodo vacacional {{ object.display_name }}
-            </field>
-
-            <field name="email_from">
-                {{ object.company_id.email or user.email_formatted or '' }}
-            </field>
-
-            <field name="email_to">
-                {{ object.employee_email or '' }}
-            </field>
-
-            <field name="email_cc">
-                {{ ctx.get('vacation_cc_emails', '') }}
-            </field>
-
+            <field name="subject">Felicitaciones por un año más con nosotros - Periodo vacacional {{ object.display_name }}</field>
+            <field name="email_from">{{ object.company_id.email or user.email_formatted or '' }}</field>
+            <field name="email_to"></field>
+            <field name="email_cc"></field>
             <field name="auto_delete" eval="False"/>
-
             <field name="body_html" type="html">
-                <div style="font-family: Arial, sans-serif; font-size: 14px; color: #222;">
+                <div style="font-family: Arial, sans-serif; font-size: 14px; color: #050404;">
 
                     <p>
                         Estimado(a) <strong><t t-out="object.employee_id.name"/></strong>,
@@ -32,11 +19,11 @@
 
                     <p>
                         Queremos felicitarte por cumplir un año más trabajando con nosotros 🫠​.
-                        La empresa agradece sinceramente tu compromiso, esfuerzo y aporte durante este periodo.
+                        La empresa agradece sinceramente tu compromiso, 🎀 esfuerzo y aporte durante este periodo.
                     </p>
 
                     <p>
-                        Asimismo, te informamos que se ha generado un periodo completo de vacaciones
+                        Asimismo, te informamos que se ha generado un periodo completo de vacaciones 🎗️
                         correspondiente al ciclo <strong><t t-out="object.year"/></strong>.
                     </p>
 
@@ -76,7 +63,7 @@
 
                     <t t-if="object.consumed_days">
                         <p>
-                            Los días consumidos mostrados en el resumen corresponden a vacaciones
+                            Los días consumidos mostrados en el resumen corresponden a vacaciones 🧊
                             utilizadas o adelantadas durante el periodo.
                         </p>
                     </t>
@@ -88,11 +75,13 @@
                     <ul>
                         <li>
                             Puedes dividir tus 30 días de vacaciones, pero el primer bloque
-                            no puede ser menor a <strong>15 días calendario</strong>.
+                            no puede ser menor a <strong>15 días calendario</strong>. Sin embargo 
+                            puedes fraccionar a 7 u 8 dias.
                         </li>
                         <li>
                             El resto de tus días puede dividirse en fracciones más pequeñas, 5 dias consecutivos,
-                            3 dias consecutivos, incluso de <strong>un solo día</strong>.
+                            3 dias consecutivos, incluso de <strong>un solo día</strong>. Este último tramo debe
+                            contener 4 días de descanso (pueden ser 2 Sabados y 2 Domingos)
                         </li>
                         <li>
                             Puedes pedir adelanto de vacaciones antes de cumplir el año,

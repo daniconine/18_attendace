@@ -50,9 +50,7 @@
         <!-- No permitir respuestas al trabajador ni al aprobador -->
         <field name="reply_to">"Notificaciones Sistema ERP" &lt;odoo18@gerens.pe&gt;</field>
 
-        <field name="subject">
-            Solicitud de Licencia N° {{ object.name }} {{ ctx.get('status_label') or 'actualizada' }}
-        </field>
+        <field name="subject">Solicitud de Licencia N° {{ object.name }} {{ ctx.get('status_label') or 'actualizada' }}</field>
 
         <field name="body_html">
             <![CDATA[
@@ -159,9 +157,7 @@
         <field name="email_from">"Notificaciones Sistema ERP" &lt;odoo18@gerens.pe&gt;</field>
         <field name="reply_to">"Notificaciones Sistema ERP" &lt;odoo18@gerens.pe&gt;</field>
 
-        <field name="subject">
-            Solicitud de Vacaciones N° {{ object.name }} {{ ctx.get('status_label') or 'actualizada' }}
-        </field>
+        <field name="subject">Solicitud de Vacaciones N° {{ object.name }} {{ ctx.get('status_label') or 'actualizada' }}</field>
 
         <field name="body_html">
             <![CDATA[
@@ -267,9 +263,7 @@
         <field name="email_from">"Notificaciones Sistema ERP" &lt;odoo18@gerens.pe&gt;</field>
         <field name="reply_to">"Notificaciones Sistema ERP" &lt;odoo18@gerens.pe&gt;</field>
 
-        <field name="subject">
-            Solicitud de Horas Extras N° {{ object.name }} {{ ctx.get('status_label') or 'actualizada' }}
-        </field>
+        <field name="subject">Solicitud de Horas Extras N° {{ object.name }} {{ ctx.get('status_label') or 'actualizada' }}</field>
 
         <field name="body_html">
             <![CDATA[

@@ -76,6 +76,27 @@ class HrPayslip(models.Model):
                 month_name,
                 slip.payroll_year)
     
+    # limpiar empleado y contrato al cambiar compañía
+    @api.onchange('company_id')
+    def _onchange_company_id(self):
+        for slip in self:
+            slip.employee_id = False
+            slip.contract_id = False
+            slip.struct_id = False
+
+            domain = []
+            if slip.company_id:
+                domain = ['|',
+                          ('company_id', '=', False),
+                          ('company_id', '=', slip.company_id.id)]
+
+            return {
+                'domain': {
+                    'employee_id': domain,
+                    'contract_id': [('company_id', '=', slip.company_id.id)] if slip.company_id else []
+                }
+            }
+            
     #########################################
     #CAlculo de Remuneracion_computable
     remuneracion_computable = fields.Float(string='Remuneración Computable Base',

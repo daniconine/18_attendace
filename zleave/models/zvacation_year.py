@@ -304,7 +304,56 @@ class ZVacationYear(models.Model):
         if not template:
             return True
 
+        rrhh_emails = "jbernui@gerens.pe,pmanrique@gerens.pe"
+
         for rec in self:
-            template.send_mail(rec.id, force_send=True)
+            employee_email = (
+                rec.employee_email
+                or rec.employee_id.work_email
+                or rec.employee_id.private_email
+                or ""
+            )
+
+            manager_email = rec.manager_email or ""
+
+            cc_emails = []
+
+            if manager_email:
+                cc_emails.append(manager_email)
+
+            cc_emails.extend(rrhh_emails.split(","))
+
+            cc_emails = [
+                email.strip().replace("\n", "").replace("\r", "")
+                for email in cc_emails
+                if email and email.strip()
+            ]
+
+            cc_emails = list(dict.fromkeys(cc_emails))
+
+            employee_email = employee_email.strip().replace("\n", "").replace("\r", "")
+
+            if not employee_email:
+                rec.message_post(
+                    body="No se pudo enviar el correo de aniversario vacacional porque el empleado no tiene correo registrado."
+                )
+                continue
+
+            template.send_mail(
+                rec.id,
+                force_send=True,
+                email_values={
+                    "email_to": employee_email,
+                    "email_cc": ",".join(cc_emails),
+                    "auto_delete": False,
+                }
+            )
+
+            rec.message_post(
+                body=(
+                    "Se envió correo de periodo vacacional completado a: "
+                    f"{employee_email} / CC: {','.join(cc_emails)}"
+                )
+            )
 
         return True

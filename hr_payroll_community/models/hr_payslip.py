@@ -207,8 +207,12 @@ class HrPayslip(models.Model):
     def action_compute_sheet(self):
         """Function for compute Payslip sheet"""
         for payslip in self:
-            number = payslip.number or self.env['ir.sequence'].next_by_code(
-                'salary.slip')
+            #number = payslip.number or self.env['ir.sequence'].next_by_code('salary.slip')
+            number = payslip.number
+
+            if not number or number in ['/', 'New']:
+                number = self.env['ir.sequence'].next_by_code('salary.slip') or '/'
+                
             # delete old payslip lines
             payslip.line_ids.unlink()
             # set the list of contract for which the rules have to be applied
