@@ -25,19 +25,7 @@
                         <field name="name" readonly="state != 'draft'"/>
                         <field name="credit_note" readonly="state != 'draft'"/>
                         <field name="payroll_type"/>
-
-                        <separator string="Valores para Calculo"/>
-                        <field name="remuneracion_computable"/>
-                        <field name="renta_5ta_retencion"/>
-                        <field name="r5_impuesto_anual"/>
-                        <field name="r5_retenciones_anteriores"/>
                         
-                        <separator string="Ajuste de Retencion de Quinta"/>
-                        <field name="r5_debug_real_income_dec"/>
-                        <field name="r5_debug_tax_dec"/>
-                        <field name="r5_debug_previous_withholding_dec"/>
-                        <field name="r5_debug_retention_dec"/>
-                        <field name="r5_debug_error_dec"/>
                      
                     </group>
 
@@ -67,8 +55,7 @@
                 <xpath expr="//field[@name='state']" position="before">
                     <field name="payroll_month"/>
                     <field name="payroll_year"/>
-                    <field name="payroll_type"/>
-                    <field name="renta_5ta_retencion"/>
+                    <field name="payroll_type"/>                    
                 </xpath>
             </field>
         </record>

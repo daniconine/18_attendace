@@ -237,16 +237,58 @@ action = records.action_send_boleta_pago_email_employee()
                             </tr>
 
                             <tr class="text-center">
-                                <td style="height: 42px;"><span t-esc="period_data['period_name']"/></td>
-                                <td class="text-center"><span t-esc="emp_data['address']"/>
-                                    <t t-if="emp_data['address2']">
-                                        <br/><span t-esc="emp_data['address2']"/>
-                                    </t>
+                                <td style="height: 42px; vertical-align: middle;">
+                                    <span t-esc="period_data['period_name']"/>
                                 </td>
-                                <td colspan="2"><span t-esc="emp_data['leave_type']"/></td>
-                                <td><span t-esc="emp_data['leave_start_date']"/></td>
-                                <td><span t-esc="emp_data['leave_end_date']"/></td>
+
+                                <td class="text-center" style="vertical-align: middle;">
+                                    <span t-esc="emp_data['address']"/>
+                                    <br/>
+                                    <span t-esc="emp_data.get('address2') or ''"/>
+                                </td>
+
+                                <td colspan="4"
+                                    style="padding: 0;
+                                        vertical-align: middle;
+                                        border-left: 1px solid #000 !important;
+                                        border-right: 1px solid #000 !important;
+                                        border-bottom: 1px solid #000 !important;">
+
+                                    <table style="width: 100%;
+                                                border-collapse: collapse;
+                                                margin: 0;
+                                                border: none !important;">
+                                        <tbody style="border: none !important;">
+                                            <tr t-foreach="emp_data['leave_rows']" t-as="leave" style="border: none !important;">
+
+                                                <td colspan="2"
+                                                    style="width: 50%;
+                                                        padding: 4px 6px;
+                                                        border: none !important;
+                                                        text-align: center;">
+                                                    <span t-esc="leave.get('leave_type')"/>
+                                                </td>
+
+                                                <td style="width: 25%;
+                                                        padding: 4px 6px;
+                                                        border: none !important;
+                                                        text-align: center;">
+                                                    <span t-esc="leave.get('leave_start_date')"/>
+                                                </td>
+
+                                                <td style="width: 25%;
+                                                        padding: 4px 6px;
+                                                        border: none !important;
+                                                        text-align: center;">
+                                                    <span t-esc="leave.get('leave_end_date')"/>
+                                                </td>
+
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
                             </tr>
+
                         </table>
                         <br/>
 

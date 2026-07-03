@@ -666,35 +666,44 @@ if ext and ext.pe_pension_scheme == 'spp':
 
         <!-- AFP-COMISION - AFP Comision -->
         <record id="salary_rule_afp_comision" model="hr.salary.rule">
-            <field name="name">AFP Comision</field>
-            <field name="code">AFP-COMISION</field>
+            <field name="name">AFP Comisión</field>
+            <field name="code">AFP_COMISION</field>
             <field name="sequence">102</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
+
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
 ext = employee.zemployee_extension_id
-result = bool(ext and ext.pe_pension_scheme == 'spp')
+is_pensioner = bool(ext and ext.pensioner_type)
+
+result = bool(
+    ext
+    and ext.pe_pension_scheme == 'spp'
+    and ext.afp_id
+    and ext.afp_commission_type == 'flow'
+    and not is_pensioner
+)
 ]]></field>
-            <field name="amount_select">code</field>
-            <field name="amount_python_compute"><![CDATA[
+
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute"><![CDATA[
 result = 0.0
 ext = employee.zemployee_extension_id
 
-if ext and ext.pe_pension_scheme == 'spp' and ext.afp_id and ext.afp_commission_type == 'flujo':
-    
-    date = payslip.date_to or payslip.date_from    
+if ext and ext.pe_pension_scheme == 'spp' and ext.afp_id and ext.afp_commission_type == 'flow' and not ext.pensioner_type:
+
+    date = payslip.date_to or payslip.date_from
     afp_rate = ext.afp_id.get_rate_values(date)
-    
-    if afp_rate:
+
+    if afp_rate and afp_rate.commission_rate:
         base = categories.PE_GROSS if categories.PE_GROSS else 0.0
-        
-        rma = 12598.91
-        base = min(base, rma)
-        
-        result = -1*base * (afp_rate.commission_rate / 100.0)
+
+        # Comisión por flujo: no aplicar RMA.
+        result = -1 * base * (afp_rate.commission_rate / 100.0)
 ]]></field>
+
             <field name="is_remunerative" eval="False"/>
             <field name="is_taxable_r5" eval="False"/>
             <field name="is_r5_projection_base" eval="False"/>
@@ -707,35 +716,66 @@ if ext and ext.pe_pension_scheme == 'spp' and ext.afp_id and ext.afp_commission_
         <!-- AFP-SEGURO - AFP Seguro -->
         <record id="salary_rule_afp_seguro" model="hr.salary.rule">
             <field name="name">AFP Seguro</field>
-            <field name="code">AFP-SEGURO</field>
+            <field name="code">AFP_SEGURO</field>
             <field name="sequence">103</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
+
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
 ext = employee.zemployee_extension_id
-result = bool(ext and ext.pe_pension_scheme == 'spp' and ext.afp_id)
+date = payslip.date_to or payslip.date_from
+
+is_pensioner = bool(ext and ext.pensioner_type)
+
+is_65_or_more = False
+if employee.birthday and date:
+    is_65_or_more = (date.year, date.month, date.day) >= (
+        employee.birthday.year + 65,
+        employee.birthday.month,
+        employee.birthday.day
+    )
+
+result = bool(
+    ext
+    and ext.pe_pension_scheme == 'spp'
+    and ext.afp_id
+    and not is_pensioner
+    and not is_65_or_more
+)
 ]]></field>
-            <field name="amount_select">code</field>
-            <field name="amount_python_compute"><![CDATA[
+
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute"><![CDATA[
 result = 0.0
 ext = employee.zemployee_extension_id
+date = payslip.date_to or payslip.date_from
 
-if ext and ext.pe_pension_scheme == 'spp' and ext.afp_id:
-    
-    date = payslip.date_to or payslip.date_from    
+is_65_or_more = False
+if employee.birthday and date:
+    is_65_or_more = (date.year, date.month, date.day) >= (
+        employee.birthday.year + 65,
+        employee.birthday.month,
+        employee.birthday.day
+    )
+
+if ext and ext.pe_pension_scheme == 'spp' and ext.afp_id and not ext.pensioner_type and not is_65_or_more:
+
     afp_rate = ext.afp_id.get_rate_values(date)
-    
+
     if afp_rate and afp_rate.insurance_premium_rate:
-        
         base = categories.PE_GROSS if categories.PE_GROSS else 0.0
-        
-        rma = 12598.91
-        base = min(base, rma)
-        
-        result = -1*base * (afp_rate.insurance_premium_rate / 100.0)
-]]></field>
+
+        # Mejor traerlo desde la tabla de tasas AFP, no hardcodearlo.
+        rma = afp_rate.maximum_insurable_remuneration if 'maximum_insurable_remuneration' in afp_rate._fields else 0.0
+
+        if rma:
+            base = min(base, rma)
+
+        result = -1 * base * (afp_rate.insurance_premium_rate / 100.0)
+        ]]></field>
+
             <field name="is_remunerative" eval="False"/>
             <field name="is_taxable_r5" eval="False"/>
             <field name="is_r5_projection_base" eval="False"/>
@@ -744,35 +784,8 @@ if ext and ext.pe_pension_scheme == 'spp' and ext.afp_id:
             <field name="is_variable" eval="False"/>
             <field name="is_non_taxable" eval="False"/>
         </record>
-
-        
-        <!-- R5_BASE - Base afecta Renta 5ta actual >
-        <record id="salary_rule_r5_base" model="hr.salary.rule">
-            <field name="name">Base Renta 5ta Actual</field>
-            <field name="code">R5_BASE</field>
-            <field name="sequence">100</field>
-            <field name="category_id" ref="zpayroll.pe_cat_technical"/>
-            <field name="active" eval="True"/>
-            <field name="appears_on_payslip" eval="False"/>
-
-            <field name="condition_select">python</field>
-            <field name="condition_python"><![CDATA[
-result = payslip.payroll_type == 'nomina'
-    ]]></field>
-
-            <field name="amount_select">code</field>
-            <field name="amount_python_compute"><![CDATA[
-result = payslip._calculate_current_r5_taxable_base_from_rules(rules)
-    ]]></field>
-
-            <field name="is_remunerative" eval="False"/>
-            <field name="is_taxable_r5" eval="False"/>
-            <field name="is_r5_projection_base" eval="False"/>
-            <field name="is_asegurable" eval="False"/>
-            <field name="is_computable" eval="False"/>
-            <field name="is_variable" eval="False"/>
-            <field name="is_non_taxable" eval="False"/>
-        </record-->
+            
+       
 
         <!-- R5_RET - Renta 5ta Categoria -->
         <record id="salary_rule_r5_ret" model="hr.salary.rule">
@@ -791,100 +804,93 @@ result = payslip.payroll_type == 'nomina'
             <field name="amount_select">code</field>
             
             <field name="amount_python_compute"><![CDATA[
-if payslip.payroll_month_number != 12:
-    result = -(payslip.renta_5ta_retencion or 0.0)
-else:
-    previous_real_income = 0.0
+try:
+    real_payslip = payslip.env['hr.payslip'].browse(payslip.id)
+    month = payslip.payroll_month_number or 0
 
-    previous_payslips = payslip.env['hr.payslip'].search([
-        ('employee_id', '=', employee.id),
-        ('payroll_year', '=', payslip.payroll_year),
-        ('payroll_month_number', '<', payslip.payroll_month_number),
-        ('payroll_type', 'in', ['nomina', 'gratificacion']),
-        ('state', '!=', 'cancel'),
-        ('id', '!=', payslip.id),
-    ])
+    if not month:
+        result = 0.0
 
-    for slip in previous_payslips:
-        for line in slip.line_ids:
-            rule = line.salary_rule_id
+    else:
+        # 1. Retenciones anteriores de renta 5ta
+        retenciones_anteriores = real_payslip.get_previous_amount('R5_RET',search_by='rule',use_absolute=True)
 
-            if rule and rule.is_taxable_r5:
-                previous_real_income += line.total or 0.0
+        # ============================================================
+        # DICIEMBRE: AJUSTE FINAL CON RENTA REAL ANUAL
+        # ============================================================
+        if month == 12:
 
-    current_r5_base = BASIC + COMISION + GRATI_DICIEMBRE + BONIF_DICIEMBRE
+            # 2. Renta real anterior del año por categorías
+            renta_basica_anterior = real_payslip.get_previous_amount('PE_BASIC',search_by='category',use_absolute=False)
+            renta_variable_anterior = real_payslip.get_previous_amount('PE_REM_COMP',search_by='category',use_absolute=False)
+            asignaciones_anteriores = real_payslip.get_previous_amount('PE_ALW',search_by='category',use_absolute=False)
+            # 3. Renta real de la boleta actual de diciembre
+            renta_basica_actual = categories.PE_BASIC if categories.PE_BASIC else 0.0
+            renta_variable_actual = categories.PE_REM_COMP if categories.PE_REM_COMP else 0.0
+            asignaciones_actuales = categories.PE_ALW if categories.PE_ALW else 0.0
+            # 4. Renta proyectada del otro trabajo
+            #    Solo se suma si el contrato tiene r5_other_job activado.
+            renta_otro_trabajo = 0.0
 
-    renta_bruta_anual_real = previous_real_income + current_r5_base
+            if contract.r5_other_job:
+                other_wage = contract.r5_other_job_wage or 0.0
 
-    uit = payslip.uit or 0.0
-    renta_neta_imponible = renta_bruta_anual_real - (7 * uit)
+                if other_wage > 0:
+                    tiene_asignacion = employee.has_family_allowance()
 
-    impuesto_anual = 0.0
+                    asignacion_familiar = 0.0
+                    if tiene_asignacion:
+                        asignacion_familiar = payslip.rmv * 0.10
 
-    if uit > 0 and renta_neta_imponible > 0:
-        remaining = renta_neta_imponible
+                    factor_anual = 14 + (2 * ((payslip.essalud_rate or 0.0) / 100))
+                    renta_otro_trabajo = ( other_wage + asignacion_familiar) * factor_anual
 
-        if remaining > 0:
-            if remaining > (5 * uit):
-                taxable_part = 5 * uit
+            # 5. Renta bruta anual real de quinta
+            renta_real_anual = (renta_basica_anterior+ renta_variable_anterior+ asignaciones_anteriores
+                + renta_basica_actual+ renta_variable_actual+ asignaciones_actuales+ renta_otro_trabajo)
+            # 6. Impuesto anual real
+            impuesto_real_anual = real_payslip.calculate_r5_annual_tax(renta_real_anual)
+            # 7. Retención de diciembre = ajuste final
+            retencion = impuesto_real_anual - retenciones_anteriores
+
+            if retencion < 0:
+                retencion = 0.0
+
+        # ============================================================
+        # ENERO A NOVIEMBRE: RETENCIÓN MENSUAL PROYECTADA
+        # ============================================================
+        else:
+
+            # 2. Sueldo de otro trabajo
+            other_wage = 0.0
+
+            if contract.r5_other_job:
+                other_wage = contract.r5_other_job_wage or 0.0
+
+            # 3. Renta fija anual proyectada
+            renta_fija_proyectada = real_payslip.calculate_r5_projected(contract.wage, other_wage)
+            # 4. Variables anteriores del año
+            variables_anteriores = real_payslip.get_previous_amount('PE_REM_COMP',search_by='category',use_absolute=False)
+            # 5. Variables actuales de la boleta
+            variables_actuales = categories.PE_REM_COMP if categories.PE_REM_COMP else 0.0
+            # 6. Renta bruta anual proyectada
+            renta_proyectada_anual = (renta_fija_proyectada+ variables_anteriores+ variables_actuales)
+            # 7. Impuesto anual proyectado
+            impuesto_proyectado_anual = real_payslip.calculate_r5_annual_tax(renta_proyectada_anual)
+            # 8. Saldo pendiente de impuesto
+            saldo_impuesto = impuesto_proyectado_anual - retenciones_anteriores
+
+            if saldo_impuesto <= 0:
+                retencion = 0.0
             else:
-                taxable_part = remaining
+                # Este método divide entre 13 - mes
+                retencion = real_payslip.calculate_r5_monthly_retention_simple(saldo_impuesto)
 
-            impuesto_anual += taxable_part * 0.08
-            remaining -= taxable_part
+        # 9. Resultado final como descuento
+        result = -round(retencion, 2)
 
-        if remaining > 0:
-            if remaining > (15 * uit):
-                taxable_part = 15 * uit
-            else:
-                taxable_part = remaining
-
-            impuesto_anual += taxable_part * 0.14
-            remaining -= taxable_part
-
-        if remaining > 0:
-            if remaining > (15 * uit):
-                taxable_part = 15 * uit
-            else:
-                taxable_part = remaining
-
-            impuesto_anual += taxable_part * 0.17
-            remaining -= taxable_part
-
-        if remaining > 0:
-            if remaining > (10 * uit):
-                taxable_part = 10 * uit
-            else:
-                taxable_part = remaining
-
-            impuesto_anual += taxable_part * 0.20
-            remaining -= taxable_part
-
-        if remaining > 0:
-            impuesto_anual += remaining * 0.30
-
-    previous_withholding = 0.0
-
-    previous_retention_slips = payslip.env['hr.payslip'].search([
-        ('employee_id', '=', employee.id),
-        ('payroll_year', '=', payslip.payroll_year),
-        ('payroll_month_number', '<', payslip.payroll_month_number),
-        ('payroll_type', '=', 'nomina'),
-        ('state', '!=', 'cancel'),
-        ('id', '!=', payslip.id),
-    ])
-
-    for slip in previous_retention_slips:
-        for line in slip.line_ids:
-            if line.code == 'R5_RET':
-                previous_withholding += abs(line.total or 0.0)
-
-    retencion_mes = impuesto_anual - previous_withholding
-
-    if retencion_mes < 0:
-        retencion_mes = 0.0
-
-    result = -round(retencion_mes, 2)
+except Exception:
+    result = 9999
 ]]></field>
 
             <field name="is_remunerative" eval="False"/>
@@ -976,7 +982,7 @@ result = categories.PE_BASIC + categories.PE_ALW + categories.PE_REM_COMP + cate
             <field name="is_non_taxable" eval="False"/>
         </record>
 
-        <!-- APORTE_ESSALUD - EsSalud Seguro Regular (Aporte) -->
+        <!-- APORTE_ESSALUD - EsSalud Seguro Regular (Aporte) -->      
         <record id="salary_rule_aporte_essalud" model="hr.salary.rule">
             <field name="name">EsSalud Seguro Regular (Aporte)</field>
             <field name="code">APORTE_ESSALUD</field>
@@ -987,8 +993,71 @@ result = categories.PE_BASIC + categories.PE_ALW + categories.PE_REM_COMP + cate
             <field name="condition_select">none</field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute"><![CDATA[
-result = payslip.essalud_rate*GROSS/100 or 0.0
+result = 0.0
+
+ext = employee.zemployee_extension_id
+base = GROSS or 0.0
+
+# Tasa regular EsSalud. Normalmente 9%.
+essalud_rate = payslip.essalud_rate or 9.0
+
+# Si el trabajador tiene EPS, EsSalud queda en 75% del aporte regular:
+# 9% x 75% = 6.75%
+if ext and ext.pe_health_scheme in ('eps', 'eps_sctr'):
+    essalud_rate = essalud_rate * 0.75
+
+# Si realmente usas SIS como caso donde no corresponde EsSalud,
+# puedes dejarlo en 0. Si no aplica en tu planilla, elimina este bloque.
+if ext and ext.pe_health_scheme == 'sis':
+    essalud_rate = 0.0
+
+result = base * essalud_rate / 100.0
 ]]></field>
+            <field name="is_remunerative" eval="False"/>
+            <field name="is_taxable_r5" eval="False"/>
+            <field name="is_r5_projection_base" eval="False"/>
+            <field name="is_asegurable" eval="False"/>
+            <field name="is_computable" eval="False"/>
+            <field name="is_variable" eval="False"/>
+            <field name="is_non_taxable" eval="False"/>
+        </record>
+
+
+        <!-- APORTE_EPS - EPS Seguro Regular (Crédito / Aporte Patronal) -->
+        <record id="salary_rule_aporte_eps" model="hr.salary.rule">
+            <field name="name">EPS Seguro Regular (Aporte)</field>
+            <field name="code">APORTE_EPS</field>
+            <field name="sequence">251</field>
+            <field name="category_id" ref="zpayroll.pe_cat_comp"/>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+ext = employee.zemployee_extension_id
+
+result = bool(
+    ext
+    and ext.pe_health_scheme in ('eps', 'eps_sctr')
+)
+]]></field>
+
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute"><![CDATA[
+result = 0.0
+
+ext = employee.zemployee_extension_id
+base = GROSS or 0.0
+
+# Tasa regular EsSalud. Normalmente 9%.
+essalud_rate = payslip.essalud_rate or 9.0
+
+# Crédito EPS: 25% del aporte regular de EsSalud.
+# Si EsSalud es 9%, EPS = 9% x 25% = 2.25%
+if ext and ext.pe_health_scheme in ('eps', 'eps_sctr'):
+    result = base * essalud_rate * 0.25 / 100.0
+]]></field>
+
             <field name="is_remunerative" eval="False"/>
             <field name="is_taxable_r5" eval="False"/>
             <field name="is_r5_projection_base" eval="False"/>

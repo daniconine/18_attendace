@@ -12,7 +12,9 @@
                     <field name="hours_per_month"/>
                     <field name="cost_per_hour_month"/>
                     <field name="hours_per_week"/>
-                    
+                    <separator string="Renta de Quinta - Otro Trabajo"/>
+                    <field name="r5_other_job"/>
+                    <field name="r5_other_job_wage" invisible="not r5_other_job"/>
                 </xpath>
             </field>
         </record>
