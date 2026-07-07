@@ -339,7 +339,7 @@ result = 3*hrs_extra * hourly_wage
             <field name="appears_on_payslip" eval="True"/>
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
-result = bool(payslip.input_line_ids.filtered(lambda i: i.code == 'COMISION'))
+result = inputs.COMISION
 ]]></field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute"><![CDATA[
@@ -364,7 +364,7 @@ result = sum(payslip.input_line_ids.filtered(lambda i: i.code == 'COMISION').map
             <field name="appears_on_payslip" eval="True"/>
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
-result = bool(payslip.input_line_ids.filtered(lambda i: i.code == 'BONO'))
+result = inputs.BONO
 ]]></field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute"><![CDATA[
@@ -389,7 +389,7 @@ result = sum(payslip.input_line_ids.filtered(lambda i: i.code == 'BONO').mapped(
             <field name="appears_on_payslip" eval="True"/>
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
-result = bool(payslip.input_line_ids.filtered(lambda i: i.code == 'CLASES'))
+result = inputs.CLASES
 ]]></field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute"><![CDATA[
@@ -944,7 +944,7 @@ result = -1*late*hour_wage
             <field name="appears_on_payslip" eval="True"/>
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
-result = payslip.input_line_ids.filtered(lambda i: i.code == 'Desc_OTROS' and i.amount > 0)
+result = inputs.Desc_OTROS
 ]]></field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute"><![CDATA[

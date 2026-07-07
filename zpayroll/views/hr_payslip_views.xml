@@ -25,7 +25,7 @@
                         <field name="name" readonly="state != 'draft'"/>
                         <field name="credit_note" readonly="state != 'draft'"/>
                         <field name="payroll_type"/>
-                        
+                        <field name="remuneracion_computable"/>
                      
                     </group>
 
