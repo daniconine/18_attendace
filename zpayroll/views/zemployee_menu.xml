@@ -58,4 +58,13 @@
         sequence="60"
         groups="hr.group_hr_user"/>
 
+    <menuitem
+        id="menu_zemployee_banks"
+        name="Bancos"
+        parent="menu_zemployee_root"
+        action="base.action_res_bank_form"
+        sequence="70"
+        groups="base.group_system"
+    />
+
 </odoo>

@@ -39,6 +39,12 @@ class HrPayslip(models.Model):
     payslip_nickname = fields.Char(string='Nombre personalizado de boleta',
                                    compute='_compute_payslip_nickname',store=True)
     
+    
+    _sql_constraints = [('unique_payslip_employee_type_period',
+                    'unique(employee_id, payroll_type, payroll_year, payroll_month_number)',
+                    'Ya existe una nómina de este tipo para este empleado en el mismo mes y año.')]
+                
+    #####################################################################
     #metodo para el calculo de los campos que identifican a al nomina    
     @api.depends('date_to')
     def _compute_payroll_period(self):
@@ -98,28 +104,127 @@ class HrPayslip(models.Model):
             }
             
     #########################################
-    #CAlculo de Remuneracion_computable
+    #CAlculo de Remuneracion_computable RC_B
     remuneracion_computable = fields.Float(string='Remuneración Computable Base',
                             compute='_compute_remuneracion_computable',store=True)
     
-    #Metodo de busqueda en las relsa salariales
-    def _get_variable_computable_amount(self, slip):
-        lines = slip.line_ids.filtered(
-            lambda l: l.salary_rule_id.is_computable and l.salary_rule_id.is_variable
-        )
-        return sum(lines.mapped('total'))
-    
-    #suma todos los montos en los conceptos
-    def _get_fixed_computable_amount(self, slip):
-        lines = slip.line_ids.filtered(
-            lambda l: l.salary_rule_id.is_computable
-            and not l.salary_rule_id.is_variable
-        )
-        return sum(lines.mapped('total'))
+  
+    def _get_family_allowance_amount(self):
+        self.ensure_one()
 
-    #claculo principal y la logica si son regulares mayor/igual a 3 meses
-    @api.depends('employee_id','date_to','line_ids.total',
-                'line_ids.salary_rule_id.is_computable','line_ids.salary_rule_id.is_variable')
+        if self.employee_id and self.employee_id.has_family_allowance():
+            return (self.rmv or 0.0) * 0.10
+
+        return 0.0
+
+
+    def _get_fixed_computable_base_from_contract(self):
+        self.ensure_one()
+
+        contract = self.contract_id
+        if not contract:
+            return 0.0
+
+        wage = contract.wage or 0.0
+        asignacion_familiar = self._get_family_allowance_amount()
+        bono_fijo = contract.bono_fijo_computable_mensual or 0.0
+        concepto_fijo = contract.concepto_fijo_computable_mensual or 0.0
+
+        return wage + asignacion_familiar + bono_fijo + concepto_fijo
+
+
+    def _get_previous_month_periods(self, reference_date, months=6):
+        periods = []
+
+        if not reference_date:
+            return periods
+
+        base_date = reference_date.replace(day=1)
+
+        for i in range(1, months + 1):
+            period_date = base_date - relativedelta(months=i)
+
+            periods.append({
+                'year': str(period_date.year),
+                'month_number': period_date.month,
+                'period_code': f'{period_date.year}-{period_date.month:02d}',
+            })
+
+        return periods
+
+
+    def _get_previous_nomina_slips_by_month(self, slip, months=6):
+        Payslip = self.env['hr.payslip']
+        previous_slips = Payslip.browse()
+
+        if not slip.employee_id or not slip.date_to:
+            return previous_slips
+
+        periods = self._get_previous_month_periods(slip.date_to, months=months)
+
+        for period in periods:
+            monthly_slip = Payslip.search([
+                ('employee_id', '=', slip.employee_id.id),
+                ('payroll_type', '=', 'nomina'),
+                ('payroll_year', '=', period['year']),
+                ('payroll_month_number', '=', period['month_number']),
+                ('id', '!=', slip.id),
+                ('state', '!=', 'cancel'),
+            ], order='date_to desc, write_date desc, id desc', limit=1)
+
+            if monthly_slip:
+                previous_slips |= monthly_slip
+
+        return previous_slips
+
+
+    def _get_regular_variable_computable_amount(self, previous_slips):
+        variable_data = {}
+
+        for previous_slip in previous_slips:
+            lines = previous_slip.line_ids.filtered(
+                lambda l: l.salary_rule_id.is_computable
+                and l.salary_rule_id.is_variable
+                and l.total > 0
+            )
+
+            monthly_rules = {}
+
+            for line in lines:
+                rule = line.salary_rule_id
+                key = rule.code or str(rule.id)
+
+                if key not in monthly_rules:
+                    monthly_rules[key] = {
+                        'name': rule.name,
+                        'amount': 0.0,
+                    }
+
+                monthly_rules[key]['amount'] += line.total
+
+            for key, data in monthly_rules.items():
+                if key not in variable_data:
+                    variable_data[key] = {
+                        'name': data['name'],
+                        'total': 0.0,
+                        'months': 0,
+                    }
+
+                variable_data[key]['total'] += data['amount']
+                variable_data[key]['months'] += 1
+
+        total_regular_variable = 0.0
+
+        for key, data in variable_data.items():
+            if data['months'] >= 3:
+                total_regular_variable += data['total']
+
+        return total_regular_variable / 6.0
+
+
+    @api.depends('employee_id','date_to','contract_id','contract_id.wage','contract_id.bono_fijo_computable_mensual',
+                'contract_id.concepto_fijo_computable_mensual','rmv','line_ids.total','line_ids.salary_rule_id.is_computable',
+                'line_ids.salary_rule_id.is_variable')
     def _compute_remuneracion_computable(self):
         for slip in self:
             slip.remuneracion_computable = 0.0
@@ -127,32 +232,16 @@ class HrPayslip(models.Model):
             if not slip.employee_id or not slip.date_to:
                 continue
 
-            # 1. Parte fija computable del mes actual
-            fixed_computable = slip._get_fixed_computable_amount(slip)
+            # 1. Parte fija computable desde contrato vigente de la boleta
+            fixed_computable = slip._get_fixed_computable_base_from_contract()
+            
+            # 2. Buscar una nómina mensual por cada uno de los 6 meses anteriores
+            previous_slips = slip._get_previous_nomina_slips_by_month(slip,months=6)
 
-            # 2. Buscar 6 nóminas mensuales anteriores
-            previous_slips = self.search([
-                ('employee_id', '=', slip.employee_id.id),
-                ('date_to', '<', slip.date_to),
-                ('state', 'in', ['done', 'paid']),
-                ('payroll_type', '=', 'nomina'),
-                ('id', '!=', slip.id),
-            ], order='date_to desc', limit=6)
+            # 3. Promedio de variables computables regulares por concepto
+            variable_computable = slip._get_regular_variable_computable_amount(previous_slips)
 
-            # 3. Promedio 1/6 de variables computables
-            total_variable = 0.0
-            count_months = 0
-
-            for previous_slip in previous_slips:
-                amount = slip._get_variable_computable_amount(previous_slip)
-
-                if amount > 0:
-                    total_variable += amount
-                    count_months += 1
-
-            variable_computable = total_variable / 6.0 if count_months >= 3 else 0.0
-
-            # 4. Resultado final
+            # 4. Resultado final RC_B
             slip.remuneracion_computable = fixed_computable + variable_computable
             
     ###################################
@@ -334,7 +423,7 @@ class HrPayslip(models.Model):
         
     ##############################################################################
     ##############################
-    #envio de correos
+    #envio de correos de boeltas d epago Tipo: nomina
     def action_send_boleta_pago_email_employee(self):
         # Seguridad: solo usuarios autorizados pueden enviar boletas
         if not self.env.user.has_group("hr_payroll_community.group_hr_payroll_community_user"):
@@ -435,4 +524,115 @@ class HrPayslip(models.Model):
         
     
     
-   
+   #######################################################################
+    # Envío de correos de constancia CTS
+    def action_send_boleta_cts_email_employee(self):
+        # Seguridad: solo usuarios autorizados pueden enviar constancias CTS
+        if not self.env.user.has_group("hr_payroll_community.group_hr_payroll_community_user"):
+            raise UserError(_("No tienes permisos para enviar constancias CTS."))
+
+        # Validar que todas las boletas seleccionadas sean de tipo CTS
+        invalid_slips = self.filtered(lambda slip: slip.payroll_type != 'cts')
+
+        if invalid_slips:
+            invalid_names = ", ".join(
+                invalid_slips.mapped(lambda s: s.payslip_nickname or s.name or s.employee_id.name or "")
+            )
+            raise UserError(_(
+                "La constancia CTS solo puede enviarse para boletas de tipo CTS. "
+                "Revise las siguientes boletas: %s"
+            ) % invalid_names)
+
+        # Correo en copia
+        email_cc = "jbernui@gerens.pe"
+
+        email_from = (
+            self.env.user.partner_id.email_formatted
+            or self.env.company.partner_id.email_formatted
+        )
+
+        if not email_from:
+            raise UserError(
+                _("Configura un correo en el usuario actual o en la compañía.")
+            )
+
+        report_action = self.env.ref(
+            "zpayroll.action_report_boleta_cts",
+            raise_if_not_found=False,
+        )
+
+        if not report_action:
+            raise UserError(
+                _("No se encontró el reporte zpayroll.action_report_boleta_cts.")
+            )
+
+        sent_count = 0
+        skipped_employees = []
+
+        for slip in self:
+            employee = slip.employee_id
+            employee_name = employee.name or "Empleado"
+
+            # Correo del empleado
+            email_to = employee.work_email
+
+            if not email_to:
+                skipped_employees.append(employee_name)
+                continue
+
+            pdf_content, content_type = report_action.sudo()._render_qweb_pdf(
+                report_action.report_name,
+                res_ids=slip.ids,
+            )
+
+            cts_name = slip.payslip_nickname or slip.name or employee_name
+            filename = "Constancia CTS - %s.pdf" % cts_name
+            filename = filename.replace("/", "-")
+
+            attachment = self.env["ir.attachment"].sudo().create({
+                "name": filename,
+                "type": "binary",
+                "datas": base64.b64encode(pdf_content),
+                "res_model": slip._name,
+                "res_id": slip.id,
+                "mimetype": "application/pdf",
+            })
+
+            subject = "Constancia CTS - %s" % cts_name
+
+            body_html = """
+                <p>Estimado(a) %s,</p>
+                <p>Adjunto encontrará su constancia de depósito semestral de CTS correspondiente.</p>
+                <p>Saludos cordiales.</p>
+            """ % employee_name
+
+            mail = self.env["mail.mail"].sudo().create({
+                "subject": subject,
+                "email_from": email_from,
+                "email_to": email_to,
+                "email_cc": email_cc,
+                "body_html": body_html,
+                "attachment_ids": [(6, 0, [attachment.id])],
+                "auto_delete": False,
+            })
+
+            mail.send(raise_exception=False)
+            sent_count += 1
+
+        message = _("Se envió %s constancia(s) CTS.") % sent_count
+
+        if skipped_employees:
+            message += _(" No se enviaron constancias a empleados sin correo: %s") % (
+                ", ".join(skipped_employees)
+            )
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Envío de constancias CTS"),
+                "message": message,
+                "type": "success" if sent_count else "warning",
+                "sticky": True if skipped_employees else False,
+            },
+        }

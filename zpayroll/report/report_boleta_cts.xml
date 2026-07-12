@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Reporte PDF: Constancia / Boleta CTS -->
+    <record id="action_report_boleta_cts" model="ir.actions.report">
+        <field name="name">Constancia CTS</field>
+        <field name="model">hr.payslip</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">zpayroll.report_boleta_cts_document</field>
+        <field name="report_file">zpayroll.report_boleta_cts_document</field>
+        <field name="paperformat_id" ref="zpayroll.paperformat_boleta_pago_a4"/>
+        <field name="binding_model_id" ref="hr_payroll_community.model_hr_payslip"/>
+        <field name="binding_type">report</field>
+        <field name="binding_view_types">list,form</field>
+        <field name="print_report_name">('Constancia CTS - %s' % (object.payslip_nickname or object.name or '')).replace('/', '-')</field>
+    </record>
+
+    <!-- Acción servidor: Enviar constancia CTS por correo -->
+    <record id="action_server_send_boleta_cts_email" model="ir.actions.server">
+        <field name="name">Enviar Constancia CTS por Correo</field>
+        <field name="model_id" ref="hr_payroll_community.model_hr_payslip"/>
+        <field name="binding_model_id" ref="hr_payroll_community.model_hr_payslip"/>
+        <field name="binding_type">report</field>
+        <field name="state">code</field>
+        <field name="groups_id" eval="[(4, ref('hr_payroll_community.group_hr_payroll_community_manager'))]"/>
+        <field name="code"><![CDATA[
+action = records.action_send_boleta_cts_email_employee()
+        ]]></field>
+    </record>
+
+    <!-- Template QWeb: Constancia CTS -->
+    <template id="report_boleta_cts_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+
+                <t t-set="data" t-value="report_data_by_id.get(o.id)"/>
+                <t t-set="company_data" t-value="data['company']"/>
+                <t t-set="emp_data" t-value="data['employee']"/>
+                <t t-set="period_data" t-value="data['period']"/>
+                <t t-set="deposit_data" t-value="data['deposit']"/>
+                <t t-set="cts_data" t-value="data['cts']"/>
+
+                <t t-call="web.external_layout">
+                    <t t-set="company" t-value="o.company_id"/>
+                    <t t-set="currency" t-value="company.currency_id"/>
+                    <t t-set="currency_symbol" t-value="currency.symbol or 'S/'"/>
+
+                    <div class="page cts-page">
+
+                        <style>
+                            .cts-page {
+                                font-family: Arial, Helvetica, sans-serif;
+                                font-size: 11px;
+                                color: #000000;
+                                padding-top: 35mm;
+                            }
+
+                            .cts-title {
+                                text-align: center;
+                                font-size: 17px;
+                                font-weight: bold;
+                                margin-bottom: 22px;
+                                text-transform: uppercase;
+                            }
+
+                            .cts-paragraph {
+                                text-align: justify;
+                                line-height: 1.45;
+                                margin-bottom: 14px;
+                            }
+
+                            .section-title {
+                                font-weight: bold;
+                                margin-top: 16px;
+                                margin-bottom: 6px;
+                            }
+
+                            .cts-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-top: 6px;
+                                margin-bottom: 12px;
+                            }
+
+                            .cts-table td,
+                            .cts-table th {
+                                border: 1px solid #000000;
+                                padding: 5px 6px;
+                                vertical-align: middle;
+                            }
+
+                            .cts-table th {
+                                text-align: center;
+                                font-weight: bold;
+                                background-color: #f2f2f2;
+                            }
+
+                            .text-right {
+                                text-align: right;
+                            }
+
+                            .text-center {
+                                text-align: center;
+                            }
+
+                            .text-bold {
+                                font-weight: bold;
+                            }
+
+                            .amount-label {
+                                width: 78%;
+                            }
+
+                            .amount-value {
+                                width: 22%;
+                                text-align: right;
+                                white-space: nowrap;
+                            }
+
+                            .calc-box {
+                                margin-top: 12px;
+                                line-height: 1.55;
+                            }
+
+                            .total-box {
+                                margin-top: 12px;
+                                font-size: 12px;
+                                font-weight: bold;
+                            }
+
+                            .signature-table {
+                                width: 100%;
+                                margin-top: 55px;
+                                border-collapse: collapse;
+                            }
+
+                            .signature-table td {
+                                width: 50%;
+                                text-align: center;
+                                border: none;
+                                padding: 0 18px;
+                                vertical-align: bottom;
+                            }
+
+                            .signature-space {
+                                height: 46px;
+                            }
+
+                            .signature-line {
+                                border-top: 1px solid #000000;
+                                width: 100%;
+                                margin-bottom: 6px;
+                            }
+
+                            .signature-name {
+                                font-weight: bold;
+                            }
+
+                            .signature-subtitle {
+                                font-size: 10px;
+                            }
+                        </style>
+
+                        <div class="cts-title">
+                            LIQUIDACIÓN DE DEPÓSITO SEMESTRAL DE CTS
+                        </div>
+
+                        <div class="cts-paragraph">
+                            <span t-esc="company_data['name']"/>
+                            <t t-if="company_data['vat']">
+                                , con RUC Nº <span t-esc="company_data['vat']"/>
+                            </t>
+                            <t t-if="company_data['street']">
+                                , domiciliada en <span t-esc="company_data['street']"/>
+                            </t>
+                            , en aplicación del artículo 24º del TUO del D. Leg. Nº 650,
+                            Ley de Compensación por Tiempo de Servicios, otorga a
+                            <strong><span t-esc="emp_data['name']"/></strong>,
+                            la presente constancia del depósito de su Compensación por Tiempo de Servicios.
+                        </div>
+
+                        <div class="cts-paragraph">
+                            El depósito ha sido realizado con fecha
+                            <strong>
+                                <span t-esc="deposit_data['date'].strftime('%d/%m/%Y') if deposit_data['date'] else ''"/>
+                            </strong>
+                            <t t-if="deposit_data['account']">
+                                , en la cuenta CTS Nº
+                                <strong><span t-esc="deposit_data['account']"/></strong>
+                            </t>
+                            <t t-if="deposit_data['currency']">
+                                , en moneda <strong><span t-esc="deposit_data['currency']"/></strong>
+                            </t>
+                            <t t-if="deposit_data['bank']">
+                                del <strong><span t-esc="deposit_data['bank']"/></strong>
+                            </t>
+                            , por los siguientes montos y períodos:
+                        </div>
+
+                        <div class="section-title">
+                            1. Período que se liquida:
+                        </div>
+
+                        <div>
+                            <span t-esc="period_data['label']"/>
+                            ;
+                            <span t-esc="period_data['months']"/>
+                            meses,
+                            <span t-esc="period_data['days']"/>
+                            días
+                        </div>
+
+                        <div class="section-title">
+                            2. Remuneración computable:
+                        </div>
+
+                        <table class="cts-table">
+                            <tbody>
+                                <tr>
+                                    <td class="amount-label">Básico</td>
+                                    <td class="amount-value">
+                                        <span t-esc="currency_symbol"/>
+                                        <span t-esc="'{:,.2f}'.format(cts_data['basico'] or 0.0)"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="amount-label">Asignación familiar</td>
+                                    <td class="amount-value">
+                                        <span t-esc="currency_symbol"/>
+                                        <span t-esc="'{:,.2f}'.format(cts_data['asignacion_familiar'] or 0.0)"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="amount-label">Alimentación principal</td>
+                                    <td class="amount-value">
+                                        <span t-esc="currency_symbol"/>
+                                        <span t-esc="'{:,.2f}'.format(cts_data['alimentacion_principal'] or 0.0)"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="amount-label">Bonificaciones</td>
+                                    <td class="amount-value">
+                                        <span t-esc="currency_symbol"/>
+                                        <span t-esc="'{:,.2f}'.format(cts_data['bonificaciones'] or 0.0)"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="amount-label">Comisiones promedio semestral</td>
+                                    <td class="amount-value">
+                                        <span t-esc="currency_symbol"/>
+                                        <span t-esc="'{:,.2f}'.format(cts_data['comisiones'] or 0.0)"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="amount-label">Horas extras promedio semestral</td>
+                                    <td class="amount-value">
+                                        <span t-esc="currency_symbol"/>
+                                        <span t-esc="'{:,.2f}'.format(cts_data['horas_extras'] or 0.0)"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="amount-label">Gratificaciones — dozavos, sextos o promedio</td>
+                                    <td class="amount-value">
+                                        <span t-esc="currency_symbol"/>
+                                        <span t-esc="'{:,.2f}'.format(cts_data['gratificaciones'] or 0.0)"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="amount-label">Otros conceptos percibidos regularmente (1/6)</td>
+                                    <td class="amount-value">
+                                        <span t-esc="currency_symbol"/>
+                                        <span t-esc="'{:,.2f}'.format(cts_data['otros_regulares'] or 0.0)"/>
+                                    </td>
+                                </tr>
+
+                                <tr class="text-bold">
+                                    <td class="amount-label">TOTAL</td>
+                                    <td class="amount-value">
+                                        <span t-esc="currency_symbol"/>
+                                        <span t-esc="'{:,.2f}'.format(cts_data['total_remuneracion_computable'] or 0.0)"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="section-title">
+                            CÁLCULO:
+                        </div>
+
+                        <div class="calc-box">
+                            Por los meses completos:
+                            <strong>
+                                <span t-esc="currency_symbol"/>
+                                <span t-esc="'{:,.2f}'.format(cts_data['total_remuneracion_computable'] or 0.0)"/>
+                            </strong>
+                            ÷ 12 x
+                            <strong>
+                                <span t-esc="period_data['months']"/>
+                            </strong>
+                            meses =
+                            <strong>
+                                <span t-esc="currency_symbol"/>
+                                <span t-esc="'{:,.2f}'.format(cts_data['monto_cts'] or 0.0)"/>
+                            </strong>
+                        </div>
+
+                        <div class="total-box">
+                            TOTAL:
+                            <span t-esc="currency_symbol"/>
+                            <span t-esc="'{:,.2f}'.format(cts_data['monto_cts'] or 0.0)"/>
+                        </div>
+
+                        <div class="total-box">
+                            MONTO DEPOSITADO:
+                            <span t-esc="currency_symbol"/>
+                            <span t-esc="'{:,.2f}'.format(deposit_data['amount'] or 0.0)"/>
+                        </div>
+
+                        <table class="signature-table">
+                            <tr>
+                                <td>
+                                    <div class="signature-space"></div>
+                                    <div class="signature-line"></div>
+                                    <div class="signature-name">
+                                        <span t-esc="emp_data['name']"/>
+                                    </div>
+                                    <div class="signature-subtitle">
+                                        DNI:
+                                        <span t-esc="emp_data['identification_id']"/>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="signature-space"></div>
+                                    <div class="signature-line"></div>
+                                    <div class="signature-name">
+                                        <span t-esc="company_data['representative'] or ''"/>
+                                    </div>
+                                    <div class="signature-subtitle">
+                                        Representante de la empresa
+                                    </div>
+                                    <div class="signature-subtitle">
+                                        <span t-esc="company_data['vat']"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

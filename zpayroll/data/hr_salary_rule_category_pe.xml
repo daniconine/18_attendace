@@ -12,11 +12,7 @@
             <field name="code">PE_ALW</field>
         </record>
 
-        <record id="pe_cat_rem_comp" model="hr.salary.rule.category">
-            <field name="name">Remuneración Complementaria</field>
-            <field name="code">PE_REM_COMP</field>
-        </record>
-
+       
         <record id="pe_cat_rem_variable" model="hr.salary.rule.category">
             <field name="name">Remuneración Variable</field>
             <field name="code">PE_REM_COMP</field>
@@ -40,6 +36,11 @@
         <record id="pe_cat_comp" model="hr.salary.rule.category">
             <field name="name">Aportes del Empleador</field>
             <field name="code">PE_COMP</field>
+        </record>
+
+        <record id="pe_cat_prov" model="hr.salary.rule.category">
+            <field name="name">Provisiones</field>
+            <field name="code">PE_PROV</field>
         </record>
 
         <record id="pe_cat_cts" model="hr.salary.rule.category">

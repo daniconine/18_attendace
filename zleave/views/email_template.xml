@@ -310,6 +310,12 @@
                     <t t-out="ctx.get('action_date') or object.write_date"/>
                 </p>
 
+                <p t-if="status_label == 'aprobada'">
+                    <strong>Total de horas extras aprobadas:</strong>
+                    <t t-out="'%.2f' % (object.total_hours_requested or 0.0)"/>
+                    horas
+                </p>
+
                 <p>Saludos,</p>
                 
             ]]>

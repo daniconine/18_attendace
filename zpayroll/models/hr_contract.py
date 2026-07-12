@@ -37,3 +37,20 @@ class HrContract(models.Model):
     r5_other_job_wage = fields.Float(string='Remuneración mensual del otro trabajo',default=0.0,
             help='Remuneración mensual percibida en otro trabajo, usada para proyectar renta de quinta.')
     
+
+    #### Remuneracion Computable Mensual
+    bono_fijo_computable_mensual = fields.Monetary(
+        string="Bono fijo computable mensual",
+        currency_field='currency_id',
+        default=0.0,
+        tracking=True,
+        help="Monto fijo mensual que forma parte de la remuneración computable."
+    )
+
+    concepto_fijo_computable_mensual = fields.Monetary(
+        string="Concepto fijo computable mensual",
+        currency_field='currency_id',
+        default=0.0,
+        tracking=True,
+        help="Otro monto fijo mensual que forma parte de la remuneración computable."
+    )
