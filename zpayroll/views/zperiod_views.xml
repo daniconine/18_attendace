@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+        
+        <!-- Botón dentro del formulario -->
         <record id="view_zperiod_form_inherit_payroll" model="ir.ui.view">
             <field name="name">zperiod.form.inherit.payroll</field>
             <field name="model">zperiod</field>
@@ -18,5 +20,50 @@
 
             </field>
         </record>
+
+
+
+        <!-- Opción dentro de Acciones en la vista lista -->
+        <record id="action_zperiod_generate_payroll_mass" model="ir.actions.server">
+
+            <field name="name">Generar Nómina</field>
+            <!-- Modelo sobre el cual se ejecutará -->
+            <field name="model_id" ref="zperiod.model_zperiod"/>
+            <!-- Hace que aparezca en el menú Acciones -->
+            <field name="binding_model_id" ref="zperiod.model_zperiod"/>
+            <field name="binding_type">action</field>
+            <!-- Solo mostrar cuando se seleccionan registros de la lista -->
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code"><![CDATA[
+if records:
+    records.create_payslip_from_zperiod()
+
+action = {
+    "type": "ir.actions.client",
+    "tag": "reload",
+}
+            ]]></field>
+        </record>
+
+        <!-- Opción masiva para Actualizar -->
+        <record id="action_zperiod_update_mass" model="ir.actions.server">
+            <field name="name">Actualizar</field>
+            <field name="model_id" ref="zperiod.model_zperiod"/>
+            <field name="binding_model_id" ref="zperiod.model_zperiod"/>
+            <field name="binding_type">action</field>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code"><![CDATA[
+if records:
+    records.action_actualizar()
+
+action = {
+    "type": "ir.actions.client",
+    "tag": "reload",
+}
+            ]]></field>
+        </record>
+
     </data>
 </odoo>

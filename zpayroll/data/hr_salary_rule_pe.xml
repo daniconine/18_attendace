@@ -207,11 +207,72 @@ result = -1*unattended_days * daily_wage
             <field name="is_non_taxable" eval="False"/>
         </record>
 
+
+        <!-- BONO_FIJO_COMP - Bono fijo computable mensual -->
+        <record id="salary_rule_bono_fijo_computable_mensual" model="hr.salary.rule">
+            <field name="name">Bono Fijo Computable Mensual</field>
+            <field name="code">BONO_FIJO_COMP</field>
+            <field name="sequence">10</field>
+            <field name="category_id" ref="zpayroll.pe_cat_basic"/>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = contract and contract.bono_fijo_computable_mensual > 0
+    ]]></field>
+
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute"><![CDATA[
+result = contract.bono_fijo_computable_mensual or 0.0
+            ]]></field>
+
+            <field name="is_remunerative" eval="True"/>
+            <field name="is_taxable_r5" eval="True"/>
+            <field name="is_r5_projection_base" eval="True"/>
+            <field name="is_asegurable" eval="True"/>
+            <field name="is_computable" eval="True"/>
+            <field name="is_variable" eval="False"/>
+            <field name="is_non_taxable" eval="False"/>
+        </record>
+
+
+        <!-- FIJO_COMP_MENSUAL - Concepto fijo computable mensual -->
+        <record id="salary_rule_concepto_fijo_computable_mensual" model="hr.salary.rule">
+            <field name="name">Concepto Fijo Computable Mensual</field>
+            <field name="code">FIJO_COMP_MENSUAL</field>
+            <field name="sequence">11</field>
+            <field name="category_id" ref="zpayroll.pe_cat_basic"/>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = contract and contract.concepto_fijo_computable_mensual > 0
+    ]]></field>
+
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute"><![CDATA[
+result = contract.concepto_fijo_computable_mensual or 0.0
+    ]]></field>
+
+            <field name="is_remunerative" eval="True"/>
+            <field name="is_taxable_r5" eval="True"/>
+            <field name="is_r5_projection_base" eval="True"/>
+            <field name="is_asegurable" eval="True"/>
+            <field name="is_computable" eval="True"/>
+            <field name="is_variable" eval="False"/>
+            <field name="is_non_taxable" eval="False"/>
+        </record>
+
+
+
+        <!-- Conceptos Variables-->
         <!-- hrs_25 - Horas Extras 25% -->
         <record id="salary_rule_hrs_25" model="hr.salary.rule">
             <field name="name">Horas Extras 25%</field>
             <field name="code">hrs_25</field>
-            <field name="sequence">11</field>
+            <field name="sequence">20</field>
             <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -245,7 +306,7 @@ result = 1.25*hrs_extra * hourly_wage
         <record id="salary_rule_hrs_35" model="hr.salary.rule">
             <field name="name">Horas Extras 35%</field>
             <field name="code">hrs_35</field>
-            <field name="sequence">12</field>
+            <field name="sequence">21</field>
             <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -279,7 +340,7 @@ result = 1.35*hrs_extra * hourly_wage
         <record id="salary_rule_hrs_100" model="hr.salary.rule">
             <field name="name">Horas Extras 100%</field>
             <field name="code">hrs_100</field>
-            <field name="sequence">13</field>
+            <field name="sequence">22</field>
             <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -313,7 +374,7 @@ result = 2*hrs_extra * hourly_wage
         <record id="salary_rule_hrs_200" model="hr.salary.rule">
             <field name="name">Horas Extras 200%</field>
             <field name="code">hrs_200</field>
-            <field name="sequence">14</field>
+            <field name="sequence">23</field>
             <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -347,7 +408,7 @@ result = 3*hrs_extra * hourly_wage
         <record id="salary_rule_comision" model="hr.salary.rule">
             <field name="name">Comisiones</field>
             <field name="code">COMISION</field>
-            <field name="sequence">15</field>
+            <field name="sequence">24</field>
             <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -372,7 +433,7 @@ result = sum(payslip.input_line_ids.filtered(lambda i: i.code == 'COMISION').map
         <record id="salary_rule_bono" model="hr.salary.rule">
             <field name="name">Bonificaciones</field>
             <field name="code">BONO</field>
-            <field name="sequence">16</field>
+            <field name="sequence">25</field>
             <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -397,7 +458,7 @@ result = sum(payslip.input_line_ids.filtered(lambda i: i.code == 'BONO').mapped(
         <record id="salary_rule_clases" model="hr.salary.rule">
             <field name="name">Dictado Clases</field>
             <field name="code">CLASES</field>
-            <field name="sequence">18</field>
+            <field name="sequence">26</field>
             <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -418,68 +479,112 @@ result = sum(payslip.input_line_ids.filtered(lambda i: i.code == 'CLASES').mappe
             <field name="is_non_taxable" eval="False"/>
         </record>
 
-        <!-- BONO_FIJO_COMP - Bono fijo computable mensual -->
-        <record id="salary_rule_bono_fijo_computable_mensual" model="hr.salary.rule">
-            <field name="name">Bono Fijo Computable Mensual</field>
-            <field name="code">BONO_FIJO_COMP</field>
-            <field name="sequence">19</field>
-            <field name="category_id" ref="zpayroll.pe_cat_basic"/>
+        
+        <!-- AJUSTE VACACIONAL POR PROMEDIO DE REMUNERACIONES VARIABLES -->
+        <record id="salary_rule_ajuste_vacacional_variable" model="hr.salary.rule">
+            <field name="name">Ajuste de remuneración vacacional por promedio de remuneraciones variables</field>
+            <field name="code">AJUSTE_VAC_VAR</field>
+            <field name="sequence">27</field>
+            <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
-
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
-result = contract and contract.bono_fijo_computable_mensual > 0
+result = inputs.AJUSTE_VAC_VAR
+    ]]></field>
+
+    <!-- Toma el importe ingresado manualmente -->
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute"><![CDATA[
+result = sum(
+    payslip.input_line_ids
+        .filtered(lambda line: line.code == 'AJUSTE_VAC_VAR')
+        .mapped('amount')
+)
+    ]]></field>           
+            <field name="is_remunerative" eval="True"/>
+            <field name="is_taxable_r5" eval="True"/>
+            <field name="is_r5_projection_base" eval="False"/>
+            <field name="is_asegurable" eval="True"/>
+            <field name="is_computable" eval="False"/>
+            <field name="is_variable" eval="True"/>
+            <field name="is_non_taxable" eval="False"/>
+
+        </record>
+
+        <!-- OTROS INGRESOS EXTRAORDINARIOS AFECTOS A QUINTA CATEGORÍA -->
+        <record id="salary_rule_ingreso_extraordinario_r5" model="hr.salary.rule">
+            <field name="name">Otros ingresos extraordinarios afectos Renta Quinta</field>
+            <field name="code">ING_EXT_R5</field>
+            <field name="sequence">28</field>
+            <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = inputs.ING_EXT_R5
     ]]></field>
 
     <field name="amount_select">code</field>
     <field name="amount_python_compute"><![CDATA[
-result = contract.bono_fijo_computable_mensual or 0.0
-            ]]></field>
-
-            <field name="is_remunerative" eval="True"/>
+result = sum(
+    payslip.input_line_ids
+        .filtered(lambda line: line.code == 'ING_EXT_R5')
+        .mapped('amount')
+)
+    ]]></field>
+            <!-- No constituye remuneración ordinaria -->
+            <field name="is_remunerative" eval="False"/>
+            <!-- Sí constituye Renta de Quinta Categoría -->
             <field name="is_taxable_r5" eval="True"/>
-            <field name="is_r5_projection_base" eval="True"/>
-            <field name="is_asegurable" eval="True"/>
-            <field name="is_computable" eval="True"/>
-            <field name="is_variable" eval="False"/>
+            <!-- No debe proyectarse como ingreso mensual recurrente -->
+            <field name="is_r5_projection_base" eval="False"/>
+            <!-- No afecto a EsSalud, ONP o AFP por su naturaleza extraordinaria -->
+            <field name="is_asegurable" eval="False"/>
+            <!-- No computable para CTS, gratificaciones o vacaciones -->
+            <field name="is_computable" eval="False"/>
+            <!-- Importe manual y variable -->
+            <field name="is_variable" eval="True"/>
+            <!-- No es un ingreso inafecto: sí está gravado con quinta -->
             <field name="is_non_taxable" eval="False"/>
         </record>
 
-
-        <!-- FIJO_COMP_MENSUAL - Concepto fijo computable mensual -->
-        <record id="salary_rule_concepto_fijo_computable_mensual" model="hr.salary.rule">
-            <field name="name">Concepto Fijo Computable Mensual</field>
-            <field name="code">FIJO_COMP_MENSUAL</field>
-            <field name="sequence">20</field>
-            <field name="category_id" ref="zpayroll.pe_cat_basic"/>
+        <!-- OTROS INGRESOS EXTRAORDINARIOS NO AFECTOS A RENTA DE QUINTA CATEGORÍA -->
+        <record id="salary_rule_ingreso_extraordinario_no_r5" model="hr.salary.rule">
+            <field name="name">Otros ingresos extraordinarios NO AFECTO Renta Quinta</field>
+            <field name="code">ING_EXT_NO_R5</field>
+            <field name="sequence">29</field>
+            <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
-
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
-result = contract and contract.concepto_fijo_computable_mensual > 0
+result = inputs.ING_EXT_NO_R5
     ]]></field>
-
     <field name="amount_select">code</field>
     <field name="amount_python_compute"><![CDATA[
-result = contract.concepto_fijo_computable_mensual or 0.0
+result = sum(
+    payslip.input_line_ids
+        .filtered(lambda line: line.code == 'ING_EXT_NO_R5')
+        .mapped('amount')
+)
     ]]></field>
-
-            <field name="is_remunerative" eval="True"/>
-            <field name="is_taxable_r5" eval="True"/>
-            <field name="is_r5_projection_base" eval="True"/>
-            <field name="is_asegurable" eval="True"/>
-            <field name="is_computable" eval="True"/>
-            <field name="is_variable" eval="False"/>
-            <field name="is_non_taxable" eval="False"/>
+            <field name="is_remunerative" eval="False"/>
+            <field name="is_taxable_r5" eval="False"/>
+            <field name="is_r5_projection_base" eval="False"/>
+            <field name="is_asegurable" eval="False"/>
+            <field name="is_computable" eval="False"/>
+            <field name="is_variable" eval="True"/>
+            <field name="is_non_taxable" eval="True"/>
         </record>
+
+
 
         <!-- GRATI_JULIO - Gratificación Legal Julio -->
         <record id="salary_rule_grati_julio" model="hr.salary.rule">
             <field name="name">Gratificación Legal Julio</field>
             <field name="code">GRATI_JULIO</field>
-            <field name="sequence">30</field>
+            <field name="sequence">50</field>
             <field name="category_id" ref="zpayroll.pe_cat_alw"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -536,7 +641,7 @@ if year and employee:
         <record id="salary_rule_bonif_julio" model="hr.salary.rule">
             <field name="name">Bonificación Grati Julio</field>
             <field name="code">BONIF_JULIO</field>
-            <field name="sequence">31</field>
+            <field name="sequence">51</field>
             <field name="category_id" ref="zpayroll.pe_cat_alw"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -578,7 +683,7 @@ result = grati * rate / 100.0
         <record id="salary_rule_grati_diciembre" model="hr.salary.rule">
             <field name="name">Gratificación Legal Diciembre</field>
             <field name="code">GRATI_DICIEMBRE</field>
-            <field name="sequence">32</field>
+            <field name="sequence">52</field>
             <field name="category_id" ref="zpayroll.pe_cat_alw"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -635,7 +740,7 @@ if year and employee:
         <record id="salary_rule_bonif_diciembre" model="hr.salary.rule">
             <field name="name">Bonificación Grati Diciembre</field>
             <field name="code">BONIF_DICIEMBRE</field>
-            <field name="sequence">33</field>
+            <field name="sequence">53</field>
             <field name="category_id" ref="zpayroll.pe_cat_alw"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>

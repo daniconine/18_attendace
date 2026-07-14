@@ -280,6 +280,25 @@ class ReportBoletaPago(models.AbstractModel):
                 'show_zero': False,
                 'qty_label': '',
             },
+            {
+                'codes': ['AJUSTE_VAC_VAR'],
+                'name': 'Ajuste Vacacional Variable',
+                'show_zero': False,
+                'qty_label': '',
+            },
+            {
+                'codes': ['ING_EXT_R5'],
+                'name': 'Otros Ingresos Extraordinarios Afectos a 5ta.',
+                'show_zero': False,
+                'qty_label': '',
+            },
+            {
+                'codes': ['ING_EXT_NO_R5'],
+                'name': 'Otros Ingresos Extraordinarios No Afectos a 5ta.',
+                'show_zero': False,
+                'qty_label': '',
+            },
+            
         ]
 
         earnings = []
@@ -339,13 +358,13 @@ class ReportBoletaPago(models.AbstractModel):
                 'show_zero': False,
             },
             {
-                'codes': ['EPS'],
-                'name': 'E.P.S.',
+                'codes': ['DESC_EPS', 'EPS'],
+                'name': 'Descuento EPS Trabajador',
                 'show_zero': False,
             },
             {
-                'codes': ['PRESTAMO'],
-                'name': 'Préstamos al Personal',
+                'codes': ['PRESTAMO_TRAB', 'PRESTAMO'],
+                'name': 'Préstamo a Trabajador',
                 'show_zero': False,
             },
             {

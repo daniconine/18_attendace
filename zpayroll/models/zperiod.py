@@ -184,7 +184,7 @@ class ZPeriod(models.Model):
             # Sumamos el campo 'amount' de todos los registros de comisiones
             total_comisiones = sum(period.commission_ids.mapped('amount'))
 
-            #####Entrada de Bonos
+            #####Entrada de Comisiones
             self.env['hr.payslip.input'].create({
                 'payslip_id': payslip.id,
                 'name': 'Comisiones del Periodo',
@@ -195,14 +195,27 @@ class ZPeriod(models.Model):
             # Sumamos el campo 'amount' de todos los registros de disctado de clases
             total_dictado_clases = sum(period.class_line_ids.mapped('amount'))
 
-            #####Entrada de Bonos
+            #####Entrada de Claes
             self.env['hr.payslip.input'].create({
                 'payslip_id': payslip.id,
-                'name': 'Dictado de Clases del PeriodO',
+                'name': 'Dictado de Clases del Periodo',
                 'code': 'CLASES',                
                 'amount': total_dictado_clases,
                 'contract_id': contract.id,})
             
+            # Entradas manuales que deben quedar disponibles en la nómina
+            manual_input_lines = [{'name': 'Descuento EPS Trabajador','code': 'DESC_EPS',},
+                            {'name': 'Préstamo a Trabajador','code': 'PRESTAMO_TRAB',},]
+
+            #####Entrada de descuentos en la nomina
+            for input_data in manual_input_lines:
+                self.env['hr.payslip.input'].create({
+                    'payslip_id': payslip.id,
+                    'name': input_data['name'],
+                    'code': input_data['code'],
+                    'amount': 0.0,
+                    'contract_id': contract.id,
+                })
             
             payslip.action_compute_sheet() #3ejecucion
 
