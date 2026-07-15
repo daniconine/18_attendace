@@ -48,7 +48,10 @@
             <field name="code">PE_CTS</field>
         </record>
 
-       
+        <record id="pe_cat_info" model="hr.salary.rule.category">
+            <field name="name">Informativo / Reportes</field>
+            <field name="code">PE_INFO</field>
+        </record>
 
     </data>
 </odoo>

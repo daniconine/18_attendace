@@ -38,4 +38,13 @@
             sequence="20"
             groups="hr_payroll_community.group_hr_payroll_community_manager"/>
 
+    <!-- Submenu reporte de reglas salairales-->
+    <menuitem id="menu_zpayroll_report_rule_salary"
+            name="Reporte de Regla Salarial"
+            parent="menu_hr_payroll_community_reports"
+            action="action_zpayroll_report_rule_salary_wizard"
+            sequence="30"
+            groups="hr_payroll_community.group_hr_payroll_community_manager"
+            />
+
 </odoo>

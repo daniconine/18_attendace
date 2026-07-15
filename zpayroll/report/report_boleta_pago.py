@@ -286,6 +286,19 @@ class ReportBoletaPago(models.AbstractModel):
                 'show_zero': False,
                 'qty_label': '',
             },
+            
+            {
+                'codes': ['GRATI_JULIO', 'GRATI_DICIEMBRE'],
+                'name': 'Gratificación',
+                'show_zero': False,
+                'qty_label': '',
+            },
+            {
+                'codes': ['BONIF_JULIO', 'BONIF_DICIEMBRE'],
+                'name': 'Bonif. Extraord. Ley 30334',
+                'show_zero': False,
+                'qty_label': '',
+            },
             {
                 'codes': ['ING_EXT_R5'],
                 'name': 'Otros Ingresos Extraordinarios Afectos a 5ta.',
@@ -370,6 +383,11 @@ class ReportBoletaPago(models.AbstractModel):
             {
                 'codes': ['Desc_OTROS'],
                 'name': 'Otros Descuentos',
+                'show_zero': False,
+            },
+            {
+                'codes': ['DESC_GRATI_PAGADA'],
+                'name': 'Descuento Gratificación',
                 'show_zero': False,
             },
         ]

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista Wizard: Reporte de Regla Salarial -->
+        <record id="view_zpayroll_report_rule_salary_wizard_form" model="ir.ui.view">
+            <field name="name">zpayroll.report.rule.salary.wizard.form</field>
+            <field name="model">zpayroll.report.rule.salary.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Reporte de Regla Salarial">
+                    <group>
+                        <group>
+                            <field name="payroll_year"/>
+                            <field name="payroll_month_from"/>
+                            <field name="payroll_month_to"/>
+                            <field name="company_id"/>
+                        </group>
+
+                        <group>
+                            <field name="salary_rule_id"/>
+                            <field name="employee_selection" widget="radio"/>
+
+                            <field
+                                name="employee_ids"
+                                widget="many2many_tags"
+                                invisible="employee_selection != 'specific'"
+                                domain="[('company_id', '=', company_id)]"
+                            />
+
+                            <field name="include_zero"/>
+                        </group>
+                    </group>
+
+                    <footer>
+                        <button
+                            name="action_print_xlsx"
+                            string="Generar Excel"
+                            type="object"
+                            class="btn-primary"
+                        />
+                        <button
+                            string="Cancelar"
+                            special="cancel"
+                            class="btn-secondary"
+                        />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Acción del Wizard -->
+        <record id="action_zpayroll_report_rule_salary_wizard" model="ir.actions.act_window">
+            <field name="name">Reporte de Regla Salarial</field>
+            <field name="res_model">zpayroll.report.rule.salary.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <!-- Acción XLSX -->
+        <record id="action_report_rule_salary_xlsx" model="ir.actions.report">
+            <field name="name">Reporte de Regla Salarial</field>
+            <field name="model">zpayroll.report.rule.salary.wizard</field>
+            <field name="report_type">xlsx</field>
+            <field name="report_name">zpayroll.report_rule_salary_xlsx</field>
+            <field name="report_file">reporte_regla_salarial_xlsx</field>
+            <field name="print_report_name">('Reporte de Regla Salarial - %s' % (object.salary_rule_id.name or '')).replace('/', '-')</field>
+        </record>
+
+      
+
+    </data>
+</odoo>

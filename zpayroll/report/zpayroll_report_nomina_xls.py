@@ -82,8 +82,12 @@ class ReportZPayrollMonthlyXlsx(models.AbstractModel):
         "clases": ["CLASES"],
         "comision_ventas": ["COMISION"],
         "bonificacion": ["BONO"],
+
+        # Gratificación y bonificación extraordinaria
         "gratificacion": ["GRATI_JULIO", "GRATI_DICIEMBRE"],
         "bonificacion_extraordinaria": ["BONIF_JULIO", "BONIF_DICIEMBRE"],
+
+        # Totales
         "total_ingresos": ["GROSS"],
 
         # Descuentos
@@ -94,6 +98,13 @@ class ReportZPayrollMonthlyXlsx(models.AbstractModel):
         "afp_comision": ["AFP-COMISION"],
         "afp_seguro": ["AFP-SEGURO"],
         "renta_5ta": ["R5_RET"],
+
+        # Nuevos descuentos
+        "eps_trabajador": ["DESC_EPS"],
+        "prestamo_terceros": ["PRESTAMO_TRAB"],
+        "descuento_gratificacion": ["DESC_GRATI_PAGADA"],
+
+        # Otros descuentos
         "otros_descuentos": ["Desc_OTROS"],
 
         # Neto
@@ -101,6 +112,7 @@ class ReportZPayrollMonthlyXlsx(models.AbstractModel):
 
         # Aportes empleador
         "essalud": ["APORTE_ESSALUD"],
+        "eps_empleador": ["APORTE_EPS"],
 
         # Por ahora sin regla definida
         "feriado_1_mayo": [],
@@ -111,12 +123,8 @@ class ReportZPayrollMonthlyXlsx(models.AbstractModel):
         "utilidad": [],
         "otros_ingresos": [],
         "total_ingresos_afectos": [],
-        "eps_trabajador": [],
         "adelanto": [],
-        "descuento_gratificacion": [],
         "descuento_utilidad": [],
-        "prestamo_terceros": [],
-        "eps_empleador": [],
     }
     
     def generate_xlsx_report(self, workbook, data, wizard):

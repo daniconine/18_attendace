@@ -46,6 +46,7 @@
             'data/paperformat.xml',
             
             'wizard/zpayroll_report_nomina_views.xml',
+            'wizard/zpayroll_report_rule_views.xml',
             'report/report_boleta_pago.xml',
             'report/report_boleta_cts.xml',
             'report/hr_payslip_menu.xml',
