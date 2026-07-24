@@ -6,9 +6,7 @@ class ReportZPayrollMonthlyXlsx(models.AbstractModel):
     _name = "report.zpayroll.report_payroll_monthly_xlsx"
     _inherit = "report.report_xlsx.abstract"
     _description = "Reporte Mensual de Planilla XLSX"
-
-    
-    
+        
     
     HEADERS = [
         "Periodo",
@@ -41,7 +39,7 @@ class ReportZPayrollMonthlyXlsx(models.AbstractModel):
         "Clases dictadas",
         "Comisión por ventas",
         "Compensación vacacional",
-        "Bonificación",
+        "Bonificaciones y conceptos fijos",
         "Vacaciones",
         "Vacaciones truncas",
         "Vacaciones pendientes",
@@ -64,7 +62,7 @@ class ReportZPayrollMonthlyXlsx(models.AbstractModel):
         "Adelanto",
         "Descuento por gratificación",
         "Descuento por utilidad",
-        "Préstamo de terceros",
+        "Préstamos al trabajador",
         "Otros descuentos",
         "Total descuentos",
         "Neto a pagar",
@@ -77,56 +75,98 @@ class ReportZPayrollMonthlyXlsx(models.AbstractModel):
         # Ingresos
         "sueldo_basico": ["BASIC"],
         "asignacion_familiar": ["ASIG_FAMILIAR"],
+
+        # VAC ya contiene la remuneración vacacional completa
         "vacaciones": ["VAC"],
-        "horas_extras": ["hrs_25", "hrs_35", "hrs_100", "hrs_200"],
+
+        "horas_extras": [
+            "hrs_25",
+            "hrs_35",
+            "hrs_100",
+            "hrs_200",
+        ],
         "clases": ["CLASES"],
         "comision_ventas": ["COMISION"],
-        "bonificacion": ["BONO"],
+
+        # Se consolidan bonificaciones y conceptos fijos
+        "bonificacion": [
+            "BONO",
+            "BONO_FIJO_COMP",
+            "FIJO_COMP_MENSUAL",
+        ],
+
+        # Venta o compensación de vacaciones
+        "compensacion_vacacional": ["VAC_VENTA"],
 
         # Gratificación y bonificación extraordinaria
-        "gratificacion": ["GRATI_JULIO", "GRATI_DICIEMBRE"],
-        "bonificacion_extraordinaria": ["BONIF_JULIO", "BONIF_DICIEMBRE"],
+        "gratificacion": [
+            "GRATI_JULIO",
+            "GRATI_DICIEMBRE",
+        ],
+        "bonificacion_extraordinaria": [
+            "BONIF_JULIO",
+            "BONIF_DICIEMBRE",
+        ],
 
-        # Totales
+        # Otros ingresos: afectos y no afectos
+        "otros_ingresos": [
+            "ING_EXT_R5",
+            "ING_EXT_NO_R5",
+        ],
+
+        # Ingresos no afectos que se restarán de GROSS
+        "ingresos_no_afectos": [
+            "ING_EXT_NO_R5",
+        ],
+
+        # Total de ingresos calculado por nómina
         "total_ingresos": ["GROSS"],
 
-        # Descuentos
+        # Descuentos por asistencia
         "tardanza": ["TARDE"],
         "falta_injustificada": ["FALTAS"],
+
+        # Sistema pensionario
         "onp": ["ONP"],
         "afp_fondo": ["AFP-FONDO"],
-        "afp_comision": ["AFP-COMISION"],
-        "afp_seguro": ["AFP-SEGURO"],
+        "afp_comision": ["AFP_COMISION"],
+        "afp_seguro": ["AFP_SEGURO"],
+
+        # Impuesto
         "renta_5ta": ["R5_RET"],
 
-        # Nuevos descuentos
+        # EPS trabajador
         "eps_trabajador": ["DESC_EPS"],
-        "prestamo_terceros": ["PRESTAMO_TRAB"],
+
+        # Préstamos de terceros y de GERENS
+        "prestamo_terceros": [
+            "PRESTAMO_TRAB",
+            "PRESTAMO_GERENS",
+        ],
+
+        # Descuento de gratificación previamente pagada
         "descuento_gratificacion": ["DESC_GRATI_PAGADA"],
 
         # Otros descuentos
         "otros_descuentos": ["Desc_OTROS"],
 
-        # Neto
+        # Neto calculado por nómina
         "neto_pagar": ["NET"],
 
-        # Aportes empleador
+        # Aportes del empleador
         "essalud": ["APORTE_ESSALUD"],
         "eps_empleador": ["APORTE_EPS"],
 
-        # Por ahora sin regla definida
+        # Conceptos todavía sin regla o fuente definida
         "feriado_1_mayo": [],
-        "compensacion_vacacional": [],
         "vacaciones_truncas": [],
         "vacaciones_pendientes": [],
         "gratificacion_trunca": [],
         "utilidad": [],
-        "otros_ingresos": [],
-        "total_ingresos_afectos": [],
         "adelanto": [],
         "descuento_utilidad": [],
     }
-    
+        
     def generate_xlsx_report(self, workbook, data, wizard):
         sheet = workbook.add_worksheet("Planilla")
                 
@@ -175,6 +215,28 @@ class ReportZPayrollMonthlyXlsx(models.AbstractModel):
             order="employee_id, date_from"
         )
 
+        # Extensiones peruanas de los trabajadores incluidos en el reporte
+        employee_ids = payslips.mapped("employee_id").ids
+
+        extensions = self.env["zemployee.extension"].search([
+            ("employee_id", "in", employee_ids),
+        ])
+
+        extension_by_employee = {
+            extension.employee_id.id: extension
+            for extension in extensions
+        }
+
+        # Etiquetas visibles del campo Selection:
+        # flow -> Sobre el flujo
+        # mixed -> Mixta
+        # mixed2 -> Mixta 2.0
+        commission_selection = dict(
+            self.env["zemployee.extension"].fields_get(
+                allfields=["afp_commission_type"]
+            )["afp_commission_type"]["selection"]
+        )
+                
         for col, header in enumerate(self.HEADERS):
             sheet.write(0, col, header, header_format)
             sheet.set_column(col, col, 18)
@@ -184,7 +246,18 @@ class ReportZPayrollMonthlyXlsx(models.AbstractModel):
         for slip in payslips:
             employee = slip.employee_id
             contract = slip.contract_id
-
+            employee_extension = extension_by_employee.get(employee.id)
+            cuspp = (employee_extension.cuspp if employee_extension else "")
+            afp_name = (employee_extension.afp_id.name
+                if employee_extension and employee_extension.afp_id
+                else "")
+            afp_commission_type = (
+                commission_selection.get(
+                    employee_extension.afp_commission_type,
+                    "",)
+                if employee_extension
+                else "")
+            
             line_amounts = self._get_line_amounts(slip)
 
             # Ingresos
@@ -205,6 +278,12 @@ class ReportZPayrollMonthlyXlsx(models.AbstractModel):
             utilidad = self._get_rule_amount(line_amounts, "utilidad")
             otros_ingresos = self._get_rule_amount(line_amounts, "otros_ingresos")
             total_ingresos = self._get_rule_amount(line_amounts, "total_ingresos")
+            # Ingresos no afectos incluidos dentro de GROSS
+            ingresos_no_afectos = self._get_rule_amount(line_amounts, "ingresos_no_afectos")
+            # Total de ingresos afectos
+            total_ingresos_afectos = (total_ingresos - ingresos_no_afectos)
+
+
 
             # Descuentos
             tardanza = self._get_rule_amount_abs(line_amounts, "tardanza")
@@ -242,11 +321,13 @@ class ReportZPayrollMonthlyXlsx(models.AbstractModel):
             essalud = self._get_rule_amount(line_amounts, "essalud")
             total_aportes_empleador = eps_empleador + essalud
 
-            total_ingresos_afectos = self._get_rule_amount(line_amounts, "total_ingresos_afectos")
+            ingresos_no_afectos = self._get_rule_amount(line_amounts,"ingresos_no_afectos")
 
+            total_ingresos_afectos = (total_ingresos - ingresos_no_afectos)
+            
             values = [
                 self._get_period_label(slip),
-                slip.date_to,
+                slip.payroll_month,
                 employee.barcode or "",
                 employee.name or "",
                 employee.gender or "",
@@ -256,10 +337,10 @@ class ReportZPayrollMonthlyXlsx(models.AbstractModel):
                 employee.identification_id or "",
                 employee.first_contract_date or "",
                 employee.job_id.name or "",
-                getattr(employee, "essalud_code", "") or "",
-                getattr(employee, "cuspp", "") or "",
-                getattr(employee, "afp_id", False).name if getattr(employee, "afp_id", False) else "",
-                getattr(employee, "afp_commission_type", "") or "",
+                getattr(employee, "ssnid", "") or "",
+                cuspp,
+                afp_name,
+                afp_commission_type,
                 contract.contract_type_id.name if contract and contract.contract_type_id else "",
                 getattr(employee, "employee_type", "") or "",
                 contract.wage if contract else 0.0,

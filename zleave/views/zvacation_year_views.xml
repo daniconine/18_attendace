@@ -60,6 +60,7 @@
                     <!-- GRUPO PRINCIPAL -->
                     <group>
                         <group string ="Datos">
+                            <field name="company_id" readonly="1" groups="base.group_multi_company"/>
                             <field name="employee_id" />                            
                             <field name="start_date"/>
                             <field name="has_advance" widget="boolean_toggle"/>

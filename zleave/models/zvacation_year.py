@@ -17,7 +17,7 @@ class ZVacationYear(models.Model):
     _rec_name = "display_name"
 
     company_id = fields.Many2one("res.company", string="Compañía",
-                                 default=lambda self: self.env.company, required=True, readonly=True)
+                                 default=lambda self: self.env.company, required=True)
     
     employee_id = fields.Many2one('hr.employee', string='Empleado', required=True)
     employee_email = fields.Char(string="Correo del Empleado",related="employee_id.work_email",store=True, readonly=True)

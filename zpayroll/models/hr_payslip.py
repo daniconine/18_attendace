@@ -104,6 +104,9 @@ class HrPayslip(models.Model):
             }
             
     #########################################
+    ajuste_remuneracion_computable = fields.Float(string='Ajuste Rem. Computable',default=0.0,
+                    help='Monto manual para ajustar la Remuneración Computable Base (ej. en migraciones o correcciones de variables).')
+    
     #CAlculo de Remuneracion_computable RC_B
     remuneracion_computable = fields.Float(string='Remuneración Computable Base',
                             compute='_compute_remuneracion_computable',store=True)
@@ -241,8 +244,11 @@ class HrPayslip(models.Model):
             # 3. Promedio de variables computables regulares por concepto
             variable_computable = slip._get_regular_variable_computable_amount(previous_slips)
 
+            # 4. Ajuste manual (Migración / Regularizaciones)
+            monto_ajuste = slip.ajuste_remuneracion_computable or 0.0
+            
             # 4. Resultado final RC_B
-            slip.remuneracion_computable = fixed_computable + variable_computable
+            slip.remuneracion_computable = fixed_computable + variable_computable + monto_ajuste
             
     ###################################
     ############## RENTA DE QUINTA

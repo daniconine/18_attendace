@@ -492,8 +492,6 @@ result = sum(payslip.input_line_ids.filtered(lambda i: i.code == 'CLASES').mappe
             <field name="condition_python"><![CDATA[
 result = inputs.AJUSTE_VAC_VAR
     ]]></field>
-
-    <!-- Toma el importe ingresado manualmente -->
     <field name="amount_select">code</field>
     <field name="amount_python_compute"><![CDATA[
 result = sum(
@@ -509,21 +507,54 @@ result = sum(
             <field name="is_computable" eval="False"/>
             <field name="is_variable" eval="True"/>
             <field name="is_non_taxable" eval="False"/>
+        </record>
 
+        <!-- VAC_VENTA - Venta de Vacaciones / Compensación Vacacional -->
+        <record id="salary_rule_vac_venta" model="hr.salary.rule">
+            <field name="name">Venta de Vacaciones</field>
+            <field name="code">VAC_VENTA</field>
+            <field name="sequence">28</field>
+            <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>            
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+inputs = payslip.input_line_ids
+result = bool(inputs.filtered(lambda l: l.code == 'VAC_VENTA_AMOUNT' and l.amount > 0))
+]]></field>
+
+    <!-- Cálculo: Toma directamente el valor ingresado en el Input -->
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute"><![CDATA[
+result = 0.0
+inputs = payslip.input_line_ids
+input_line = inputs.filtered(lambda l: l.code == 'VAC_VENTA_AMOUNT')
+
+if input_line:
+    result = input_line[0].amount
+]]></field>
+            <field name="is_remunerative" eval="True"/>
+            <field name="is_taxable_r5" eval="True"/>
+            <field name="is_r5_projection_base" eval="False"/>
+            <field name="is_asegurable" eval="True"/>
+            <field name="is_computable" eval="False"/>
+            <field name="is_variable" eval="False"/>
+            <field name="is_non_taxable" eval="False"/>
         </record>
 
         <!-- OTROS INGRESOS EXTRAORDINARIOS AFECTOS A QUINTA CATEGORÍA -->
         <record id="salary_rule_ingreso_extraordinario_r5" model="hr.salary.rule">
             <field name="name">Otros ingresos extraordinarios afectos Renta Quinta</field>
             <field name="code">ING_EXT_R5</field>
-            <field name="sequence">28</field>
+            <field name="sequence">29</field>
             <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
-result = inputs.ING_EXT_R5
-    ]]></field>
+inputs = payslip.input_line_ids
+result = bool(inputs.filtered(lambda l: l.code == 'ING_EXT_R5' and l.amount > 0))
+]]></field>
 
     <field name="amount_select">code</field>
     <field name="amount_python_compute"><![CDATA[
@@ -532,20 +563,13 @@ result = sum(
         .filtered(lambda line: line.code == 'ING_EXT_R5')
         .mapped('amount')
 )
-    ]]></field>
-            <!-- No constituye remuneración ordinaria -->
+]]></field>
             <field name="is_remunerative" eval="False"/>
-            <!-- Sí constituye Renta de Quinta Categoría -->
             <field name="is_taxable_r5" eval="True"/>
-            <!-- No debe proyectarse como ingreso mensual recurrente -->
             <field name="is_r5_projection_base" eval="False"/>
-            <!-- No afecto a EsSalud, ONP o AFP por su naturaleza extraordinaria -->
             <field name="is_asegurable" eval="False"/>
-            <!-- No computable para CTS, gratificaciones o vacaciones -->
             <field name="is_computable" eval="False"/>
-            <!-- Importe manual y variable -->
             <field name="is_variable" eval="True"/>
-            <!-- No es un ingreso inafecto: sí está gravado con quinta -->
             <field name="is_non_taxable" eval="False"/>
         </record>
 
@@ -553,14 +577,15 @@ result = sum(
         <record id="salary_rule_ingreso_extraordinario_no_r5" model="hr.salary.rule">
             <field name="name">Otros ingresos extraordinarios NO AFECTO Renta Quinta</field>
             <field name="code">ING_EXT_NO_R5</field>
-            <field name="sequence">29</field>
+            <field name="sequence">30</field>
             <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
-result = inputs.ING_EXT_NO_R5
-    ]]></field>
+inputs = payslip.input_line_ids
+result = bool(inputs.filtered(lambda l: l.code == 'ING_EXT_NO_R5' and l.amount > 0))
+]]></field>
     <field name="amount_select">code</field>
     <field name="amount_python_compute"><![CDATA[
 result = sum(
@@ -814,19 +839,22 @@ result = categories.PE_BASIC + categories.PE_ALW + categories.PE_REM_COMP
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
 ext = employee.zemployee_extension_id
-result = bool(ext and ext.pe_pension_scheme == 'spp')
-]]></field>
-            <field name="amount_select">code</field>
-            <field name="amount_python_compute"><![CDATA[
-result = 0.0
+is_pensioner = bool(ext and ext.pensioner_type)
 
+# Solo aplica si es SPP y NO es pensionista
+result = bool(ext and ext.pe_pension_scheme == 'spp' and not is_pensioner)
+]]></field>
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute"><![CDATA[
+result = 0.0
 ext = employee.zemployee_extension_id
 
-if ext and ext.pe_pension_scheme == 'spp':
+# Se agrega el filtro `and not ext.pensioner_type`
+if ext and ext.pe_pension_scheme == 'spp' and not ext.pensioner_type:
     base = categories.PE_GROSS if categories.PE_GROSS else 0.0
     rma = 12598.91
     base = min(base, rma)
-    result = -1*base * 0.10
+    result = -1 * base * 0.10
 ]]></field>
             <field name="is_remunerative" eval="False"/>
             <field name="is_taxable_r5" eval="False"/>
@@ -958,7 +986,41 @@ if ext and ext.pe_pension_scheme == 'spp' and ext.afp_id and not ext.pensioner_t
             <field name="is_non_taxable" eval="False"/>
         </record>
             
-       
+        <!-- ONP - Oficina de Normalizacion Previsional -->
+        <record id="salary_rule_onp" model="hr.salary.rule">
+            <field name="name">ONP</field>
+            <field name="code">ONP</field>
+            <field name="sequence">104</field>
+            <field name="category_id" ref="zpayroll.pe_cat_ded"/>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+ext = employee.zemployee_extension_id
+is_pensioner = bool(ext and ext.pensioner_type)
+
+# Solo aplica si pertenece al régimen 'onp' y NO es pensionista
+result = bool(ext and ext.pe_pension_scheme == 'onp' and not is_pensioner)
+]]></field>
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute"><![CDATA[
+result = 0.0
+ext = employee.zemployee_extension_id
+
+if ext and ext.pe_pension_scheme == 'onp' and not ext.pensioner_type:
+    base = categories.PE_GROSS if categories.PE_GROSS else 0.0
+    # Se obtiene la tasa dinámicamente desde el objeto payslip
+    rate = (payslip.onp_rate / 100.0) if payslip.onp_rate else 0.13
+    result = -1 * base * rate
+]]></field>
+            <field name="is_remunerative" eval="False"/>
+            <field name="is_taxable_r5" eval="False"/>
+            <field name="is_r5_projection_base" eval="False"/>
+            <field name="is_asegurable" eval="False"/>
+            <field name="is_computable" eval="False"/>
+            <field name="is_variable" eval="False"/>
+            <field name="is_non_taxable" eval="False"/>
+        </record>
 
         <!-- R5_RET - Renta 5ta Categoria -->
         <record id="salary_rule_r5_ret" model="hr.salary.rule">
@@ -1030,33 +1092,40 @@ try:
                 retencion = 0.0
 
         # ============================================================
-        # ENERO A NOVIEMBRE: RETENCIÓN MENSUAL PROYECTADA
+        # ENERO A NOVIEMBRE: RETENCIÓN MENSUAL PROYECTADA (CON OTRO TRABAJO - 14.18)
         # ============================================================
         else:
+            # 1. Base del mes actual (Sueldo Proporcional + Vacaciones + Clases)
+            ingreso_mes = categories.PE_GROSS if categories.PE_GROSS else (contract.wage or 0.0)
 
             # 2. Sueldo de otro trabajo
             other_wage = 0.0
-
             if contract.r5_other_job:
                 other_wage = contract.r5_other_job_wage or 0.0
 
-            # 3. Renta fija anual proyectada
-            renta_fija_proyectada = real_payslip.calculate_r5_projected(contract.wage, other_wage)
-            # 4. Variables anteriores del año
-            variables_anteriores = real_payslip.get_previous_amount('PE_REM_COMP',search_by='category',use_absolute=False)
-            # 5. Variables actuales de la boleta
-            variables_actuales = categories.PE_REM_COMP if categories.PE_REM_COMP else 0.0
-            # 6. Renta bruta anual proyectada
-            renta_proyectada_anual = (renta_fija_proyectada+ variables_anteriores+ variables_actuales)
-            # 7. Impuesto anual proyectado
+            # 3. Factor anual SUNAT (12 sueldos + 2 gratificaciones + bonificación EsSalud)
+            rate_val = payslip.essalud_rate if payslip.essalud_rate else 9.0
+            boni_rate = rate_val / 100.0
+            factor_anual = 12.0 + 2.0 + (2.0 * boni_rate)  # 14.18
+
+            # 4. Proyección anual combinada aplicando el factor 14.18 a ambos sueldos
+            renta_fija_proyectada = (ingreso_mes + other_wage) * factor_anual
+
+            # 5. Variables acumuladas de meses anteriores
+            variables_anteriores = real_payslip.get_previous_amount('PE_REM_COMP', search_by='category', use_absolute=False)
+
+            # 6. Renta Bruta Anual Total
+            renta_proyectada_anual = renta_fija_proyectada + variables_anteriores
+
+            # 7. Impuesto Anual SUNAT
             impuesto_proyectado_anual = real_payslip.calculate_r5_annual_tax(renta_proyectada_anual)
-            # 8. Saldo pendiente de impuesto
+
+            # 8. Saldo y Retención
             saldo_impuesto = impuesto_proyectado_anual - retenciones_anteriores
 
             if saldo_impuesto <= 0:
                 retencion = 0.0
             else:
-                # Este método divide entre 13 - mes
                 retencion = real_payslip.calculate_r5_monthly_retention_simple(saldo_impuesto)
 
         # 9. Resultado final como descuento
@@ -1118,8 +1187,9 @@ result = -1*late*hour_wage
 
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
-result = inputs.DESC_EPS
-    ]]></field>
+inputs = payslip.input_line_ids
+result = bool(inputs.filtered(lambda l: l.code == 'DESC_EPS' and l.amount > 0))
+]]></field>
 
     <field name="amount_select">code</field>
     <field name="amount_python_compute"><![CDATA[
@@ -1142,7 +1212,7 @@ result = -1 * sum(
 
         <!-- PRESTAMO_TRAB - Préstamo a trabajador -->
         <record id="salary_rule_prestamo_trabajador" model="hr.salary.rule">
-            <field name="name">Préstamo a Trabajador</field>
+            <field name="name">Préstamo TERCERO a Trabajador</field>
             <field name="code">PRESTAMO_TRAB</field>
             <field name="sequence">112</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
@@ -1151,8 +1221,9 @@ result = -1 * sum(
 
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
-result = inputs.PRESTAMO_TRAB
-    ]]></field>
+inputs = payslip.input_line_ids
+result = bool(inputs.filtered(lambda l: l.code == 'PRESTAMO_TRAB' and l.amount > 0))
+]]></field>
 
     <field name="amount_select">code</field>
     <field name="amount_python_compute"><![CDATA[
@@ -1172,17 +1243,51 @@ result = -1 * sum(
             <field name="is_non_taxable" eval="False"/>
         </record>
 
+        <!-- PRESTAMO_GERENS - Préstamo GERENS a trabajador -->
+        <record id="salary_rule_prestamo_gerens" model="hr.salary.rule">
+            <field name="name">Préstamo GERENS a Trabajador</field>
+            <field name="code">PRESTAMO_GERENS</field>
+            <field name="sequence">113</field>
+            <field name="category_id" ref="zpayroll.pe_cat_ded"/>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+inputs = payslip.input_line_ids
+result = bool(inputs.filtered(lambda l: l.code == 'PRESTAMO_GERENS' and l.amount > 0))
+]]></field>
+
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute"><![CDATA[
+result = -1 * sum(
+    payslip.input_line_ids.filtered(
+        lambda i: i.code == 'PRESTAMO_GERENS'
+    ).mapped('amount')
+)
+    ]]></field>
+
+            <field name="is_remunerative" eval="False"/>
+            <field name="is_taxable_r5" eval="False"/>
+            <field name="is_r5_projection_base" eval="False"/>
+            <field name="is_asegurable" eval="False"/>
+            <field name="is_computable" eval="False"/>
+            <field name="is_variable" eval="False"/>
+            <field name="is_non_taxable" eval="False"/>
+        </record>
+
         <!-- Desc_OTROS - Descuento OTROS -->
         <record id="salary_rule_desc_otros" model="hr.salary.rule">
             <field name="name">Descuento OTROS</field>
             <field name="code">Desc_OTROS</field>
-            <field name="sequence">113</field>
+            <field name="sequence">114</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
-result = inputs.Desc_OTROS
+inputs = payslip.input_line_ids
+result = bool(inputs.filtered(lambda l: l.code == 'Desc_OTROS' and l.amount > 0))
 ]]></field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute"><![CDATA[
@@ -1201,7 +1306,7 @@ result = -1*sum(payslip.input_line_ids.filtered(lambda i: i.code == 'Desc_OTROS'
         <record id="salary_rule_desc_grati_pagada" model="hr.salary.rule">
             <field name="name">Descuento Gratificación ya Pagada</field>
             <field name="code">DESC_GRATI_PAGADA</field>
-            <field name="sequence">114</field>
+            <field name="sequence">115</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
