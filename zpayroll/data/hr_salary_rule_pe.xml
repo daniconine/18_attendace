@@ -81,7 +81,7 @@ concepto_fijo = contract.concepto_fijo_computable_mensual or 0.0
 
 # Restamos a la remuneracion computable base lso concpetos fijos para evitar duplciacion de pago
 remuneracion_computable_vacaciones = ((payslip.remuneracion_computable or 0.0)
-    - asignacion_familiar
+    #- asignacion_familiar
     - bono_fijo
     - concepto_fijo)
 
@@ -372,7 +372,7 @@ result = 2*hrs_extra * hourly_wage
 
         <!-- hrs_200 - Horas Extras 200% -->
         <record id="salary_rule_hrs_200" model="hr.salary.rule">
-            <field name="name">Horas Extras 200%</field>
+            <field name="name">Horas Extras 200% Feriado</field>
             <field name="code">hrs_200</field>
             <field name="sequence">23</field>
             <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
@@ -393,7 +393,7 @@ daily_wage = contract.wage / 30.0
 hourly_wage = daily_wage / contract.hours_per_day if contract.hours_per_day else 0.0
 
 # Monto
-result = 3*hrs_extra * hourly_wage
+result = 2*hrs_extra * hourly_wage
 ]]></field>
             <field name="is_remunerative" eval="True"/>
             <field name="is_taxable_r5" eval="True"/>
@@ -480,34 +480,8 @@ result = sum(payslip.input_line_ids.filtered(lambda i: i.code == 'CLASES').mappe
         </record>
 
         
-        <!-- AJUSTE VACACIONAL POR PROMEDIO DE REMUNERACIONES VARIABLES -->
-        <record id="salary_rule_ajuste_vacacional_variable" model="hr.salary.rule">
-            <field name="name">Ajuste de remuneración vacacional por promedio de remuneraciones variables</field>
-            <field name="code">AJUSTE_VAC_VAR</field>
-            <field name="sequence">27</field>
-            <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
-            <field name="active" eval="True"/>
-            <field name="appears_on_payslip" eval="True"/>
-            <field name="condition_select">python</field>
-            <field name="condition_python"><![CDATA[
-result = inputs.AJUSTE_VAC_VAR
-    ]]></field>
-    <field name="amount_select">code</field>
-    <field name="amount_python_compute"><![CDATA[
-result = sum(
-    payslip.input_line_ids
-        .filtered(lambda line: line.code == 'AJUSTE_VAC_VAR')
-        .mapped('amount')
-)
-    ]]></field>           
-            <field name="is_remunerative" eval="True"/>
-            <field name="is_taxable_r5" eval="True"/>
-            <field name="is_r5_projection_base" eval="False"/>
-            <field name="is_asegurable" eval="True"/>
-            <field name="is_computable" eval="False"/>
-            <field name="is_variable" eval="True"/>
-            <field name="is_non_taxable" eval="False"/>
-        </record>
+        
+
 
         <!-- VAC_VENTA - Venta de Vacaciones / Compensación Vacacional -->
         <record id="salary_rule_vac_venta" model="hr.salary.rule">
@@ -832,7 +806,7 @@ result = categories.PE_BASIC + categories.PE_ALW + categories.PE_REM_COMP
         <record id="salary_rule_afp_fondo" model="hr.salary.rule">
             <field name="name">AFP Fondo</field>
             <field name="code">AFP-FONDO</field>
-            <field name="sequence">101</field>
+            <field name="sequence">111</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -869,7 +843,7 @@ if ext and ext.pe_pension_scheme == 'spp' and not ext.pensioner_type:
         <record id="salary_rule_afp_comision" model="hr.salary.rule">
             <field name="name">AFP Comisión</field>
             <field name="code">AFP_COMISION</field>
-            <field name="sequence">102</field>
+            <field name="sequence">112</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -918,7 +892,7 @@ if ext and ext.pe_pension_scheme == 'spp' and ext.afp_id and ext.afp_commission_
         <record id="salary_rule_afp_seguro" model="hr.salary.rule">
             <field name="name">AFP Seguro</field>
             <field name="code">AFP_SEGURO</field>
-            <field name="sequence">103</field>
+            <field name="sequence">113</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -990,7 +964,7 @@ if ext and ext.pe_pension_scheme == 'spp' and ext.afp_id and not ext.pensioner_t
         <record id="salary_rule_onp" model="hr.salary.rule">
             <field name="name">ONP</field>
             <field name="code">ONP</field>
-            <field name="sequence">104</field>
+            <field name="sequence">114</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -1026,7 +1000,7 @@ if ext and ext.pe_pension_scheme == 'onp' and not ext.pensioner_type:
         <record id="salary_rule_r5_ret" model="hr.salary.rule">
             <field name="name">Renta 5ta Categoria</field>
             <field name="code">R5_RET</field>
-            <field name="sequence">105</field>
+            <field name="sequence">115</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -1047,94 +1021,158 @@ try:
         result = 0.0
 
     else:
-        # 1. Retenciones anteriores de renta 5ta
-        retenciones_anteriores = real_payslip.get_previous_amount('R5_RET',search_by='rule',use_absolute=True)
-
         # ============================================================
-        # DICIEMBRE: AJUSTE FINAL CON RENTA REAL ANUAL
+        # 0. RETENCIÓN MANUAL R5_RTA
+        #    Prioridad absoluta durante la migración.
+        #
+        #    Si existe una entrada R5_RTA con monto > 0:
+        #    se utiliza directamente y NO se calcula proyección
+        #    ni ajuste de diciembre.
         # ============================================================
-        if month == 12:
+        input_r5_rta = payslip.input_line_ids.filtered(lambda i: i.code == 'R5_RTA')
+        retencion_manual = sum(input_r5_rta.mapped('amount')) if input_r5_rta else 0.0
 
-            # 2. Renta real anterior del año por categorías
-            renta_basica_anterior = real_payslip.get_previous_amount('PE_BASIC',search_by='category',use_absolute=False)
-            renta_variable_anterior = real_payslip.get_previous_amount('PE_REM_COMP',search_by='category',use_absolute=False)
-            asignaciones_anteriores = real_payslip.get_previous_amount('PE_ALW',search_by='category',use_absolute=False)
-            # 3. Renta real de la boleta actual de diciembre
-            renta_basica_actual = categories.PE_BASIC if categories.PE_BASIC else 0.0
-            renta_variable_actual = categories.PE_REM_COMP if categories.PE_REM_COMP else 0.0
-            asignaciones_actuales = categories.PE_ALW if categories.PE_ALW else 0.0
-            # 4. Renta proyectada del otro trabajo
-            #    Solo se suma si el contrato tiene r5_other_job activado.
-            renta_otro_trabajo = 0.0
+        if retencion_manual > 0:
 
-            if contract.r5_other_job:
-                other_wage = contract.r5_other_job_wage or 0.0
+            retencion = retencion_manual
 
-                if other_wage > 0:
-                    tiene_asignacion = employee.has_family_allowance()
-
-                    asignacion_familiar = 0.0
-                    if tiene_asignacion:
-                        asignacion_familiar = payslip.rmv * 0.10
-
-                    factor_anual = 14 + (2 * ((payslip.essalud_rate or 0.0) / 100))
-                    renta_otro_trabajo = ( other_wage + asignacion_familiar) * factor_anual
-
-            # 5. Renta bruta anual real de quinta
-            renta_real_anual = (renta_basica_anterior+ renta_variable_anterior+ asignaciones_anteriores
-                + renta_basica_actual+ renta_variable_actual+ asignaciones_actuales+ renta_otro_trabajo)
-            # 6. Impuesto anual real
-            impuesto_real_anual = real_payslip.calculate_r5_annual_tax(renta_real_anual)
-            # 7. Retención de diciembre = ajuste final
-            retencion = impuesto_real_anual - retenciones_anteriores
-
-            if retencion < 0:
-                retencion = 0.0
-
-        # ============================================================
-        # ENERO A NOVIEMBRE: RETENCIÓN MENSUAL PROYECTADA (CON OTRO TRABAJO - 14.18)
-        # ============================================================
         else:
-            # 1. Base del mes actual (Sueldo Proporcional + Vacaciones + Clases)
-            ingreso_mes = categories.PE_GROSS if categories.PE_GROSS else (contract.wage or 0.0)
+            # ========================================================
+            # 1. RETENCIONES ANTERIORES DE RENTA QUINTA
+            # ========================================================
+            retenciones_anteriores = real_payslip.get_previous_amount(
+                'R5_RET',search_by='rule',use_absolute=True)
 
-            # 2. Sueldo de otro trabajo
-            other_wage = 0.0
-            if contract.r5_other_job:
-                other_wage = contract.r5_other_job_wage or 0.0
+            # ========================================================
+            # DICIEMBRE: AJUSTE FINAL CON RENTA REAL ANUAL
+            # ========================================================
+            if month == 12:
 
-            # 3. Factor anual SUNAT (12 sueldos + 2 gratificaciones + bonificación EsSalud)
-            rate_val = payslip.essalud_rate if payslip.essalud_rate else 9.0
-            boni_rate = rate_val / 100.0
-            factor_anual = 12.0 + 2.0 + (2.0 * boni_rate)  # 14.18
+                # 2. Rentas reales anteriores del año
+                renta_basica_anterior = real_payslip.get_previous_amount(
+                    'PE_BASIC',search_by='category',use_absolute=False)
 
-            # 4. Proyección anual combinada aplicando el factor 14.18 a ambos sueldos
-            renta_fija_proyectada = (ingreso_mes + other_wage) * factor_anual
+                renta_variable_anterior = real_payslip.get_previous_amount(
+                    'PE_REM_COMP',search_by='category',use_absolute=False)
 
-            # 5. Variables acumuladas de meses anteriores
-            variables_anteriores = real_payslip.get_previous_amount('PE_REM_COMP', search_by='category', use_absolute=False)
+                asignaciones_anteriores = real_payslip.get_previous_amount(
+                    'PE_ALW',search_by='category',use_absolute=False)
 
-            # 6. Renta Bruta Anual Total
-            renta_proyectada_anual = renta_fija_proyectada + variables_anteriores
+                # 3. Renta real de diciembre
+                renta_basica_actual = (categories.PE_BASIC if categories.PE_BASIC else 0.0)
 
-            # 7. Impuesto Anual SUNAT
-            impuesto_proyectado_anual = real_payslip.calculate_r5_annual_tax(renta_proyectada_anual)
+                renta_variable_actual = (categories.PE_REM_COMP if categories.PE_REM_COMP else 0.0)
 
-            # 8. Saldo y Retención
-            saldo_impuesto = impuesto_proyectado_anual - retenciones_anteriores
+                asignaciones_actuales = (categories.PE_ALW if categories.PE_ALW else 0.0)
 
-            if saldo_impuesto <= 0:
-                retencion = 0.0
+                # 4. Otro trabajo
+                renta_otro_trabajo = 0.0
+
+                if contract.r5_other_job:
+                    other_wage = contract.r5_other_job_wage or 0.0
+
+                    if other_wage > 0:
+                        tiene_asignacion = employee.has_family_allowance()
+
+                        asignacion_familiar = 0.0
+
+                        if tiene_asignacion:
+                            asignacion_familiar = (payslip.rmv * 0.10)
+
+                        factor_anual = (14 + (2* ((payslip.essalud_rate or 0.0)/ 100)))
+
+                        renta_otro_trabajo = (other_wage + asignacion_familiar) * factor_anual
+
+                # 5. Renta bruta anual real
+                renta_real_anual = (
+                    renta_basica_anterior
+                    + renta_variable_anterior
+                    + asignaciones_anteriores
+                    + renta_basica_actual
+                    + renta_variable_actual
+                    + asignaciones_actuales
+                    + renta_otro_trabajo
+                )
+
+                # 6. Impuesto anual real
+                impuesto_real_anual = (real_payslip.calculate_r5_annual_tax(renta_real_anual))
+
+                # 7. Ajuste final diciembre
+                retencion = (impuesto_real_anual - retenciones_anteriores)
+
+                if retencion < 0:
+                    retencion = 0.0
+
+            # ========================================================
+            # ENERO A NOVIEMBRE:
+            # BASE FIJA x FACTOR ANUAL + VARIABLES REALES
+            # ========================================================
             else:
-                retencion = real_payslip.calculate_r5_monthly_retention_simple(saldo_impuesto)
 
-        # 9. Resultado final como descuento
+                # 1. Base fija computable:
+                # sueldo + AF + bono fijo + concepto fijo
+                base_fija_actual = (real_payslip._get_fixed_computable_base_from_contract())
+
+                # 2. Otro trabajo
+                other_wage = 0.0
+
+                if contract.r5_other_job:
+                    other_wage = (contract.r5_other_job_wage or 0.0)
+
+                # 3. Factor anual
+                rate_val = (payslip.essalud_rate if payslip.essalud_rate else 9.0)
+
+                boni_rate = rate_val / 100.0
+
+                factor_anual = (12.0 + 2.0 + (2.0 * boni_rate))
+
+                # 4. Proyección base fija empleo actual
+                renta_fija_actual_proyectada = (base_fija_actual * factor_anual)
+
+                # 5. Proyección otro trabajo
+                renta_otro_trabajo_proyectada = (other_wage * factor_anual)
+
+                # 6. Variables reales anteriores
+                variables_anteriores = (
+                    real_payslip.get_previous_amount('PE_REM_COMP',search_by='category',use_absolute=False)
+                )
+
+                # 7. Variables actuales
+                variables_actuales = (categories.PE_REM_COMP if categories.PE_REM_COMP else 0.0)
+
+                # 8. Variables acumuladas
+                variables_acumuladas = (variables_anteriores + variables_actuales)
+
+                # 8.1 Ajuste Vacacional
+                ajuste_vac_anterior = real_payslip.get_previous_amount('AJUSTE_VAC_VAR',search_by='rule',use_absolute=False)
+                ajuste_vac_actual = (AJUSTE_VAC_VAR if AJUSTE_VAC_VAR else 0.0)
+                ajuste_vac_acumulado = (ajuste_vac_anterior + ajuste_vac_actual)
+
+                # 9. Renta anual proyectada
+                # Por ahora SIN diferencial vacaciones
+                renta_proyectada_anual = (renta_fija_actual_proyectada + renta_otro_trabajo_proyectada 
+                                            + variables_acumuladas + ajuste_vac_acumulado)
+
+                # 10. Impuesto anual proyectado
+                impuesto_proyectado_anual = (real_payslip.calculate_r5_annual_tax(renta_proyectada_anual))
+
+                # 11. Saldo pendiente
+                saldo_impuesto = (impuesto_proyectado_anual - retenciones_anteriores)
+
+                # 12. Retención
+                if saldo_impuesto <= 0:
+                    retencion = 0.0
+                else:
+                    retencion = (real_payslip.calculate_r5_monthly_retention_simple(saldo_impuesto))
+
+        # ============================================================
+        # RESULTADO FINAL
+        # ============================================================
         result = -round(retencion, 2)
 
 except Exception:
     result = 9999
 ]]></field>
-
             <field name="is_remunerative" eval="False"/>
             <field name="is_taxable_r5" eval="False"/>
             <field name="is_r5_projection_base" eval="False"/>
@@ -1148,7 +1186,7 @@ except Exception:
         <record id="salary_rule_tarde" model="hr.salary.rule">
             <field name="name">Tardanzas</field>
             <field name="code">TARDE</field>
-            <field name="sequence">110</field>
+            <field name="sequence">120</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -1180,7 +1218,7 @@ result = -1*late*hour_wage
         <record id="salary_rule_desc_eps" model="hr.salary.rule">
             <field name="name">Descuento EPS Trabajador</field>
             <field name="code">DESC_EPS</field>
-            <field name="sequence">111</field>
+            <field name="sequence">121</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -1214,7 +1252,7 @@ result = -1 * sum(
         <record id="salary_rule_prestamo_trabajador" model="hr.salary.rule">
             <field name="name">Préstamo TERCERO a Trabajador</field>
             <field name="code">PRESTAMO_TRAB</field>
-            <field name="sequence">112</field>
+            <field name="sequence">122</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -1247,7 +1285,7 @@ result = -1 * sum(
         <record id="salary_rule_prestamo_gerens" model="hr.salary.rule">
             <field name="name">Préstamo GERENS a Trabajador</field>
             <field name="code">PRESTAMO_GERENS</field>
-            <field name="sequence">113</field>
+            <field name="sequence">123</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -1280,7 +1318,7 @@ result = -1 * sum(
         <record id="salary_rule_desc_otros" model="hr.salary.rule">
             <field name="name">Descuento OTROS</field>
             <field name="code">Desc_OTROS</field>
-            <field name="sequence">114</field>
+            <field name="sequence">124</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -1306,7 +1344,7 @@ result = -1*sum(payslip.input_line_ids.filtered(lambda i: i.code == 'Desc_OTROS'
         <record id="salary_rule_desc_grati_pagada" model="hr.salary.rule">
             <field name="name">Descuento Gratificación ya Pagada</field>
             <field name="code">DESC_GRATI_PAGADA</field>
-            <field name="sequence">115</field>
+            <field name="sequence">125</field>
             <field name="category_id" ref="zpayroll.pe_cat_ded"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -1765,30 +1803,8 @@ result = base_cts / 12.0
             <field name="appears_on_payslip" eval="False"/>
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
-total_he = 0.0
-
-try:
-    total_he += hrs_25 or 0.0
-except Exception:
-    pass
-
-try:
-    total_he += hrs_35 or 0.0
-except Exception:
-    pass
-
-try:
-    total_he += hrs_100 or 0.0
-except Exception:
-    pass
-
-try:
-    total_he += hrs_200 or 0.0
-except Exception:
-    pass
-
-result = total_he > 0
-    ]]></field>
+result = payslip.worked_days_line_ids.filtered(lambda w: w.code == 'hrs_25' and w.number_of_hours > 0)
+]]></field>
 
     <field name="amount_select">code</field>
     <field name="amount_python_compute"><![CDATA[
@@ -1815,6 +1831,45 @@ except Exception:
     pass
     ]]></field>
 
+            <field name="is_remunerative" eval="False"/>
+            <field name="is_taxable_r5" eval="False"/>
+            <field name="is_r5_projection_base" eval="False"/>
+            <field name="is_asegurable" eval="False"/>
+            <field name="is_computable" eval="False"/>
+            <field name="is_variable" eval="False"/>
+            <field name="is_non_taxable" eval="False"/>
+        </record>
+
+    
+
+        <!-- Diferencia de Vacaciones por la Remuneración Computable Vacacional -->
+        <record id="salary_rule_ajuste_vacacional_variable" model="hr.salary.rule">
+            <field name="name">Ajuste Diferencia de Vacaciones (RCV)</field>
+            <field name="code">AJUSTE_VAC_VAR</field>
+            <field name="sequence">101</field>
+            <field name="category_id" ref="zpayroll.pe_cat_info"/>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = payslip.worked_days_line_ids.filtered(lambda w: w.code == 'VAC' and w.number_of_days > 0)
+]]></field>
+
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute"><![CDATA[
+# Días de vacaciones del periodo
+vacation_days = sum(payslip.worked_days_line_ids.filtered(lambda line: line.code == 'VAC')
+        .mapped('number_of_days'))
+
+# Importe ya calculado por la regla salarial VAC
+vacation_amount = VAC
+
+# Valor de esos mismos días usando solamente el sueldo contractual
+vacation_base_amount = ((contract.wage or 0.0) / 30.0) * vacation_days
+
+# Diferencia generada por la remuneración computable vacacional
+result = round(max(vacation_amount - vacation_base_amount, 0.0),2)
+    ]]></field>
             <field name="is_remunerative" eval="False"/>
             <field name="is_taxable_r5" eval="False"/>
             <field name="is_r5_projection_base" eval="False"/>

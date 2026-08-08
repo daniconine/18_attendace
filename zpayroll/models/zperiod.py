@@ -205,7 +205,9 @@ class ZPeriod(models.Model):
             
             # Entradas manuales que deben quedar disponibles en la nómina
             manual_input_lines = [{'name': 'Descuento EPS Trabajador','code': 'DESC_EPS',},
-                            {'name': 'Préstamo a Trabajador','code': 'PRESTAMO_TRAB',},]
+                            {'name': 'Préstamo Tercero a Trabajador','code': 'PRESTAMO_TRAB',},
+                            {'name': 'Préstamo GERENS a Trabajador','code': 'PRESTAMO_GERENS',},
+                            {'name': 'Otros Descuentos','code': 'Desc_OTROS',},]
 
             #####Entrada de descuentos en la nomina
             for input_data in manual_input_lines:
