@@ -23,6 +23,23 @@
             <field name="code">PE_GROSS</field>
         </record>
 
+
+        <!-- ========================================================= -->
+        <!-- CATEGORÍAS TÉCNICAS DE INGRESOS EXTRAORDINARIOS -->
+        <!-- ========================================================= -->
+        <record id="pe_cat_extra_r5" model="hr.salary.rule.category">
+            <field name="name">Ingresos Extraordinarios Afectos R5</field>
+            <field name="code">PE_EXTRA_R5</field>
+            <field name="parent_id" ref="zpayroll.pe_cat_gross"/>
+        </record>
+        <record id="pe_cat_extra_no_r5" model="hr.salary.rule.category">
+            <field name="name">Ingresos Extraordinarios No Afectos R5</field>
+            <field name="code">PE_EXTRA_NO_R5</field>
+            <field name="parent_id" ref="zpayroll.pe_cat_gross"/>
+        </record>
+
+
+
         <record id="pe_cat_ded" model="hr.salary.rule.category">
             <field name="name">Descuentos</field>
             <field name="code">PE_DED</field>

@@ -7,12 +7,17 @@ from datetime import datetime, time
 class HrPayslip(models.Model):
     _inherit = 'hr.payslip'
 
-    uit = fields.Float(string='UIT',default=5500.0)
-    rmv = fields.Float(string='RMV', default=1130.0)
-    onp_rate = fields.Float(string='% ONP', default=13.0)
-    essalud_rate = fields.Float(string='% EsSalud', default=9.0)
-    eps = fields.Float(string='% EPS', default=2.25)
-    eps_essalud_rate = fields.Float(string='% EPS EsSalud', default=6.75)
+    payroll_parameter_id = fields.Many2one('zpayroll.parameters',string='Parámetros de Nómina',compute='_compute_payroll_parameter',store=True)
+        
+    uit = fields.Float(string='UIT',related='payroll_parameter_id.uit',store=True,readonly=True)
+    rmv = fields.Float(string='RMV',related='payroll_parameter_id.rmv',store=True,readonly=True)
+    onp_rate = fields.Float(string='% ONP',related='payroll_parameter_id.onp_rate',store=True,readonly=True)
+    essalud_rate = fields.Float(string='% EsSalud',related='payroll_parameter_id.essalud_rate',store=True,readonly=True)
+    eps = fields.Float(string='% EPS Solidario',
+                       related='payroll_parameter_id.eps_rate',store=True,readonly=True)
+    eps_essalud_rate = fields.Float(string='% EPS EsSalud',
+                                    related='payroll_parameter_id.eps_essalud_rate',store=True,readonly=True)
+    rma = fields.Float(string='Tope RMA',related='payroll_parameter_id.rma',store=True,readonly=True)
     
     payroll_type = fields.Selection([('nomina', 'Nómina mensual'),
                                 ('cts', 'CTS'),
@@ -102,7 +107,27 @@ class HrPayslip(models.Model):
                     'contract_id': [('company_id', '=', slip.company_id.id)] if slip.company_id else []
                 }
             }
-            
+    
+    ##########################################
+    @api.depends('date_to')
+    def _compute_payroll_parameter(self):
+        Parameter = self.env['zpayroll.parameters']
+
+        for payslip in self:
+            payslip.payroll_parameter_id = False
+
+            if not payslip.date_to:
+                continue
+
+            parameter = Parameter.search([
+                ('date_from', '<=', payslip.date_to),
+                '|',
+                ('date_to', '=', False),
+                ('date_to', '>=', payslip.date_to),
+            ], order='date_from desc', limit=1)
+
+            payslip.payroll_parameter_id = parameter
+              
     #########################################
     ajuste_remuneracion_computable = fields.Float(string='Ajuste Rem. Computable',default=0.0,
                     help='Monto manual para ajustar la Remuneración Computable Base (ej. en migraciones o correcciones de variables).')

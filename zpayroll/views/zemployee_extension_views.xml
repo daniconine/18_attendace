@@ -98,8 +98,12 @@
                             <field name="family_ids">
                                 <list editable="bottom">
                                     <field name="name"/>
+                                    <field name="vat_dni"/>
                                     <field name="relationship"/>
                                     <field name="birth_date"/>
+                                    <field name="age"/>
+                                    <field name="is_student"/>
+                                    <field name="is_disabled"/>
                                 </list>
                             </field>
                         </page>

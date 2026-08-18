@@ -22,3 +22,5 @@ access_zpayroll_closing_manager,zpayroll.closing manager,model_zpayroll_closing,
 
 access_zpayroll_report_wizard_hr,zpayroll.report.wizard hr,model_zpayroll_report_wizard,hr_payroll_community.group_hr_payroll_community_manager,1,1,1,1
 access_zpayroll_report_rule_salary_wizard_hr,zpayroll.report.rule.salary.wizard hr,model_zpayroll_report_rule_salary_wizard,hr_payroll_community.group_hr_payroll_community_manager,1,1,1,1
+
+access_zpayroll_parameters_hr,zpayroll.parameters hr,model_zpayroll_parameters,hr_payroll_community.group_hr_payroll_community_manager,1,1,1,1

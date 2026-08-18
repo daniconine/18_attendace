@@ -47,4 +47,12 @@
             groups="hr_payroll_community.group_hr_payroll_community_manager"
             />
 
+
+    <!-- Submenu para agrear en configuracion de nominas-->
+    <menuitem id="menu_zpayroll_parameters"
+          name="Parámetros de Nómina"
+          action="action_zpayroll_parameters"
+          parent="hr_payroll_community.menu_hr_payroll_community_configuration"
+          sequence="13"/>
+
 </odoo>

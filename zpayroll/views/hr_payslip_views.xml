@@ -37,6 +37,7 @@
                         <field name="payroll_period_code" readonly="1"/>
                         <field name="uit" readonly="1"/>
                         <field name="rmv" readonly="1"/>
+                        <field name="rma" readonly="1"/>
                         <field name="onp_rate" readonly="1"/>
                         <field name="essalud_rate" readonly="1"/>
                         <field name="eps" readonly="1"/>

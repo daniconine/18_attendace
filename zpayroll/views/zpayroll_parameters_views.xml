@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ========================================================= -->
+    <!-- LIST VIEW -->
+    <!-- ========================================================= -->
+
+    <record id="view_zpayroll_parameters_list" model="ir.ui.view">
+        <field name="name">zpayroll.parameters.list</field>
+        <field name="model">zpayroll.parameters</field>
+        <field name="arch" type="xml">
+            <list string="Parámetros de Nómina">
+                <field name="name"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="uit"/>
+                <field name="rmv"/>
+                <field name="rma"/>
+                <field name="onp_rate"/>
+                <field name="essalud_rate"/>
+                <field name="eps_rate"/>
+                <field name="eps_essalud_rate"/>               
+            </list>
+        </field>
+    </record>
+
+
+    <!-- ========================================================= -->
+    <!-- FORM VIEW -->
+    <!-- ========================================================= -->
+
+    <record id="view_zpayroll_parameters_form" model="ir.ui.view">
+        <field name="name">zpayroll.parameters.form</field>
+        <field name="model">zpayroll.parameters</field>
+        <field name="arch" type="xml">
+            <form string="Parámetros de Nómina">
+
+                <sheet>
+
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name"
+                                   placeholder="Ej. Parámetros 2026"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Vigencia">
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+
+                        <page string="Parámetros Generales">
+
+                            <group>
+
+                                <group string="Valores">
+                                    <field name="uit"/>
+                                    <field name="rmv"/>
+                                    <field name="rma"/>
+                                </group>
+
+                            </group>
+
+                        </page>
+
+                        <page string="Aportes y Tasas">
+
+                            <group>
+
+                                <group string="Sistema Nacional de Pensiones">
+                                    <field name="onp_rate"/>
+                                </group>
+
+                                <group string="EsSalud / EPS">
+                                    <field name="essalud_rate"/>
+                                    <field name="eps_rate"/>
+                                    <field name="eps_essalud_rate"/>
+                                </group>
+                               
+
+                            </group>
+
+                        </page>
+
+                    </notebook>
+
+                </sheet>
+
+                <!-- Chatter / Tracking -->
+                <chatter/>
+
+            </form>
+        </field>
+    </record>
+
+
+    <!-- ========================================================= -->
+    <!-- ACTION -->
+    <!-- ========================================================= -->
+
+    <record id="action_zpayroll_parameters" model="ir.actions.act_window">
+        <field name="name">Parámetros de Nómina</field>
+        <field name="res_model">zpayroll.parameters</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure los parámetros de nómina.
+            </p>
+            <p>
+                Cada registro representa un conjunto de parámetros vigente
+                durante un determinado rango de fechas.
+            </p>
+        </field>
+    </record>
+
+</odoo>
