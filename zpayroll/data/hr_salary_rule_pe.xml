@@ -549,7 +549,7 @@ result = sum(
 
         <!-- OTROS INGRESOS EXTRAORDINARIOS NO AFECTOS A RENTA DE QUINTA CATEGORÍA -->
         <record id="salary_rule_ingreso_extraordinario_no_r5" model="hr.salary.rule">
-            <field name="name">Otros ingresos extraordinarios NO AFECTO Renta Quinta</field>
+            <field name="name">Otros ingresos extraordinarios NO AFECTO Renta Quinta NI AFP</field>
             <field name="code">ING_EXT_NO_R5</field>
             <field name="sequence">30</field>
             <field name="category_id" ref="zpayroll.pe_cat_extra_no_r5"/>
@@ -811,7 +811,7 @@ result = (
         <!--- ####################################################### -->
         <!-- REM_ASEGURABLE - Remuneración Asegurable -->
         <record id="salary_rule_rem_asegurable" model="hr.salary.rule">
-            <field name="name">Remuneración Asegurable</field>
+            <field name="name">Remuneración Afecta (Asegurable)</field>
             <field name="code">REM_ASEGURABLE</field>
             <field name="sequence">110</field>
             <field name="category_id" ref="zpayroll.pe_cat_info"/>
@@ -1464,6 +1464,32 @@ result = -1 * grati_pagada
             <field name="is_variable" eval="False"/>
             <field name="is_non_taxable" eval="False"/>
         </record>
+
+        <!-- ADELANTOS_PREVIOS - Descuento por Adelantos Previos -->
+        <record id="salary_rule_adelantos_previos" model="hr.salary.rule">
+            <field name="name">Adelantos Previos</field>
+            <field name="code">ADELANTOS_PREVIOS</field>
+            <field name="sequence">126</field>
+            <field name="category_id" ref="zpayroll.pe_cat_ded"/>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = bool(payslip.input_line_ids.filtered(lambda l: l.code == 'ING_EXT_NO_R5' and l.amount > 0))
+    ]]></field>
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute"><![CDATA[
+result = -1 * sum(payslip.input_line_ids.filtered(lambda l: l.code == 'ING_EXT_NO_R5').mapped('amount'))
+    ]]></field>
+            <field name="is_remunerative" eval="False"/>
+            <field name="is_taxable_r5" eval="False"/>
+            <field name="is_r5_projection_base" eval="False"/>
+            <field name="is_asegurable" eval="False"/>
+            <field name="is_computable" eval="False"/>
+            <field name="is_variable" eval="False"/>
+            <field name="is_non_taxable" eval="False"/>       
+        </record>
+
 
         <!-- NET - Salario NETO -->
         <record id="salary_rule_net" model="hr.salary.rule">

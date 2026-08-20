@@ -390,6 +390,11 @@ class ReportBoletaPago(models.AbstractModel):
                 'name': 'Descuento Gratificación',
                 'show_zero': False,
             },
+            {
+                'codes': ['ADELANTOS_PREVIOS'],
+                'name': 'Adelantos Previos',
+                'show_zero': False,
+            },
         ]
 
         deductions = []

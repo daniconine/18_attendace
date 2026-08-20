@@ -2,66 +2,26 @@ from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 from datetime import timedelta
 
+#parametros creados para el calculo denomina
 class ZPayrollParameters(models.Model):
     _name = 'zpayroll.parameters'
     _description = 'Parámetros de Nómina'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'date_from desc'
 
-    name = fields.Char(
-        string='Nombre',
-        compute='_compute_name',
-        store=True
-    )
-
-    uit = fields.Float(
-    string='UIT',
-    tracking=True
-    )
-
-    rmv = fields.Float(
-        string='RMV',
-        tracking=True
-    )
-
-    rma = fields.Float(
-        string='RMA',
-        tracking=True
-    )
-
-    onp_rate = fields.Float(
-        string='% ONP',
-        tracking=True
-    )
-
-    essalud_rate = fields.Float(
-        string='% EsSalud',
-        tracking=True
-    )
-
-    eps_rate = fields.Float(
-        string='% EPS Solidario',
-        tracking=True
-    )
-
-    eps_essalud_rate = fields.Float(
-        string='% EPS_EsSalud',
-        tracking=True
-    )
-  
+    name = fields.Char(string='Nombre',compute='_compute_name',store=True)
+    uit = fields.Float(string='UIT',tracking=True)
+    rmv = fields.Float(string='RMV',tracking=True)
+    rma = fields.Float(string='RMA',tracking=True)
+    onp_rate = fields.Float(string='% ONP',tracking=True)
+    essalud_rate = fields.Float(string='% EsSalud',tracking=True)
+    eps_rate = fields.Float(string='% EPS Solidario',tracking=True)
+    eps_essalud_rate = fields.Float(string='% EPS_EsSalud',tracking=True)
     
-    date_from = fields.Date(
-        string='Vigente desde',
-        required=True,
-        tracking=True
-    )
+    date_from = fields.Date(string='Vigente desde',required=True,tracking=True)
+    date_to = fields.Date(string='Vigente hasta',tracking=True)
 
-    date_to = fields.Date(
-        string='Vigente hasta',
-        tracking=True
-    )
-
-    
+    #Nombre automatico
     @api.depends('date_from', 'date_to')
     def _compute_name(self):
         for record in self:
