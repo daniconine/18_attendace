@@ -1470,7 +1470,7 @@ result = -1 * grati_pagada
             <field name="name">Adelantos Previos</field>
             <field name="code">ADELANTOS_PREVIOS</field>
             <field name="sequence">126</field>
-            <field name="category_id" ref="zpayroll.pe_cat_ded"/>
+            <field name="category_id" ref="zpayroll.pe_cat_info"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
             <field name="condition_select">python</field>
@@ -1479,7 +1479,23 @@ result = bool(payslip.input_line_ids.filtered(lambda l: l.code == 'ING_EXT_NO_R5
     ]]></field>
     <field name="amount_select">code</field>
     <field name="amount_python_compute"><![CDATA[
-result = -1 * sum(payslip.input_line_ids.filtered(lambda l: l.code == 'ING_EXT_NO_R5').mapped('amount'))
+input_adelanto = payslip.input_line_ids.filtered(lambda i: i.code == 'ADELANTOS_PREVIOS')
+
+adelanto_manual = ( sum(input_adelanto.mapped('amount'))
+    if input_adelanto else 0.0)
+
+if adelanto_manual > 0:
+    # Prioridad al valor manual
+    result = -adelanto_manual
+
+else:
+    # Si no hay valor manual, usar ING_EXT_NO_R5
+    ingreso_extraordinario = sum(
+        payslip.input_line_ids.filtered(lambda l: l.code == 'ING_EXT_NO_R5' and l.amount > 0).mapped('amount')
+    )
+
+    result = -ingreso_extraordinario
+
     ]]></field>
             <field name="is_remunerative" eval="False"/>
             <field name="is_taxable_r5" eval="False"/>
@@ -1593,7 +1609,7 @@ result = bool(
 result = 0.0
 
 ext = employee.zemployee_extension_id
-base = GROSS or 0.0
+base = REM_ASEGURABLE or 0.0
 
 # Tasa regular EsSalud. Normalmente 9%.
 essalud_rate = payslip.essalud_rate or 9.0

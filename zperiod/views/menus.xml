@@ -17,27 +17,32 @@
                   groups="base.group_user"/>
         
 
-        <!-- Menú Padre: Insumos de Nómina -->
-        <menuitem id="menu_zperiod_payroll_inputs"
-                name="Insumos de Nómina"
+        <!-- ===================================================== -->
+        <!-- CONFIGURACIÓN                                         -->
+        <!-- Solo administradores                                  -->
+        <!-- ===================================================== -->
+        <menuitem id="menu_zperiod_configuration"
+                name="Administración"
                 parent="menu_zperiod_root"
-                sequence="40"
-                groups="hr.group_hr_manager"/>
+                sequence="90"
+                groups="base.group_system"/>
 
-        <!-- Submenú: Segmentación de Hoja de Tiempos -->
+
+        <!-- Segmentación de Hoja de Tiempos -->
         <menuitem id="menu_zperiod_segment_line"
                 name="Segmentación de Hoja Tiempos"
-                parent="menu_zperiod_payroll_inputs"
+                parent="menu_zperiod_configuration"
                 action="action_zperiod_segment_line"
                 sequence="10"
-                groups="hr.group_hr_manager"/>
+                groups="base.group_system"/>
 
-        <!-- Submenú: Lotes de Períodos -->
+
+        <!-- Lotes de Períodos -->
         <menuitem id="menu_zperiod_batch_child"
-                  name="Lotes de Períodos"
-                  parent="menu_zperiod_root"
-                  action="action_zperiod_batch"
-                  sequence="60"
-                  groups="hr.group_hr_manager"/>
+                name="Lotes de Períodos"
+                parent="menu_zperiod_configuration"
+                action="action_zperiod_batch"
+                sequence="20"
+                groups="base.group_system"/>
     </data>
 </odoo>
