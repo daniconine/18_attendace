@@ -4,15 +4,19 @@
         <!-- Reglas salariales Perú completas, generadas desde Excel. -->
         <!-- Módulo esperado para referencias: zpayroll. Si tu módulo tiene otro nombre, reemplaza zpayroll por el nombre técnico real. -->
 
-        <!-- BASIC - Salario Proporcional -->
+        <!-- BASIC - Salario Basico -->
         <record id="salary_rule_basic" model="hr.salary.rule">
-            <field name="name">Salario Proporcional</field>
+            <field name="name">Salario Basico</field>
             <field name="code">BASIC</field>
             <field name="sequence">1</field>
             <field name="category_id" ref="zpayroll.pe_cat_basic"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
-            <field name="condition_select">none</field>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+salario_proporcional = payslip.worked_days_line_ids.filtered(lambda w: w.code == 'SALARIO_PROPORCIONAL' and w.number_of_days > 0)
+result = not salario_proporcional
+]]></field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute"><![CDATA[
 dias_vacaciones = worked_days.VAC.number_of_days if worked_days.VAC else 0.0
@@ -29,11 +33,41 @@ result = contract.wage * (30 - dias_vacaciones - dias_permisos) / 30
             <field name="is_non_taxable" eval="False"/>
         </record>
 
+        <!-- SALARIO_PROPORCIONAL - Salario por días ingresados manualmente -->
+        <record id="salary_rule_salario_proporcional" model="hr.salary.rule">
+            <field name="name">Salario Proporcional</field>
+            <field name="code">SALARIO_PROPORCIONAL</field>
+            <field name="sequence">2</field>
+            <field name="category_id" ref="zpayroll.pe_cat_basic"/>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = payslip.worked_days_line_ids.filtered(lambda w: w.code == 'SALARIO_PROPORCIONAL' and w.number_of_days > 0)
+]]></field>
+
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute"><![CDATA[
+dias = sum(payslip.worked_days_line_ids.filtered(lambda w: w.code == 'SALARIO_PROPORCIONAL').mapped('number_of_days'))
+
+dias = max(0.0, min(dias, 30.0))
+daily_wage = contract.wage / 30.0
+result = dias * daily_wage
+]]></field>
+            <field name="is_remunerative" eval="True"/>
+            <field name="is_taxable_r5" eval="True"/>
+            <field name="is_r5_projection_base" eval="False"/>
+            <field name="is_asegurable" eval="True"/>
+            <field name="is_computable" eval="True"/>
+            <field name="is_variable" eval="False"/>
+            <field name="is_non_taxable" eval="False"/>
+        </record>
+
         <!-- ASIG_FAMILIAR - ASIGNACION FAMILIAR -->
         <record id="salary_rule_asig_familiar" model="hr.salary.rule">
             <field name="name">ASIGNACION FAMILIAR</field>
             <field name="code">ASIG_FAMILIAR</field>
-            <field name="sequence">2</field>
+            <field name="sequence">3</field>
             <field name="category_id" ref="zpayroll.pe_cat_basic"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -44,7 +78,8 @@ result = employee.has_family_allowance()
             <field name="amount_select">code</field>
             <!-- Nota: en el Excel figura como Fixed Amount, pero se conserva como Python Code para pruebas porque no hay columna amount_fix. -->
             <field name="amount_python_compute"><![CDATA[
-result = 113
+rmv = payslip.rmv or 0.0
+result = rmv * 0.10
 ]]></field>
             <field name="is_remunerative" eval="True"/>
             <field name="is_taxable_r5" eval="True"/>
@@ -59,7 +94,7 @@ result = 113
         <record id="salary_rule_vac" model="hr.salary.rule">
             <field name="name">VACACIONES</field>
             <field name="code">VAC</field>
-            <field name="sequence">3</field>
+            <field name="sequence">4</field>
             <field name="category_id" ref="zpayroll.pe_cat_basic"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -105,7 +140,7 @@ result = vacation_days * daily_computable
         <record id="salary_rule_permiso" model="hr.salary.rule">
             <field name="name">AUSENCIAS/PERMISOS</field>
             <field name="code">PERMISO</field>
-            <field name="sequence">4</field>
+            <field name="sequence">5</field>
             <field name="category_id" ref="zpayroll.pe_cat_basic"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -137,7 +172,7 @@ result = permiso_days * daily_wage
         <record id="salary_rule_ausencia" model="hr.salary.rule">
             <field name="name">LICENCIA SIN GOCE / AUSENCIA</field>
             <field name="code">AUSENCIA</field>
-            <field name="sequence">5</field>
+            <field name="sequence">6</field>
             <field name="category_id" ref="zpayroll.pe_cat_basic"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -178,7 +213,7 @@ result = -1 * ausencia_days * daily_wage
         <record id="salary_rule_faltas" model="hr.salary.rule">
             <field name="name">INASISTENCIAS</field>
             <field name="code">FALTAS</field>
-            <field name="sequence">6</field>
+            <field name="sequence">7</field>
             <field name="category_id" ref="zpayroll.pe_cat_basic"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -201,6 +236,31 @@ result = -1*unattended_days * daily_wage
             <field name="is_remunerative" eval="True"/>
             <field name="is_taxable_r5" eval="True"/>
             <field name="is_r5_projection_base" eval="True"/>
+            <field name="is_asegurable" eval="True"/>
+            <field name="is_computable" eval="True"/>
+            <field name="is_variable" eval="False"/>
+            <field name="is_non_taxable" eval="False"/>
+        </record>
+
+        <!-- REINTEGROS - Diferencias / reintegros de sueldo -->
+        <record id="salary_rule_reintegros" model="hr.salary.rule">
+            <field name="name">REINTEGROS</field>
+            <field name="code">REINTEGROS</field>
+            <field name="sequence">8</field>
+            <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = inputs.REINTEGROS
+]]></field>
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute"><![CDATA[
+result = sum(payslip.input_line_ids.filtered(lambda i: i.code == 'REINTEGROS').mapped('amount'))
+]]></field>
+            <field name="is_remunerative" eval="True"/>
+            <field name="is_taxable_r5" eval="True"/>
+            <field name="is_r5_projection_base" eval="False"/>
             <field name="is_asegurable" eval="True"/>
             <field name="is_computable" eval="True"/>
             <field name="is_variable" eval="False"/>
@@ -597,35 +657,33 @@ result = payslip.payroll_month_number == 7
             <field name="amount_python_compute"><![CDATA[
 result = 0.0
 
-year = payslip.payroll_year or False
+year = payslip.payroll_year
 
-if year and employee:
+real_payslip = employee.env['hr.payslip'].search([
+    ('employee_id', '=', employee.id),
+    ('date_from', '=', payslip.date_from),
+    ('date_to', '=', payslip.date_to),
+    ('payroll_type', '=', payslip.payroll_type),
+    ('state', '!=', 'cancel'),
+], limit=1)
+
+if year and real_payslip:
+
+    computable = real_payslip.get_gratification_semester_time(year,1)
+
+    meses = computable['complete_months']
+    dias_no_computables = computable['non_computable_days']
 
     base_remuneracion = payslip.remuneracion_computable or 0.0
 
-    semester_slips = payslip.env['hr.payslip'].search([
-        ('employee_id', '=', employee.id),
-        ('payroll_year', '=', year),
-        ('payroll_month_number', '>=', 1),
-        ('payroll_month_number', '<=', 6),
-        ('payroll_type', '=', 'nomina'),
-        ('state', '!=', 'cancel'),
-    ])
+    grati_meses = base_remuneracion * meses / 6.0
+    descuento_dias = (base_remuneracion * dias_no_computables/ 180.0)
 
-    meses_tomados = set()
+    result = grati_meses - descuento_dias
 
-    for slip in semester_slips:
-        if slip.payroll_month_number:
-            meses_tomados.add(slip.payroll_month_number)
-
-    meses = len(meses_tomados)
-
-    if meses > 6:
-        meses = 6
-
-    result = base_remuneracion * meses / 6.0
+    if result < 0.0:
+        result = 0.0
     ]]></field>
-
             <field name="is_remunerative" eval="False"/>
             <field name="is_taxable_r5" eval="True"/>
             <field name="is_r5_projection_base" eval="False"/>
@@ -859,12 +917,8 @@ if (ext and ext.pe_pension_scheme == 'spp' and ext.afp_id and not ext.pensioner_
     afp_rate = ext.afp_id.get_rate_values(date)
 
     if afp_rate:
+        # El aporte al fondo NO está limitado por el RMA.
         base = REM_ASEGURABLE or 0.0
-        rma = payslip.rma or 0.0
-
-        if rma > 0.0:
-            base = min(base, rma)
-
         rate = afp_rate.mandatory_contribution_rate or 10.0
 
         result = -1 * base * (rate / 100.0)
@@ -912,11 +966,8 @@ if (ext and ext.pe_pension_scheme == 'spp' and ext.afp_id and ext.afp_commission
     afp_rate = ext.afp_id.get_rate_values(date)
 
     if afp_rate and afp_rate.commission_rate:
+        # La comisión por flujo NO está limitada por el RMA.
         base = REM_ASEGURABLE or 0.0
-        rma = payslip.rma or 0.0
-
-        if rma > 0.0:
-            base = min(base, rma)
 
         result = -1 * base * (afp_rate.commission_rate / 100.0)
 ]]></field>

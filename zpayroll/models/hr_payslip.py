@@ -2,7 +2,9 @@ from dateutil.relativedelta import relativedelta
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError
 import base64
-from datetime import datetime, time
+from datetime import datetime, time, date
+
+
 
 class HrPayslip(models.Model):
     _inherit = 'hr.payslip'
@@ -452,6 +454,104 @@ class HrPayslip(models.Model):
 
         return round(max(retencion, 0.0), 2)
         
+    ##############################################################################
+    ##############################Calcula el tiempo computable para gratificación. (meses compeltos y dias no comptuanles pra grati)
+    def get_gratification_computable_time(self, date_from, date_to):
+        self.ensure_one()
+
+        employee = self.employee_id
+        contract = self.contract_id
+
+        if not employee or not contract:
+            return {'complete_months': 0,
+                    'non_computable_days': 0.0,}
+
+        slips = self.env['hr.payslip'].search([
+            ('employee_id', '=', employee.id),
+            ('payroll_type', '=', 'nomina'),
+            ('date_from', '>=', date_from),
+            ('date_to', '<=', date_to),
+            ('state', '!=', 'cancel'),], order='date_from')
+
+        months_taken = set()
+        non_computable_days = 0.0
+
+        for slip in slips:
+            month_start = slip.date_from
+            month_end = slip.date_to
+
+            if not month_start or not month_end:
+                continue
+
+            # Evitar contar dos veces el mismo mes
+            month_key = (month_start.year,month_start.month,)
+
+            if month_key in months_taken:
+                continue
+
+            # -----------------------------------------------------
+            # 1. Verificar si el trabajador estuvo vinculado
+            #    durante todo el mes de la nómina
+            # -----------------------------------------------------
+            full_month = True
+
+            if contract.date_start and contract.date_start > month_start:
+                full_month = False
+
+            if contract.date_end and contract.date_end < month_end:
+                full_month = False
+
+            # Un mes incompleto por ingreso/cese no genera 1/6
+            if not full_month:
+                continue
+
+            # -----------------------------------------------------
+            # 2. Mes calendario completo computable
+            # -----------------------------------------------------
+            months_taken.add(month_key)
+
+            # -----------------------------------------------------
+            # 3. Días no computables IMPROTANTE PODEMOS AGREGAR MAS CONCEPTOS
+            #
+            # AUSENCIA = licencia sin goce / ausencia
+            # FALTAS   = inasistencias
+            #
+            # VAC y PERMISO con goce NO se descuentan.
+            # -----------------------------------------------------
+            non_computable_lines = slip.worked_days_line_ids.filtered(
+                lambda w: (w.code in ('AUSENCIA', 'FALTAS') and (w.number_of_days or 0.0) > 0.0))
+
+            non_computable_days += sum(non_computable_lines.mapped('number_of_days'))
+
+        return {'complete_months': min(len(months_taken), 6),
+                'non_computable_days': non_computable_days,}
+
+
+    #METODO QUE ESTARA USANDO EN AL REGLA SALARIAL, GRATI,GRATI TRUNCA
+    def get_gratification_semester_time(self, year, semester):
+        self.ensure_one()
+
+        try:
+            year = int(year)
+            semester = int(semester)
+        except Exception:
+            return {'complete_months': 0,
+                    'non_computable_days': 0.0,}
+
+        if semester == 1:
+            date_from = date(year, 1, 1)
+            date_to = date(year, 6, 30)
+
+        elif semester == 2:
+            date_from = date(year, 7, 1)
+            date_to = date(year, 12, 31)
+
+        else:
+            return {'complete_months': 0,
+                    'non_computable_days': 0.0,}
+
+        return self.get_gratification_computable_time(date_from,date_to)
+                    
     ##############################################################################
     ##############################
     #envio de correos de boeltas d epago Tipo: nomina
