@@ -554,7 +554,7 @@ result = sum(payslip.input_line_ids.filtered(lambda i: i.code == 'CLASES').mappe
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
 inputs = payslip.input_line_ids
-result = bool(inputs.filtered(lambda l: l.code == 'VAC_VENTA_AMOUNT' and l.amount > 0))
+result = bool(inputs.filtered(lambda l: l.code == 'VAC_VENTA' and l.amount > 0))
 ]]></field>
 
     <!-- Cálculo: Toma directamente el valor ingresado en el Input -->
@@ -562,7 +562,7 @@ result = bool(inputs.filtered(lambda l: l.code == 'VAC_VENTA_AMOUNT' and l.amoun
     <field name="amount_python_compute"><![CDATA[
 result = 0.0
 inputs = payslip.input_line_ids
-input_line = inputs.filtered(lambda l: l.code == 'VAC_VENTA_AMOUNT')
+input_line = inputs.filtered(lambda l: l.code == 'VAC_VENTA')
 
 if input_line:
     result = input_line[0].amount
@@ -679,7 +679,8 @@ if year and real_payslip:
     grati_meses = base_remuneracion * meses / 6.0
     descuento_dias = (base_remuneracion * dias_no_computables/ 180.0)
 
-    result = grati_meses - descuento_dias
+    #result = grati_meses - descuento_dias
+    result = grati_meses
 
     if result < 0.0:
         result = 0.0
