@@ -16,8 +16,8 @@
         </record>
 
         <record id="dash_horas_extras" model="zleave.dashboard">
-            <field name="name">Mis Horas Extras</field>
-            <field name="description">Registro de sobretiempo.</field>
+            <field name="name">Mis Horas Extras a Pagar</field>
+            <field name="description">Registro de sobretiempo pendiente a pagar.</field>
             <field name="icon">fa-clock-o</field>
             <field name="action_id" ref="zleave.action_zleave_overtime_my"/>
         </record>

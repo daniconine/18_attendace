@@ -115,6 +115,10 @@ class ZAttendanceDay(models.Model):
        
     # Exceso o Defecto horas independiente para la nómina
     diff_attendance = fields.Float(string="Exceso/Defecto Horas", tracking=True, store=True, default=0)
+    ignore_diff_attendance = fields.Boolean(string="Ignorar Exceso/Defecto",default=False,tracking=True, 
+                            help="Si está habilitado, el exceso o defecto de horas se establece en cero.",
+)
+
 
     def action_recalcular(self):
         for rec in self:
@@ -160,7 +164,9 @@ class ZAttendanceDay(models.Model):
             else:
                 rec.actual_first_check_in = False
                 rec.actual_last_check_out = False
-
+            # Si está marcado, ignorar cualquier exceso/defecto calculado
+            if rec.ignore_diff_attendance:
+                rec.diff_attendance = 0.0
 
     
     #Tipo_Assitencia        

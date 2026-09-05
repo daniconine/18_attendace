@@ -469,8 +469,8 @@ class HrPayslip(models.Model):
         slips = self.env['hr.payslip'].search([
             ('employee_id', '=', employee.id),
             ('payroll_type', '=', 'nomina'),
-            ('date_from', '>=', date_from),
-            ('date_to', '<=', date_to),
+            ('date_from', '<=', date_to),
+            ('date_to', '>=', date_from),
             ('state', '!=', 'cancel'),], order='date_from')
 
         months_taken = set()

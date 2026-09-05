@@ -54,7 +54,7 @@
 
     <!-- Submenú Mis notas -->
   <menuitem id="menu_zattendance_my_notes"
-            name="Mis Incidencias"
+            name="Mis Incidencias /Justificaciones"
             parent="zattendance.menu_zattendance_day"
             action="zattendance.action_zattendance_my_notes"
             sequence="30"

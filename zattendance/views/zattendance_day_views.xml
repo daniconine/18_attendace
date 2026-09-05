@@ -101,18 +101,21 @@
                   <field name="late_min"/>
                 
                   <field name="permiso_late" widget="boolean_toggle"/>
-              
+                  <field name="ignore_diff_attendance" widget="boolean_toggle"/>
+
                 </group>
               </page>
               
               <page string="Justificación/Incidencia">
-                <field name="note_ids">
-                  <list>
-                    <field name="create_uid"/>
-                    <field name="reason"/>
-                    <field name="note"/>
-                  </list>
-                </field>
+                  <field name="note_ids">
+                      <list>
+                          <field name="state" string="Estado" width="90px"/>
+                          <field name="category" string="Categoría" width="120px"/>
+                          <field name="reason" string="Motivo" width="150px"/>
+                          <field name="note" string="Detalle / Sustento" width="550px"/>
+                          <field name="create_uid" string="Creado por" width="180px" optional="hide"/>
+                      </list>
+                  </field>
               </page>
 
 

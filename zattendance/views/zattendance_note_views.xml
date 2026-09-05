@@ -52,9 +52,20 @@
                         <field name="requested_by" readonly="1"/>
                     </group>
                     <group string="Clasificación">
-                        <field name="category"/>
+                        <field name="category" readonly="1"/>
                         <field name="reason"/>
                         <field name="n_horas" widget="float_time"/>
+                        <field name="compensation_date"
+                                string="Día a recuperar / descansar"
+                                invisible="reason not in ['hextra_comp', 'compensacion']"
+                                required="reason in ['hextra_comp', 'compensacion']"/>
+                        <field name="comp_hours_balance"
+                                widget="float_time"
+                                readonly="1"
+                                decoration-danger="comp_hours_balance &lt; 0"
+                                decoration-primary="comp_hours_balance &gt; 0"
+                                decoration-muted="comp_hours_balance == 0"
+                                decoration-bf="comp_hours_balance != 0"/>
                         <field name="approved_by" readonly="1" invisible="state == 'submitted'"/>
                         <field name="decision_date" readonly="1" invisible="state == 'submitted'"/>
                     </group>
