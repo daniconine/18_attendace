@@ -14,6 +14,8 @@
                     <field name="hours_per_week"/>
                     <field name="bono_fijo_computable_mensual"/>
                     <field name="concepto_fijo_computable_mensual"/>
+                    <separator string="Sueldo Anterior"/>
+                    <field name="previous_wage"/>
                     <separator string="Renta de Quinta - Otro Trabajo"/>
                     <field name="r5_other_job"/>
                     <field name="r5_other_job_wage" invisible="not r5_other_job"/>

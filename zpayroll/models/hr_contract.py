@@ -54,3 +54,9 @@ class HrContract(models.Model):
         tracking=True,
         help="Otro monto fijo mensual que forma parte de la remuneración computable."
     )
+
+    previous_wage = fields.Float(
+        string="Sueldo anterior",
+        tracking=True,
+        help="Sueldo anterior utilizado para cálculos proporcionales cuando existe un cambio de remuneración dentro del mes.",
+    )

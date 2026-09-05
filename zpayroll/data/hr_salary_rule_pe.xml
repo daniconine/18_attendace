@@ -48,11 +48,29 @@ result = payslip.worked_days_line_ids.filtered(lambda w: w.code == 'SALARIO_PROP
 
     <field name="amount_select">code</field>
     <field name="amount_python_compute"><![CDATA[
-dias = sum(payslip.worked_days_line_ids.filtered(lambda w: w.code == 'SALARIO_PROPORCIONAL').mapped('number_of_days'))
+dias_prop = sum(payslip.worked_days_line_ids.filtered(lambda w: w.code == 'SALARIO_PROPORCIONAL').mapped('number_of_days'))
 
-dias = max(0.0, min(dias, 30.0))
-daily_wage = contract.wage / 30.0
-result = dias * daily_wage
+dias_work = sum(payslip.worked_days_line_ids.filtered(lambda w: w.code == 'WORK100').mapped('number_of_days'))
+
+dias_prop = max(0.0, min(dias_prop, 30.0))
+dias_work = max(0.0, min(dias_work, 30.0))
+
+# Sueldo actual
+sueldo_actual = contract.wage or 0.0
+
+# Parte proporcional con sueldo actual
+importe_actual = dias_prop * (sueldo_actual / 30.0)
+
+# Por defecto solo calculamos salario proporcional
+importe_anterior = 0.0
+
+# Si existen días en ambas líneas,
+# los WORK100 se pagan con el sueldo anterior
+if dias_prop > 0 and dias_work > 0:
+    sueldo_anterior = contract.previous_wage or 0.0
+    importe_anterior = dias_work * (sueldo_anterior / 30.0)
+
+result = importe_actual + importe_anterior
 ]]></field>
             <field name="is_remunerative" eval="True"/>
             <field name="is_taxable_r5" eval="True"/>
@@ -659,31 +677,20 @@ result = 0.0
 
 year = payslip.payroll_year
 
-real_payslip = employee.env['hr.payslip'].search([
-    ('employee_id', '=', employee.id),
-    ('date_from', '=', payslip.date_from),
-    ('date_to', '=', payslip.date_to),
-    ('payroll_type', '=', payslip.payroll_type),
-    ('state', '!=', 'cancel'),
-], limit=1)
+if year:
 
-if year and real_payslip:
-
-    computable = real_payslip.get_gratification_semester_time(year,1)
-
-    meses = computable['complete_months']
-    dias_no_computables = computable['non_computable_days']
+    meses = payslip.env['hr.payslip'].search_count([
+        ('employee_id', '=', employee.id),
+        ('payroll_type', '=', 'nomina'),
+        ('payroll_year', '=', year),
+        ('payroll_month_number', 'in', [1, 2, 3, 4, 5, 6]),
+        ('state', '!=', 'cancel'),
+        ('exclude_from_gratification', '=', False),
+    ])
 
     base_remuneracion = payslip.remuneracion_computable or 0.0
 
-    grati_meses = base_remuneracion * meses / 6.0
-    descuento_dias = (base_remuneracion * dias_no_computables/ 180.0)
-
-    #result = grati_meses - descuento_dias
-    result = grati_meses
-
-    if result < 0.0:
-        result = 0.0
+    result = base_remuneracion * meses / 6.0
     ]]></field>
             <field name="is_remunerative" eval="False"/>
             <field name="is_taxable_r5" eval="True"/>

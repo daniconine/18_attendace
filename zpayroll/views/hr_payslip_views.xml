@@ -24,6 +24,7 @@
                         <field name="struct_id" readonly="state != 'draft'"/>
                         <field name="name" readonly="state != 'draft'"/>
                         <field name="credit_note" readonly="state != 'draft'"/>
+                        <field name="exclude_from_gratification" readonly="state != 'draft'"/>
                         <field name="payroll_type"/>
                         <field name="ajuste_remuneracion_computable"/>
                         <field name="remuneracion_computable"/>
