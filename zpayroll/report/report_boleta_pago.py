@@ -251,6 +251,12 @@ class ReportBoletaPago(models.AbstractModel):
                 'qty_label': '',
             },
             {
+                'codes': ['BONO_FIJO_COMP', 'FIJO_COMP_MENSUAL'],
+                'name': 'Ingresos Fijos',
+                'show_zero': False,
+                'qty_label': '',
+            },            
+            {
                 'codes': ['hrs_25', 'hrs_35', 'hrs_100', 'hrs_200'],
                 'name': 'Horas Extras',
                 'show_zero': False,
@@ -279,14 +285,31 @@ class ReportBoletaPago(models.AbstractModel):
                 'name': 'Vacaciones',
                 'show_zero': False,
                 'qty_label': '',
-            },
+            },            
             {
-                'codes': ['AJUSTE_VAC_VAR'],
-                'name': 'Ajuste Vacacional Variable',
+                'codes': ['PERMISO'],
+                'name': 'Licencia con Goce / Permiso',
+                'show_zero': False,
+                'qty_label': '',
+            },            
+            {
+                'codes': ['SUBSIDIO'],
+                'name': 'Subsidio EsSalud',
                 'show_zero': False,
                 'qty_label': '',
             },
-            
+            {
+                'codes': ['REINTEGROS'],
+                'name': 'Reintegros',
+                'show_zero': False,
+                'qty_label': '',
+            },            
+            {
+                'codes': ['VAC_VENTA'],
+                'name': 'Venta de Vacaciones',
+                'show_zero': False,
+                'qty_label': '',
+            },            
             {
                 'codes': ['GRATI_JULIO', 'GRATI_DICIEMBRE'],
                 'name': 'Gratificación',

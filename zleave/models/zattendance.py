@@ -1,6 +1,7 @@
 from odoo import models, fields, api
 from datetime import datetime
 from datetime import timedelta
+from odoo.exceptions import UserError
 
 class ZAttendanceDay(models.Model):
     _inherit = "zattendance.day" 
@@ -74,8 +75,12 @@ class ZAttendanceDay(models.Model):
                 tipo_asistencia = 'lic_sin_goce'  # Tipo de asistencia 'Licencia Sin Goce'
             elif permiso.type_permission == 'imperfecta':
                 tipo_asistencia = 'lic_con_goce'  # Tipo de asistencia 'Licencia Con Goce'
+            elif permiso.type_permission == 'subsidio':
+                tipo_asistencia = 'lic_subsidio'
+            
             else:
-                tipo_asistencia = 'inasistencia'  # Valor por defecto, si no hay tipo definido
+                raise UserError(_("El tipo de licencia '%s' no está configurado.")
+                    % permiso.type_permission)  # Valor por defecto, si no hay tipo definido
 
             # Actualizar el campo 'planned_attendance_type' con el tipo de asistencia
             rec.planned_attendance_type = tipo_asistencia

@@ -12,7 +12,8 @@ class ZLaborSuspensionCode(models.Model):
     code = fields.Char(string="Código PLAME", required=True,help="Código oficial según Tabla 21 de SUNAT")
     description = fields.Char(string="Descripción o Nombre en PLAME", required=True)  # Ej: 'S.P. FALTAS INJUSTIFICADAS'
     type_suspension = fields.Selection([('perfecta','Suspensión Perfecta'), 
-                                        ('imperfecta','Suspensión Imperfecta')],
+                                        ('imperfecta','Suspensión Imperfecta'),
+                                        ('subsidio', 'Licencia Subsidiada'),],
                                         string="Tipo de suspensión", required=True)
     asumido_por = fields.Selection([('empleador','Empleador'), ('essalud','EsSalud'), ('ninguno','Ninguno')],
                                    string="Quién asume el costo", default='ninguno')

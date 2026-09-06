@@ -21,8 +21,9 @@ result = not salario_proporcional
             <field name="amount_python_compute"><![CDATA[
 dias_vacaciones = worked_days.VAC.number_of_days if worked_days.VAC else 0.0
 dias_permisos = worked_days.PERMISO.number_of_days if worked_days.PERMISO else 0.0
+dias_subsidios = worked_days.SUBSIDIO.number_of_days if worked_days.SUBSIDIO else 0.0
 
-result = contract.wage * (30 - dias_vacaciones - dias_permisos) / 30
+result = contract.wage * (30 - dias_vacaciones - dias_permisos - dias_subsidios) / 30
 ]]></field>
             <field name="is_remunerative" eval="True"/>
             <field name="is_taxable_r5" eval="True"/>
@@ -227,11 +228,55 @@ result = -1 * ausencia_days * daily_wage
         </record>
 
 
+        <!-- SUBSIDIO ESSALUD  Incapacidad Temporal / Maternidad   -->
+            <record id="salary_rule_subsidio" model="hr.salary.rule">
+            <field name="name">SUBSIDIO ESSALUD</field>
+            <field name="code">SUBSIDIO</field>
+            <field name="sequence">7</field>
+            <field name="category_id" ref="zpayroll.pe_cat_extra_no_r5"/>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>       
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = bool(
+    payslip.worked_days_line_ids.filtered(
+        lambda w: w.code == 'SUBSIDIO'
+        and w.number_of_days > 0
+    )
+)
+    ]]></field>
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute"><![CDATA[
+
+# Días subsidiados del periodo
+subsidio_days = sum(
+    payslip.worked_days_line_ids.filtered(
+        lambda w: w.code == 'SUBSIDIO'
+    ).mapped('number_of_days')
+)
+
+# Valor diario
+daily_wage = (contract.wage / 30.0) if contract.wage else 0.0
+
+# Importe del subsidio
+result = subsidio_days * daily_wage
+
+    ]]></field>
+            <field name="is_remunerative" eval="False"/>
+            <field name="is_taxable_r5" eval="False"/>
+            <field name="is_r5_projection_base" eval="False"/>
+            <field name="is_asegurable" eval="False"/>
+            <field name="is_computable" eval="False"/>
+            <field name="is_variable" eval="False"/>
+            <field name="is_non_taxable" eval="True"/>
+        </record>
+
+
         <!-- FALTAS - INASISTENCIAS -->
         <record id="salary_rule_faltas" model="hr.salary.rule">
             <field name="name">INASISTENCIAS</field>
             <field name="code">FALTAS</field>
-            <field name="sequence">7</field>
+            <field name="sequence">8</field>
             <field name="category_id" ref="zpayroll.pe_cat_basic"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>
@@ -264,7 +309,7 @@ result = -1*unattended_days * daily_wage
         <record id="salary_rule_reintegros" model="hr.salary.rule">
             <field name="name">REINTEGROS</field>
             <field name="code">REINTEGROS</field>
-            <field name="sequence">8</field>
+            <field name="sequence">9</field>
             <field name="category_id" ref="zpayroll.pe_cat_rem_variable"/>
             <field name="active" eval="True"/>
             <field name="appears_on_payslip" eval="True"/>

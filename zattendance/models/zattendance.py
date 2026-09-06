@@ -77,6 +77,7 @@ class ZAttendanceDay(models.Model):
             ("vacaciones", "Vacaciones"),
             ("lic_con_goce", "Lic con goce de haber"),
             ("lic_sin_goce", "Lic sin goce de haber"),
+            ('lic_subsidio', 'Licencia Subsidiada'),
             ("confianza", "Confianza (exento control)"),
         ],
         string="Tipo de Asistencia Asignado",

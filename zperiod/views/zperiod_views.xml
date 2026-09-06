@@ -69,6 +69,7 @@
                                 <field name="days_vacations"/>
                                 <field name="days_permissions"/>
                                 <field name="days_leave_permissions"/>
+                                <field name="days_subsidies"/>
                                 <field name="is_locked" groups="hr.group_hr_manager" widget="boolean_toggle"/>
                             </group>
                             

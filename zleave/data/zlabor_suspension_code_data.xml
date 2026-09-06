@@ -125,7 +125,7 @@
             <field name="name">Incapacidad temporal subsidiada</field>
             <field name="code">21</field>
             <field name="description">S.I. INCAPACIDAD TEMPORAL - SUBSIDIADO</field>
-            <field name="type_suspension">imperfecta</field>
+            <field name="type_suspension">subsidio</field>
             <field name="asumido_por">essalud</field>
             <field name="visible_in_permission">1</field>
         </record>
@@ -134,7 +134,7 @@
             <field name="name">Maternidad pre y post natal</field>
             <field name="code">22</field>
             <field name="description">S.I. MATERNIDAD DURANTE EL DESCANSO PRE Y POST NATAL</field>
-            <field name="type_suspension">imperfecta</field>
+            <field name="type_suspension">subsidio</field>
             <field name="asumido_por">essalud</field>
             <field name="visible_in_permission">1</field>
         </record>

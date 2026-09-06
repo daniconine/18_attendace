@@ -91,6 +91,16 @@ class ZPeriod(models.Model):
                 'contract_id': contract.id,
             })
             
+            ##### Regla Licencia Subsidiada
+            self.env['hr.payslip.worked.days'].create({
+                'payslip_id': payslip.id,
+                'name': 'Licencia Subsidiada',
+                'code': 'SUBSIDIO',
+                'number_of_days': period.days_subsidies or 0.0,
+                'number_of_hours': 0.0,
+                'contract_id': contract.id,
+            })
+            
             #####Regla Vacaciones
             self.env['hr.payslip.worked.days'].create({
                 'payslip_id': payslip.id,

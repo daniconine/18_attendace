@@ -118,7 +118,9 @@
                 <field name="suspension_id"
                       string="Código de Suspensión Laboral"
                       domain="[('visible_in_permission','=', True),
-                                ('type_suspension','=', type_permission)]"/>
+                                ('type_suspension','=', type_permission)]"
+                      options="{'no_create': True,'no_create_edit': True}"/>
+                      
               </group>   
               <group>
                 <field name="date_from" widget="daterange" options="{'end_date_field': 'date_to'}"/>

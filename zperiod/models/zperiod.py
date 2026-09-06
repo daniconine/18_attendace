@@ -32,6 +32,7 @@ class ZPeriod(models.Model):
     days_vacations = fields.Float(string='Vacaciones Aprobadas (días)')
     days_permissions = fields.Float(string='Licencia con Goce Aprobadas (días)')
     days_leave_permissions = fields.Float(string='Licencia Sin Goce Aprobadas (días)')
+    days_subsidies = fields.Float(string='Días Subsidiados')
     hrs_25 = fields.Float(string='Horas 25 %')
     hrs_35 = fields.Float(string='Horas 35 %')
     hrs_100 = fields.Float(string='Horas 100 %')
@@ -111,7 +112,27 @@ class ZPeriod(models.Model):
     def _compute_total_hrs_extras(self):
         for record in self:
             record.hrs_total = record.hrs_25 + record.hrs_35 + record.hrs_100 + record.hrs_200
-            
+    
+    
+    #Meotodo para los cruces de permisiso entre peridodos
+    def _get_days_in_period(self, date_from, date_to, period_start, period_end):
+        if not date_from or not date_to:
+            return 0.0
+
+        # Tomamos la fecha más tardía como inicio
+        start = max(date_from, period_start)
+
+        # Tomamos la fecha más temprana como fin
+        end = min(date_to, period_end)
+
+        # No existe cruce
+        if start > end:
+            return 0.0
+
+        # +1 porque contamos inicio y fin
+        return float((end - start).days + 1)
+    
+    ##########main        
     #coorazon del calculo apra el resumen de contorl de asustencia        
     def action_actualizar(self):
         for period in self:
@@ -145,20 +166,26 @@ class ZPeriod(models.Model):
             vacations_approved = self.env['zleave.zvacation'].search([
                 ('employee_id', '=', period.employee_id.id),
                 ('state', '=', 'approved'),
-                ('date_from', '>=', period.date_start),
-                ('date_to', '<=', period.date_end),
+                ('date_from', '<=', period.date_end),
+                ('date_to', '>=', period.date_start),
             ])
-            dias_vacaciones = sum(vacations_approved.mapped('duration_days'))
+            dias_vacaciones = sum(self._get_days_in_period(
+                                permission.date_from,permission.date_to,
+                                period.date_start,period.date_end,) 
+                                for permission in vacations_approved)
             
             # 6. Permisos con goce aprobados
             permissions_approved = self.env['zleave.permission'].search([
                 ('employee_id', '=', period.employee_id.id),
                 ('state', '=', 'approved'),
                 ('type_permission', '=', 'imperfecta'),
-                ('date_from', '>=', period.date_start),
-                ('date_to', '<=', period.date_end),
+                ('date_from', '<=', period.date_end),
+                ('date_to', '>=', period.date_start),
             ])
-            dias_permisos = sum(permissions_approved.mapped('duration_days'))
+            dias_permisos = sum(self._get_days_in_period(
+                                permission.date_from,permission.date_to,
+                                period.date_start,period.date_end,) 
+                                for permission in permissions_approved)
 
 
             # 7. Licencias sin goce / ausencias aprobadas
@@ -166,10 +193,27 @@ class ZPeriod(models.Model):
                 ('employee_id', '=', period.employee_id.id),
                 ('state', '=', 'approved'),
                 ('type_permission', '=', 'perfecta'),
-                ('date_from', '>=', period.date_start),
-                ('date_to', '<=', period.date_end),
+                ('date_from', '<=', period.date_end),
+                ('date_to', '>=', period.date_start),
             ])
-            dias_leave_permissions = sum(permissions_leave_approved.mapped('duration_days'))
+            dias_leave_permissions = sum(self._get_days_in_period(
+                                permission.date_from,permission.date_to,
+                                period.date_start,period.date_end,) 
+                                for permission in permissions_leave_approved)
+            
+            # 7.1. Licencias  subsidios
+            subsidies_approved = self.env['zleave.permission'].search([
+                ('employee_id', '=', period.employee_id.id),
+                ('state', '=', 'approved'),
+                ('type_permission', '=', 'subsidio'),
+                ('date_from', '<=', period.date_end),
+                ('date_to', '>=', period.date_start),
+            ])
+            dias_subsidiados = sum(self._get_days_in_period(
+                                permission.date_from,permission.date_to,
+                                period.date_start,period.date_end,) 
+                                for permission in subsidies_approved)
+            
             
             # 8 Buscamos los registros de horas extras solicitadas para el empleado en el período de fechas
             overtime_records = self.env['zleave.overtime'].search([
@@ -203,6 +247,7 @@ class ZPeriod(models.Model):
                 'days_vacations': dias_vacaciones,
                 'days_permissions': dias_permisos,
                 'days_leave_permissions': dias_leave_permissions,
+                'days_subsidies': dias_subsidiados,
                 'hrs_25': total_hrs_25,
                 'hrs_35': total_hrs_35,
                 'hrs_100': total_hrs_100,
