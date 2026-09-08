@@ -75,8 +75,7 @@ class ZAttendanceDay(models.Model):
                 tipo_asistencia = 'lic_sin_goce'  # Tipo de asistencia 'Licencia Sin Goce'
             elif permiso.type_permission == 'imperfecta':
                 tipo_asistencia = 'lic_con_goce'  # Tipo de asistencia 'Licencia Con Goce'
-            elif permiso.type_permission == 'subsidio':
-                tipo_asistencia = 'lic_subsidio'
+          
             
             else:
                 raise UserError(_("El tipo de licencia '%s' no está configurado.")

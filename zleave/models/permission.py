@@ -49,7 +49,6 @@ class ZleavePermission(models.Model):
     type_permission = fields.Selection(
         [   ('perfecta', 'Licencia Sin Goce (S.P.)/Ausencia'),
             ('imperfecta', 'Licencia Con Goce (S.I)/Permiso'),
-            ('subsidio', 'Licencia Subsidiada por EsSalud'),            
         ],
         string="Tipo de Licencia", required=True, tracking=True, )
     

@@ -179,6 +179,7 @@ class ZPeriod(models.Model):
                 ('employee_id', '=', period.employee_id.id),
                 ('state', '=', 'approved'),
                 ('type_permission', '=', 'imperfecta'),
+                ('suspension_id.code', 'not in', ['21', '22']),
                 ('date_from', '<=', period.date_end),
                 ('date_to', '>=', period.date_start),
             ])
@@ -205,7 +206,8 @@ class ZPeriod(models.Model):
             subsidies_approved = self.env['zleave.permission'].search([
                 ('employee_id', '=', period.employee_id.id),
                 ('state', '=', 'approved'),
-                ('type_permission', '=', 'subsidio'),
+                ('type_permission', '=', 'imperfecta'),
+                ('suspension_id.code', 'in', ['21', '22']),
                 ('date_from', '<=', period.date_end),
                 ('date_to', '>=', period.date_start),
             ])

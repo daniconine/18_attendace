@@ -1622,7 +1622,7 @@ else:
             <field name="condition_select">none</field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute"><![CDATA[
-result = categories.PE_BASIC + categories.PE_ALW + categories.PE_REM_COMP + categories.PE_DED
+result = categories.PE_BASIC + categories.PE_ALW + categories.PE_REM_COMP + categories.PE_DED + categories.PE_EXTRA_NO_R5
 ]]></field>
             <field name="register_id" ref="hr_payroll_community.contribution_register_employees"/>
             <field name="is_remunerative" eval="False"/>
