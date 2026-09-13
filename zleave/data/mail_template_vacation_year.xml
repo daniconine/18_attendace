@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="1">
+    <data>
 
         <record id="email_template_vacation_year_completed" model="mail.template">
             <field name="name">Vacaciones: Periodo anual completado</field>
             <field name="model_id" ref="model_zleave_zvacation_year"/>
-            <field name="subject">Felicitaciones por un año más con nosotros - Periodo vacacional {{ object.display_name }}</field>
-            <field name="email_from">{{ object.company_id.email or user.email_formatted or '' }}</field>
+            <field name="subject">Felicitaciones por un año más con nosotros - Periodo vacacional {{ (object.display_name or '').replace('\n', ' ').replace('\r', ' ').strip() }}</field>
+            <field name="email_from">{{ (object.company_id.email or user.email or '').replace('\n', '').replace('\r', '').strip() }}</field>
             <field name="email_to"></field>
             <field name="email_cc"></field>
             <field name="auto_delete" eval="False"/>

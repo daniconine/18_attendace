@@ -10,8 +10,14 @@
                 <field name="year"/>
                 <field name="accumulated_days" sum="Total Acumulado"/>
                 <field name="consumed_days" sum="Total Consumido"/>
-                <field name="balance_days" sum="Saldo Total"/>
+                <field name="balance_days"
+                   string="Saldo Disponible"
+                   sum="Saldo Total"
+                   decoration-success="balance_state == 'available'"
+                   decoration-warning="balance_state == 'no_balance'"
+                   decoration-danger="balance_state == 'exhausted'"/>
                 <field name="state" widget="badge" decoration-info="state == 'accrual'" decoration-success="state == 'closed'"/>
+                <field name="balance_state"/>
             </list>
         </field>
     </record>
@@ -63,11 +69,13 @@
                             <field name="company_id" readonly="1" groups="base.group_multi_company"/>
                             <field name="employee_id" />                            
                             <field name="start_date"/>
-                            <field name="has_advance" widget="boolean_toggle"/>
-                            <field name="advance_days" invisible="not has_advance"/>
-                            <field name="has_discounts" widget="boolean_toggle"/>
-                            <field name="days_not_work" invisible="not has_discounts"/>
-                            
+                            <separator string="Descuentos de Vacaciones"/>
+                            <field name="discount_vacation_sale"/>
+                            <field name="discount_unpaid_leave"/>
+                            <field name="discount_not_worked"/>
+                            <field name="discount_other"/>
+                            <separator string="Razon del descuento"/>
+                            <field name="discount_note"/>                                                                  
                         </group>
 
                         <group string="Acumulación del Periodo Año">
@@ -90,6 +98,9 @@
                             <separator string="Resumen Acumulación"/>
                             <field name="accumulated_days" readonly="1"/>
                             <field name="consumed_days"/>
+                            <field name="total_discount_days" readonly="1"/>
+                            <hr/>
+                            <field name="balance_state" readonly="1"/>
                             <field name="balance_days" readonly="1"/>
                             
                         </group>

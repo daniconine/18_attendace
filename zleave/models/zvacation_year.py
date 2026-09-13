@@ -5,6 +5,7 @@ from odoo import models, fields, api
 from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
+from odoo.tools.float_utils import float_is_zero
 
 from odoo.exceptions import UserError, ValidationError
 
@@ -30,7 +31,7 @@ class ZVacationYear(models.Model):
     end_date = fields.Date(string='Fecha final Acumulación' )
     accumulated_days = fields.Float(string='Días Acumulados')
     consumed_days = fields.Float(string='Días Consumidos Totales', compute='_compute_consumed', store=True)
-    balance_days = fields.Float(string='Saldo',compute='_compute_balance', store=True)
+    balance_days = fields.Float(string='Saldo Disponible',compute='_compute_balance', store=True)
     
     consumed_days_manual = fields.Float(string='Días Consumidos Manuales')
     
@@ -45,16 +46,27 @@ class ZVacationYear(models.Model):
     state = fields.Selection([
         ('accrual', 'Acumulando'),
         ('closed', 'Cerrado'),
-    ], string="Estado", default="accrual", store=True)
+    ], string="Estado del Periodo", default="accrual", store=True)
     
-    start_date_call = fields.Date(string='Fecha inicio calculo', tracking=True )
-    end_date_call = fields.Date(string='Fecha final calculo', tracking=True )
+    start_date_call = fields.Date(string='Fecha inicio calculo')
+    end_date_call = fields.Date(string='Fecha final calculo')
     
-    has_advance = fields.Boolean(string="¿Habilitar Adelanto?")
-    has_discounts = fields.Boolean(string="¿Habilitar Descuentos?")    
-    advance_days = fields.Float(string='Días de Adelanto Vacaciones', default=0)
-    days_not_work = fields.Float(string="Días No Trabajados", default=0)
-
+    ####Descuentos de dias de vacaciones
+    discount_vacation_sale = fields.Float(string="Venta de Vacaciones",default=0.0,tracking=True)
+    discount_unpaid_leave = fields.Float(string="Licencia sin Goce",default=0.0,tracking=True)
+    discount_not_worked = fields.Float(string="Días No Trabajados", default=0.0,tracking=True)
+    discount_other = fields.Float(string="Otros Descuentos",default=0.0,tracking=True)
+    discount_note = fields.Text(string="Observación de Descuento",tracking=True)
+    
+    total_discount_days = fields.Float(string="Total Días Descontados",
+                                compute="_compute_total_discount_days",store=True)
+    
+    balance_state = fields.Selection([
+            ('available', 'Con saldo'),
+            ('no_balance', 'Sin saldo'),
+            ('exhausted', 'Agotado'),], 
+            string='Disponibilidad',compute='_compute_balance_state', store=True,readonly=True)
+    
     # Selección de jornada (puedes añadirla si no la tienes)
     working_days_per_week = fields.Selection([
         ('5', '5 días a la semana'),
@@ -140,17 +152,64 @@ class ZVacationYear(models.Model):
             sum_allocated = sum(approved_allocations.mapped('days_allocated'))
             # Sumamos lo calculado de Odoo + lo que subiste históricamente
             rec.consumed_days = sum_allocated + rec.consumed_days_manual
+    
+    ####  Check de nuemros postivos a desceuntos y reglas para que no exceda el saldo
+    @api.constrains('discount_vacation_sale','discount_unpaid_leave','discount_not_worked','discount_other')
+    def _check_discount_days(self):
+        for rec in self:
+
+            discounts = [
+                rec.discount_vacation_sale or 0.0,
+                rec.discount_unpaid_leave or 0.0,
+                rec.discount_not_worked or 0.0,
+                rec.discount_other or 0.0,
+            ]
+
+            # No permitir valores negativos
+            if any(value < 0 for value in discounts):
+                raise ValidationError("Los días de descuento no pueden ser negativos.")
+
+            # Máximo 30 días de descuento por periodo
+            total_discounts = sum(discounts)
+
+            if total_discounts > 30:
+                raise ValidationError("El total de días descontados no puede superar "
+                    "los 30 días del periodo vacacional.")
             
-    ## calculo de saldo
-    @api.depends('accumulated_days', 'consumed_days', 'advance_days')
+            # Saldo disponible antes de aplicar descuentos
+            accumulated = rec.accumulated_days or 0.0
+            consumed = rec.consumed_days or 0.0
+            available = max(accumulated - consumed, 0.0)
+
+            # No permitir descuentos mayores al saldo disponible
+            if total_discounts > available:
+                raise ValidationError(
+                    f"No se pueden descontar {total_discounts:.2f} días. "
+                    f"El trabajador solo tiene {available:.2f} días disponibles.")
+    
+    ########## Suma de desceuntos de dias
+    @api.depends('discount_vacation_sale','discount_unpaid_leave','discount_not_worked','discount_other')
+    def _compute_total_discount_days(self):
+        for rec in self:
+            rec.total_discount_days = (
+                (rec.discount_vacation_sale or 0.0)
+                + (rec.discount_unpaid_leave or 0.0)
+                + (rec.discount_not_worked or 0.0)
+                + (rec.discount_other or 0.0)
+            )
+      
+    ## Cálculo de saldo
+    @api.depends('accumulated_days','consumed_days','total_discount_days')
     def _compute_balance(self):
         for rec in self:
-            # Usamos una lógica de suma segura
             accumulated = rec.accumulated_days or 0.0
-            advance = rec.advance_days or 0.0
             consumed = rec.consumed_days or 0.0
-            
-            rec.balance_days = (accumulated + advance) - consumed
+            discounts = rec.total_discount_days or 0.0
+
+            balance = accumulated - consumed - discounts
+
+            # El saldo nunca puede ser menor a cero
+            rec.balance_days = max(balance, 0.0)
     
     ###Metodo de Creacion del regsitro        
     @api.model_create_multi
@@ -199,28 +258,20 @@ class ZVacationYear(models.Model):
             if days_total < 0:
                 # Si ya se calculó hasta hoy o el periodo terminó, no hacemos nada
                 continue
+           
 
-            # Aplicar descuento de días no trabajados cargados en este tramo
-            effective_days = days_total - rec.days_not_work
+            # Cálculo de vacaciones acumuladas
+            added_days = round(days_total * RATE, 4)
 
-            if effective_days < 0:
-                effective_days = 0
+            new_accumulated = (
+                (rec.accumulated_days or 0.0)
+                + added_days)
 
-            # Cálculo y suma incremental
-            added_days = round(effective_days * RATE, 4)
-            
-            #insercion de correccion para que acumulacion no pase de 30
-            new_accumulated = (rec.accumulated_days or 0.0) + added_days
-            # Tope máximo legal/funcional del ciclo anual
-            rec.accumulated_days = min(new_accumulated, 30.0)
-            #rec.accumulated_days += added_days
+            # Máximo 30 días por periodo
+            rec.accumulated_days = min(new_accumulated,30.0)
 
-            # El puntero se mueve al final del tramo actual
-            rec.start_date_call = end            
-            not_worked = rec.days_not_work            
-            rec.days_not_work = 0 #permite no descontar siempre en cada actualziaicon
-            # Nota: rec.days_not_work NO se resetea por tu requerimiento. 
-            # El usuario debe manejarlo antes del próximo clic.
+            # Mover el puntero hasta la fecha calculada
+            rec.start_date_call = end
 
             # Solo escribir en el Chatter si se solicita (ej. clic manual)
             if with_message:
@@ -229,13 +280,25 @@ class ZVacationYear(models.Model):
                         f"**Actualización Manual:**...."
                         f"Tramo: {start} al {end}...."
                         f"Días naturales: {days_total}...."
-                        f"Días no trabajados: {not_worked}...."
                         f"Días añadidos: {added_days}"
                         f"Días acumulados actuales: {rec.accumulated_days}"
                     )
                 )
     
-    
+    ###### Calculo de disponiblidad de salod
+    @api.depends('balance_days', 'state')
+    def _compute_balance_state(self):
+        for rec in self:
+            balance = rec.balance_days or 0.0
+
+            if float_is_zero(balance, precision_digits=2):
+                if rec.state == 'closed':
+                    rec.balance_state = 'exhausted'
+                else:
+                    rec.balance_state = 'no_balance'
+            else:
+                rec.balance_state = 'available'
+            
     # Boton Actualizar
     def action_update_accrual(self):
         # Al pasar True, se genera el mensaje en el Chatter
@@ -245,8 +308,8 @@ class ZVacationYear(models.Model):
     # Boton Cerrar
     def action_close_accrual(self):
         for rec in self:
-            # Aseguramos el último cálculo antes de morir
-            rec._compute_accrual()
+            # Aseguramos el último cálculo antes de morir con mensaje solo d emanipualcion manual
+            rec._compute_accrual(with_message=False)
             rec.state = "closed"
             # No sobreescribimos end_date si ya tenía una, para no romper el historial
             if not rec.end_date:
@@ -310,9 +373,7 @@ class ZVacationYear(models.Model):
             employee_email = (
                 rec.employee_email
                 or rec.employee_id.work_email
-                or rec.employee_id.private_email
-                or ""
-            )
+                or rec.employee_id.private_email or "")
 
             manager_email = rec.manager_email or ""
 
@@ -338,11 +399,26 @@ class ZVacationYear(models.Model):
                     body="No se pudo enviar el correo de aniversario vacacional porque el empleado no tiene correo registrado."
                 )
                 continue
+            
+            # Limpiar correo remitente
+            company_email = (
+                rec.company_id.email
+                or self.env.user.email
+                or ""
+            )
+
+            company_email = (
+                company_email
+                .replace("\n", "")
+                .replace("\r", "")
+                .strip()
+            )
 
             template.send_mail(
                 rec.id,
                 force_send=True,
                 email_values={
+                    "email_from": company_email,
                     "email_to": employee_email,
                     "email_cc": ",".join(cc_emails),
                     "auto_delete": False,
