@@ -65,5 +65,20 @@ action = {
             ]]></field>
         </record>
 
+
+        <!-- Sobrescribe el menú principal de Time Off -->
+        <record id="hr_holidays.menu_hr_holidays_root" model="ir.ui.menu">
+            <!-- Reemplaza los grupos actuales por el grupo de Modo Técnico (group_no_one) -->
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_no_one')])]"/>
+        </record>
+        <!-- 2. Ocultar menú de Dashboards (Tableros) -->
+        <record id="spreadsheet_dashboard.spreadsheet_dashboard_menu_root" model="ir.ui.menu">
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_no_one')])]"/>
+        </record>
+        <!-- 3. Ocultar Attendances (Asistencias) -->
+        <record id="hr_attendance.menu_hr_attendance_root" model="ir.ui.menu">
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_no_one')])]"/>
+        </record>
+
     </data>
 </odoo>

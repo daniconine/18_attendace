@@ -308,6 +308,7 @@
             Crea una solicitud de vacaciones y envíala para aprobación.
             </p>
       </field>
-    </record>
+    </record>  
+    
 
 </odoo>
