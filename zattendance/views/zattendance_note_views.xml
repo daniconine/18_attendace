@@ -104,6 +104,33 @@
         </field>
     </record>
 
+
+    <record id="view_zattendance_note_search" model="ir.ui.view">
+        <field name="name">zattendance.note.search</field>
+        <field name="model">zattendance.note</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Incidencias">
+
+                <field name="employee_id"/>
+                <field name="attendance_date"/>
+                <field name="category"/>
+                <field name="reason"/>
+                <field name="state"/>
+
+                <group expand="0" string="Agrupar por">
+
+                    <filter
+                        name="group_attendance_month"
+                        string="Fecha de Asistencia: Mes"
+                        context="{'group_by': 'attendance_date:month'}"
+                    />
+
+                </group>
+
+            </search>
+        </field>
+    </record>
+
     <!-- =========================
         ACCIÓN: Mis notas
         ========================= -->
@@ -112,6 +139,9 @@
         <field name="res_model">zattendance.note</field>
         <field name="view_mode">list,form,pivot</field>
         <field name="domain">[('zattendance_day_id.employee_id.user_id', '=', uid)]</field>
+        <field name="context">
+            {'search_default_group_attendance_month': 1}
+        </field>
 
         <field name="views" eval="[
             (ref('view_zattendance_note_list'), 'list'),

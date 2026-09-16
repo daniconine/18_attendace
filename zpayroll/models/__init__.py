@@ -9,3 +9,4 @@ from . import hr_payslip
 from . import zpayroll_closing
 from . import hr_salary_rule
 from . import zpayroll_parameters
+from . import hr_payslip_run

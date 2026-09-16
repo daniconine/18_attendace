@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <!-- =========================================================
+         EXTENSIÓN FORMULARIO - PROCESAMIENTOS DE NÓMINA
+         ========================================================= -->
+
+    <record id="hr_payslip_run_view_form_cts" model="ir.ui.view">
+
+        <field name="name">hr.payslip.run.view.form.cts</field>
+        <field name="model">hr.payslip.run</field>
+
+        <field name="inherit_id"
+               ref="hr_payroll_community.hr_payslip_run_view_form"/>
+
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group" position="after">
+                <group string="Configuración de Planilla">
+                    <group>
+                        <field name="payroll_type"
+                               readonly="state != 'draft'"/>
+                        <field name="company_id"
+                               readonly="state != 'draft'"/>
+                        <field name="struct_id"
+                               readonly="state != 'draft'"
+                               options="{'no_create': True}"/>
+                    </group>
+
+                    <group>
+                        <field name="payroll_year"
+                               readonly="state != 'draft'"/>
+                        <field name="cts_month"
+                               readonly="state != 'draft'"
+                               invisible="payroll_type != 'cts'"/>
+                    </group>
+
+                </group>
+
+
+                <group string="Período Computable CTS"
+                       invisible="payroll_type != 'cts'">
+
+                    <group>
+
+                        <field name="computable_date_from"
+                               readonly="state != 'draft'"/>
+
+                    </group>
+
+                    <group>
+
+                        <field name="computable_date_to"
+                               readonly="state != 'draft'"/>
+
+                    </group>
+
+                </group>
+
+            </xpath>
+
+            <!-- Ocultar el generador estándar cuando el lote sea CTS -->
+            <xpath expr="//header/button[@type='action']" position="attributes">
+                <attribute name="invisible">
+                    state != 'draft' or payroll_type == 'cts'
+                </attribute>
+            </xpath>
+
+            <!-- Botón personalizado para CTS -->
+            <xpath expr="//header/button[@type='action']"
+                position="after">
+
+                <button
+                    name="action_generate_cts"
+                    type="object"
+                    string="Generar CTS"
+                    class="oe_highlight"
+                    invisible="state != 'draft' or payroll_type != 'cts'"
+                    confirm="¿Desea generar masivamente las boletas CTS para los trabajadores con contrato activo?"
+                />
+
+            </xpath>
+
+        </field>
+
+    </record>
+
+</odoo>

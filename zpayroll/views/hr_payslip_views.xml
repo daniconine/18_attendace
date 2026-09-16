@@ -66,7 +66,9 @@
 
     <!-- Agrupa por mes las nominas -->
     <record id="hr_payroll_community.hr_payslip_action" model="ir.actions.act_window">
-        <field name="context">{'search_default_group_by_payroll_month': 1}</field>
+        <field name="context">{'search_default_group_by_payroll_month': 1,
+                             'search_default_hide_special_payrolls': 1}</field>
+        
     </record>
 
     <!-- Agrupa por mes las nominas en la vista search-->
@@ -79,6 +81,14 @@
                 <filter string="Mes"
                         name="group_by_payroll_month"
                         context="{'group_by':'payroll_month'}"/>
+            </xpath>
+
+            <xpath expr="//search" position="inside">
+
+                <filter name="hide_special_payrolls"
+                        string="Ocultar CTS, Gratificación y Liquidación"
+                        domain="[('payroll_type', '=', 'nomina')]"/>
+
             </xpath>
         </field>
     </record>

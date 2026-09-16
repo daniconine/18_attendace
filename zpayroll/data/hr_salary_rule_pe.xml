@@ -1773,20 +1773,72 @@ if employee and contract and year:
 
     if grati_slip:
         grati_lines = grati_slip.line_ids.filtered(
-            lambda l: l.code == 'GRATI_DICIEMBRE'
-            or l.salary_rule_id.code == 'GRATI_DICIEMBRE'
+            lambda l:
+                l.code == 'GRATI_DICIEMBRE'
+                or l.salary_rule_id.code == 'GRATI_DICIEMBRE'
         )
         gratificacion = sum(grati_lines.mapped('total'))
 
-    sexto_gratificacion = gratificacion / 6.0 if gratificacion else 0.0
+    sexto_gratificacion = (
+        gratificacion / 6.0
+        if gratificacion
+        else 0.0
+    )
 
     # 3. Remuneración computable CTS
-    remuneracion_cts = base_remuneracion + sexto_gratificacion
+    remuneracion_cts = (
+        base_remuneracion
+        + sexto_gratificacion
+    )
 
-    # 4. CTS regular: semestre completo
-    meses_computables = 6.0
+    # 4. Buscar meses computables del período CTS de MAYO
+    meses_computables = 0.0
 
-    result = remuneracion_cts * meses_computables / 12.0
+    # Noviembre y diciembre del año anterior
+    nominas_anterior = payslip.env['hr.payslip'].search([
+        ('employee_id', '=', employee.id),
+        ('payroll_type', '=', 'nomina'),
+        ('payroll_year', '=', str(year - 1)),
+        ('payroll_month_number', 'in', [11, 12]),
+        ('state', '!=', 'cancel'),
+    ])
+
+    meses_anterior = []
+
+    for nomina in nominas_anterior:
+        mes = nomina.payroll_month_number
+
+        if mes not in meses_anterior:
+            meses_anterior.append(mes)
+
+    # Enero a abril del año actual
+    nominas_actual = payslip.env['hr.payslip'].search([
+        ('employee_id', '=', employee.id),
+        ('payroll_type', '=', 'nomina'),
+        ('payroll_year', '=', str(year)),
+        ('payroll_month_number', 'in', [1, 2, 3, 4]),
+        ('state', '!=', 'cancel'),
+    ])
+
+    meses_actual = []
+
+    for nomina in nominas_actual:
+        mes = nomina.payroll_month_number
+
+        if mes not in meses_actual:
+            meses_actual.append(mes)
+
+    meses_computables = (
+        len(meses_anterior)
+        + len(meses_actual)
+    )
+
+    # 5. CTS MAYO
+    result = (
+        remuneracion_cts
+        * meses_computables
+        / 12.0
+    )    
     ]]></field>
 
             <field name="is_remunerative" eval="False"/>
@@ -1839,20 +1891,48 @@ if employee and contract and year:
 
     if grati_slip:
         grati_lines = grati_slip.line_ids.filtered(
-            lambda l: l.code == 'GRATI_JULIO'
-            or l.salary_rule_id.code == 'GRATI_JULIO'
+            lambda l:
+                l.code == 'GRATI_JULIO'
+                or l.salary_rule_id.code == 'GRATI_JULIO'
         )
+
         gratificacion = sum(grati_lines.mapped('total'))
 
-    sexto_gratificacion = gratificacion / 6.0 if gratificacion else 0.0
+    sexto_gratificacion = (
+        gratificacion / 6.0
+        if gratificacion
+        else 0.0
+    )
 
     # 3. Remuneración computable CTS
-    remuneracion_cts = base_remuneracion + sexto_gratificacion
+    remuneracion_cts = (
+        base_remuneracion
+        + sexto_gratificacion
+    )
 
-    # 4. CTS regular: semestre completo
-    meses_computables = 6.0
+    # 4. Buscar meses computables:
+    # mayo, junio, julio, agosto, setiembre y octubre
+    meses_computables = 0.0
 
-    result = remuneracion_cts * meses_computables / 12.0
+    for mes in [5, 6, 7, 8, 9, 10]:
+
+        nomina = payslip.env['hr.payslip'].search([
+            ('employee_id', '=', employee.id),
+            ('payroll_type', '=', 'nomina'),
+            ('payroll_year', '=', str(year)),
+            ('payroll_month_number', '=', mes),
+            ('state', '!=', 'cancel'),
+        ], limit=1)
+
+        if nomina:
+            meses_computables += 1.0
+
+    # 5. CTS NOVIEMBRE
+    result = (
+        remuneracion_cts
+        * meses_computables
+        / 12.0
+    )
     ]]></field>
 
             <field name="is_remunerative" eval="False"/>
