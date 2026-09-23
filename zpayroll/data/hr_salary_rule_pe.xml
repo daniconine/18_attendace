@@ -22,8 +22,11 @@ result = not salario_proporcional
 dias_vacaciones = worked_days.VAC.number_of_days if worked_days.VAC else 0.0
 dias_permisos = worked_days.PERMISO.number_of_days if worked_days.PERMISO else 0.0
 dias_subsidios = worked_days.SUBSIDIO.number_of_days if worked_days.SUBSIDIO else 0.0
+dias_ausencias = worked_days.AUSENCIA.number_of_days if worked_days.AUSENCIA else 0.0
 
-result = contract.wage * (30 - dias_vacaciones - dias_permisos - dias_subsidios) / 30
+dias_pagables = max(0.0, 30 - dias_vacaciones - dias_permisos - dias_subsidios - dias_ausencias)
+
+result = contract.wage * dias_pagables / 30
 ]]></field>
             <field name="is_remunerative" eval="True"/>
             <field name="is_taxable_r5" eval="True"/>
@@ -155,9 +158,9 @@ result = vacation_days * daily_computable
             <field name="is_non_taxable" eval="False"/>
         </record>
 
-        <!-- PERMISO - AUSENCIAS/PERMISOS -->
+        <!-- PERMISO - Licencia con Goce/PERMISOS -->
         <record id="salary_rule_permiso" model="hr.salary.rule">
-            <field name="name">AUSENCIAS/PERMISOS</field>
+            <field name="name">Lic. CON GOCE /PERMISOS</field>
             <field name="code">PERMISO</field>
             <field name="sequence">5</field>
             <field name="category_id" ref="zpayroll.pe_cat_basic"/>
@@ -189,7 +192,7 @@ result = permiso_days * daily_wage
 
         <!-- AUSENCIA - LICENCIA SIN GOCE -->
         <record id="salary_rule_ausencia" model="hr.salary.rule">
-            <field name="name">LICENCIA SIN GOCE / AUSENCIA</field>
+            <field name="name">Lic. SIN GOCE / AUSENCIA</field>
             <field name="code">AUSENCIA</field>
             <field name="sequence">6</field>
             <field name="category_id" ref="zpayroll.pe_cat_basic"/>
@@ -204,18 +207,16 @@ result = payslip.worked_days_line_ids.filtered(lambda w: w.code == 'AUSENCIA' an
     <field name="amount_select">code</field>
     <field name="amount_python_compute"><![CDATA[
 ##########################################################
-# Obtenemos los días de licencia sin goce desde las líneas de trabajo del payslip
+# Días de licencia sin goce
 ausencia_days = sum(
     payslip.worked_days_line_ids.filtered(
         lambda w: w.code == 'AUSENCIA'
     ).mapped('number_of_days')
 )
 
-# Sueldo diario
-daily_wage = contract.wage / 30
-
-# Licencia sin goce descuenta remuneración
-result = -1 * ausencia_days * daily_wage
+# La licencia sin goce ya fue descontada dentro de BASIC.
+# Esta regla se conserva solo como referencia/información.
+result = 0.0
 ]]></field>
 
             <field name="is_remunerative" eval="True"/>

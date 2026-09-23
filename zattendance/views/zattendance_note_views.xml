@@ -8,7 +8,7 @@
         <field name="model">zattendance.note</field>
         <field name="arch" type="xml">
             <list string="Mis Incidencias">
-                <field name="create_date"/>
+                <field name="attendance_date"/>
                 <field name="zattendance_day_id"/>
                 <field name="category"/>
                 <field name="n_horas"/>

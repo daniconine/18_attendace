@@ -6,7 +6,7 @@ class ZAttendanceNote(models.Model):
     _name = "zattendance.note"
     _description = "Justificaciones e Incidencias"
     _inherit = ["mail.thread", "mail.activity.mixin","hr.lock.mixin"]
-    _order = "create_date desc"
+    _order = "attendance_date desc, create_date desc, id desc"
 
     zattendance_day_id = fields.Many2one("zattendance.day",string="Asistencia", required=True, 
                                          ondelete="cascade",index=True,)
